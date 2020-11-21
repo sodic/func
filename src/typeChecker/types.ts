@@ -4,7 +4,8 @@ import { substituteInType } from './substitution';
 // τ ::= α | ι | τ → τ
 export type Type = TLiteral
 	| TVariable
-	| TFunction;
+	| TFunction
+    | TArray;
 
 
 // α (type variable)
@@ -20,15 +21,24 @@ export interface TFunction {
 	output: Type;
 }
 
+export interface TArray {
+   kind: 'array';
+   boxed: Type;
+}
+
 // ι (literal)
-export type TLiteral = TBoolean | TInt;
+export type TLiteral = TBoolean | TBigint | TNumber;
 
 export interface TBoolean {
 	kind: 'boolean';
 }
 
-export interface TInt {
-	kind: 'int';
+export interface TBigint {
+	kind: 'bigint';
+}
+
+export interface TNumber {
+    kind: 'number';
 }
 
 export interface Scheme {
@@ -38,12 +48,16 @@ export interface Scheme {
 
 export type Context = { [name: string]: Scheme };
 
-export const INT_TYPE: TInt = {
-    kind: 'int',
+export const BIGINT_TYPE: TBigint = {
+    kind: 'bigint',
 };
 
 export const BOOL_TYPE: TBoolean = {
     kind: 'boolean',
+};
+
+export const NUMBER_TYPE: TNumber = {
+    kind: 'number',
 };
 
 export function functionType(input: Type, output: Type): TFunction {
@@ -51,6 +65,13 @@ export function functionType(input: Type, output: Type): TFunction {
         input,
         output,
         kind: 'function',
+    };
+}
+
+export function arrayType(type: Type): TArray {
+    return {
+        kind: 'array',
+        boxed: type,
     };
 }
 
@@ -88,14 +109,18 @@ export function generalize(context: Context, type: Type): Scheme {
 
 export function show(type: Type): string {
     switch (type.kind) {
-    case 'int':
-        return 'Int';
+    case 'number':
+        return 'Number';
     case 'boolean':
         return 'Boolean';
+    case 'bigint':
+        return 'Bigint';
     case 'function':
         return `${show(type.input)} -> ${show(type.output)}`;
     case 'variable':
         return type.name;
+    case 'array':
+        return `${show(type.boxed)}[]`;
     default:
         assertUnreachable(type);
     }

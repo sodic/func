@@ -1,4 +1,4 @@
-import { Context, functionType, Scheme, Type } from './types';
+import { arrayType, Context, functionType, Scheme, Type } from './types';
 import { assertUnreachable, mapObjectValues } from './primitives';
 
 export type Substitution = { [variableName: string]: Type };
@@ -12,10 +12,14 @@ export function substituteInType(sub: Substitution, type: Type): Type {
         );
     case 'variable':
         return sub[type.name] ?? type;
+    case 'number':
+        return type;
     case 'boolean':
         return type;
-    case 'int':
+    case 'bigint':
         return type;
+    case 'array':
+        return arrayType(substituteInType(sub, type.boxed));
     default:
         assertUnreachable(type);
     }

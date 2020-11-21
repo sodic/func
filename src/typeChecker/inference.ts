@@ -3,12 +3,12 @@ import {
     BOOL_TYPE,
     Context,
     functionType, instantiate,
-    INT_TYPE,
+    BIGINT_TYPE,
     TFunction,
     TLiteral,
     TVariable,
     Type,
-    unboundScheme,
+    unboundScheme, NUMBER_TYPE,
 } from './types';
 import { composeSubstitutions, substituteInContext, substituteInType } from './substitution';
 import { unify } from './unification';
@@ -35,10 +35,12 @@ export function getInferer(uniqueTypeVar: () => TVariable): Inferer {
 
     function inferLiteral(context: Context, literal: Literal): TypeInfo<TLiteral> {
         switch (literal.value.kind) {
-        case 'int':
-            return { substitution: {}, type: INT_TYPE };
+        case 'number':
+            return { substitution: {}, type: NUMBER_TYPE };
         case 'boolean':
             return { substitution: {}, type: BOOL_TYPE };
+        case 'bigint':
+            return { substitution: {}, type: BIGINT_TYPE };
         default:
             assertUnreachable(literal.value);
         }

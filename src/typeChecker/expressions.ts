@@ -1,11 +1,16 @@
-export interface IntLiteral {
-	kind: 'int';
-	value: number;
+export interface BigintLiteral {
+	kind: 'bigint';
+	value: bigint;
 }
 
 export interface BooleanLiteral {
 	kind: 'boolean';
 	value: boolean;
+}
+
+export interface NumberLiteral {
+	kind: 'number';
+	value: number;
 }
 
 export interface Application {
@@ -34,7 +39,7 @@ export interface Let {
 
 export interface Literal {
 	kind: 'literal';
-	value: IntLiteral | BooleanLiteral;
+	value: BooleanLiteral | BigintLiteral | NumberLiteral;
 }
 
 export type Expression = Literal

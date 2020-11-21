@@ -1,7 +1,16 @@
 import assert from 'assert';
 import { Application, Expression, Lambda, Let } from '../../src/typeChecker/expressions';
 import { getInferer, Inferer } from '../../src/typeChecker/inference';
-import { BOOL_TYPE, Context, functionType, INT_TYPE, typeVar, typeVarGenerator, unboundScheme } from '../../src/typeChecker/types';
+import {
+    BOOL_TYPE,
+    Context,
+    functionType,
+    BIGINT_TYPE,
+    typeVar,
+    typeVarGenerator,
+    unboundScheme,
+    NUMBER_TYPE,
+} from '../../src/typeChecker/types';
 
 // \x -> x
 const ID_FUNCTION: Lambda = {
@@ -19,12 +28,19 @@ describe('inference', function () {
         beforeEach(function () {
             infer = getInferer(typeVarGenerator());
         });
-        it('should correctly infer the type of a literal int expression', function () {
-            const expr: Expression = { kind: 'literal', value: { kind: 'int', value: 4 } };
+        it('should correctly infer the type of a literal bigint expression', function () {
+            const expr: Expression = { kind: 'literal', value: { kind: 'bigint', value: 4n } };
             const context = {};
             const { substitution, type } = infer(context, expr);
             assert.deepStrictEqual(substitution, {});
-            assert.deepStrictEqual(type, { kind: 'int' });
+            assert.deepStrictEqual(type, { kind: 'bigint' });
+        });
+        it('should correctly infer the type of a literal number expression', function () {
+            const expr: Expression = { kind: 'literal', value: { kind: 'number', value: 4 } };
+            const context = {};
+            const { substitution, type } = infer(context, expr);
+            assert.deepStrictEqual(substitution, {});
+            assert.deepStrictEqual(type, { kind: 'number' });
         });
         it('should correctly infer the type of a literal boolean expression', function () {
             const expr: Expression = { kind: 'literal', value: { kind: 'boolean', value: true } };
@@ -42,22 +58,13 @@ describe('inference', function () {
                 body: {
                     kind: 'literal',
                     value: {
-                        kind: 'int',
+                        kind: 'number',
                         value: 6,
                     },
                 },
             };
             const { type } = infer({}, expr);
-            const expected = {
-                kind: 'function',
-                input: {
-                    kind: 'variable',
-                    name: 't0',
-                },
-                output: {
-                    kind: 'int',
-                },
-            };
+            const expected = functionType(typeVar('t0'), NUMBER_TYPE);
             assert.deepStrictEqual(type, expected);
         });
         it('should correctly infer the type of a simple application given the correct context', function () {
@@ -71,13 +78,13 @@ describe('inference', function () {
                 argument: {
                     kind: 'literal',
                     value: {
-                        kind: 'int',
+                        kind: 'number',
                         value: 1,
                     },
                 },
             };
             const context: Context = {
-                x: unboundScheme(functionType(INT_TYPE, BOOL_TYPE)),
+                x: unboundScheme(functionType(NUMBER_TYPE, BOOL_TYPE)),
             };
             const { type } = infer(context, expr);
             assert.deepStrictEqual(type, BOOL_TYPE);
@@ -156,14 +163,14 @@ describe('inference', function () {
                     argument: {
                         kind: 'literal',
                         value: {
-                            kind: 'int',
-                            value: 6,
+                            kind: 'bigint',
+                            value: 6n,
                         },
                     },
                 },
             };
             const { type } = infer({}, letExpr);
-            assert.deepStrictEqual(type, INT_TYPE);
+            assert.deepStrictEqual(type, BIGINT_TYPE);
         });
         it('should fail when let would normally generalize', function () {
             // todo

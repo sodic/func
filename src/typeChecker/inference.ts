@@ -108,6 +108,6 @@ export function getInferer(uniqueTypeVar: () => TVariable): Inferer {
 export type Inferer = (ctx: Context, expr: Expression) => TypeInfo;
 
 interface TypeInfo<ExpressionType = Type> {
-	type: ExpressionType;
-	substitution: { [variableName: string]: Type };
+    type: ExpressionType;
+    substitution: { [variableName: string]: Type };
 }

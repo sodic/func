@@ -3,22 +3,22 @@ import { substituteInType } from './substitution';
 
 // τ ::= α | ι | τ → τ
 export type Type = TLiteral
-	| TVariable
-	| TFunction
+    | TVariable
+    | TFunction
     | TArray;
 
 
 // α (type variable)
 export interface TVariable {
-	kind: 'variable';
-	name: string;
+    kind: 'variable';
+    name: string;
 }
 
 // τ → τ (function type)
 export interface TFunction {
-	kind: 'function';
-	input: Type;
-	output: Type;
+    kind: 'function';
+    input: Type;
+    output: Type;
 }
 
 export interface TArray {
@@ -30,11 +30,11 @@ export interface TArray {
 export type TLiteral = TBoolean | TBigint | TNumber;
 
 export interface TBoolean {
-	kind: 'boolean';
+    kind: 'boolean';
 }
 
 export interface TBigint {
-	kind: 'bigint';
+    kind: 'bigint';
 }
 
 export interface TNumber {
@@ -42,8 +42,8 @@ export interface TNumber {
 }
 
 export interface Scheme {
-	bound: Set<string>;
-	type: Type;
+    bound: Set<string>;
+    type: Type;
 }
 
 export type Context = { [name: string]: Scheme };

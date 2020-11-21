@@ -1,0 +1,26 @@
+{
+  "name": "inference",
+  "version": "1.0.0",
+  "description": "Type inference engine",
+  "main": "dist/main.js",
+  "scripts": {
+    "build": "node_modules/typescript/bin/tsc",
+    "start": "npm run build && node dist/main.js",
+    "test": "mocha test/**/*.spec.ts -r ts-node/register"
+  },
+  "author": "sodic",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/mocha": "^8.0.4",
+    "@types/node": "^14.14.8",
+    "@typescript-eslint/eslint-plugin": "^4.7.0",
+    "eslint": "^7.13.0",
+    "esm": "^3.2.25",
+    "mocha": "^8.2.1",
+    "ts-node": "^9.0.0",
+    "typescript": "^4.0.5"
+  },
+  "dependencies": {
+    "@typescript-eslint/parser": "^4.7.0"
+  }
+}

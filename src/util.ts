@@ -11,7 +11,6 @@ export function union<T>(s1: Set<T>, s2: Set<T>): Set<T> {
 
 export function difference<T>(s1: Set<T>, s2: Set<T>): Set<T> {
     return new Set([...s1].filter(el => !s2.has(el)));
-
 }
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars

@@ -12,7 +12,7 @@ import {
 } from './types';
 import { composeSubstitutions, substituteInContext, substituteInType } from './substitution';
 import { unify } from './unification';
-import { assertUnreachable } from './primitives';
+import { assertUnreachable } from '../util';
 
 /**
  * Returns a Hindley-Milner type inference engine. The inference is done using

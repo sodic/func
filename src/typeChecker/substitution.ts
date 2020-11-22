@@ -1,5 +1,5 @@
 import { arrayType, Context, functionType, Scheme, Type } from './types';
-import { assertUnreachable, mapObjectValues } from './primitives';
+import { assertUnreachable, mapObjectValues } from '../util';
 
 export type Substitution = { [variableName: string]: Type };
 

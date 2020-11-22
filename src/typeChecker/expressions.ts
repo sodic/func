@@ -1,3 +1,15 @@
+export type Expression = Literal
+    | Variable
+    | Application
+    | Lambda
+    | Let
+    | Conditional;
+
+export interface Literal {
+    kind: 'literal';
+    value: BooleanLiteral | BigintLiteral | NumberLiteral;
+}
+
 export interface BigintLiteral {
     kind: 'bigint';
     value: bigint;
@@ -45,18 +57,6 @@ export interface Conditional {
     thenBranch: Expression;
     elseBranch: Expression;
 }
-
-export interface Literal {
-    kind: 'literal';
-    value: BooleanLiteral | BigintLiteral | NumberLiteral;
-}
-
-export type Expression = Literal
-    | Variable
-    | Application
-    | Lambda
-    | Let
-    | Conditional;
 
 export function makeLambdaExpression(head: string, body: Expression): Lambda {
     return {

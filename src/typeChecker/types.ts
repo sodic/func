@@ -1,4 +1,4 @@
-import { assertUnreachable, difference, union } from './primitives';
+import { assertUnreachable, difference, union } from '../util';
 import { substituteInType } from './substitution';
 
 // τ ::= α | ι | τ → τ

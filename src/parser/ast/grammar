@@ -1,0 +1,33 @@
+{x} - a terminating token, returned by the tokenizer
+
+<Module> ::=
+    | <Definition> <Separator> <Module>
+    | <Definition>
+
+<Definition> ::=
+    | <Assignment>
+    | <FunctionDefinition>
+
+<Assignment> ::=
+    | <Variable> {equals} <Expression>
+
+<FunctionDefinition> ::=
+    | {func} <Variable> {left_paren} <Params> {right_paren} {equals} <Expression>
+
+<Params> ::=
+    | <Variable>
+    | <Variable> {comma} <Params>
+
+<Expression> ::=
+    | <Literal>
+    | <Variable>
+    | <FunctionExpression>
+    | <IfExpression>
+
+<IfExpression> ::=
+    | {if} <Expression> {then} <Expression> {else} <Expression>
+
+<Separator> ::=
+    | <Separator> {newline}
+    | {newline}
+

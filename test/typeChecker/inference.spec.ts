@@ -1,5 +1,5 @@
 import assert from 'assert';
-import { Application, Expression, Lambda, Let } from '../../src/typeChecker/expressions';
+import { Application, Conditional, Expression, Lambda, Let } from '../../src/typeChecker/expressions';
 import { getInferer, Inferer } from '../../src/typeChecker/inference';
 import {
     BOOL_TYPE,
@@ -11,16 +11,7 @@ import {
     unboundScheme,
     NUMBER_TYPE,
 } from '../../src/typeChecker/types';
-
-// \x -> x
-const ID_FUNCTION: Lambda = {
-    kind: 'lambda',
-    head: 'x',
-    body: {
-        kind: 'variable',
-        name: 'x',
-    },
-};
+import { UnificationError } from '../../src/typeChecker/unification';
 
 describe('inference', function () {
     describe('#infer', function () {
@@ -172,8 +163,88 @@ describe('inference', function () {
             const { type } = infer({}, letExpr);
             assert.deepStrictEqual(type, BIGINT_TYPE);
         });
+        it('should correctly infer the type of a well-typed conditional with variables from context', function () {
+            const conditional: Conditional = {
+                kind: 'conditional',
+                condition: {
+                    kind: 'variable',
+                    name: 'a',
+                },
+                thenBranch: {
+                    kind: 'variable',
+                    name: 'b',
+                },
+                elseBranch: {
+                    kind: 'variable',
+                    name: 'c',
+                },
+            };
+            const context = {
+                a: unboundScheme(BOOL_TYPE),
+                b: unboundScheme(NUMBER_TYPE),
+                c: unboundScheme(NUMBER_TYPE),
+            };
+            assert.deepStrictEqual(infer(context, conditional).type, NUMBER_TYPE);
+        });
+        it('should correctly detect a unification error on the branches', function () {
+            const conditional: Conditional = {
+                kind: 'conditional',
+                condition: {
+                    kind: 'variable',
+                    name: 'a',
+                },
+                thenBranch: {
+                    kind: 'variable',
+                    name: 'b',
+                },
+                elseBranch: {
+                    kind: 'variable',
+                    name: 'c',
+                },
+            };
+            const context = {
+                a: unboundScheme(BOOL_TYPE),
+                b: unboundScheme(NUMBER_TYPE),
+                c: unboundScheme(BOOL_TYPE),
+            };
+            assert.throws(() => infer(context, conditional), UnificationError);
+        });
+        it('should correctly detect an invalid condition expression', function () {
+            const conditional: Conditional = {
+                kind: 'conditional',
+                condition: {
+                    kind: 'variable',
+                    name: 'a',
+                },
+                thenBranch: {
+                    kind: 'variable',
+                    name: 'b',
+                },
+                elseBranch: {
+                    kind: 'variable',
+                    name: 'c',
+                },
+            };
+            const context = {
+                a: unboundScheme(NUMBER_TYPE),
+                b: unboundScheme(BOOL_TYPE),
+                c: unboundScheme(BOOL_TYPE),
+            };
+            assert.throws(() => infer(context, conditional), UnificationError);
+        });
         it('should fail when let would normally generalize', function () {
             // todo
         });
     });
 });
+
+// \x -> x
+const ID_FUNCTION: Lambda = {
+    kind: 'lambda',
+    head: 'x',
+    body: {
+        kind: 'variable',
+        name: 'x',
+    },
+};
+

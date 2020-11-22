@@ -1,4 +1,4 @@
-import { Application, Expression, Lambda, Let, Literal, Variable } from './expressions';
+import { Application, Conditional, Expression, Lambda, Let, Literal, Variable } from './expressions';
 import {
     BOOL_TYPE,
     Context,
@@ -14,6 +14,14 @@ import { composeSubstitutions, substituteInContext, substituteInType } from './s
 import { unify } from './unification';
 import { assertUnreachable } from './primitives';
 
+/**
+ * Returns a Hindley-Milner type inference engine. The inference is done using
+ * Algorithm W described in the original paper by Damas and Miler:
+ * http://steshaw.org/hm/milner-damas.pdf
+ *
+ * @param uniqueTypeVar A function that provides a type variable with a unique name
+ * within the system.
+ */
 export function getInferer(uniqueTypeVar: () => TVariable): Inferer {
     function infer(context: Context, expression: Expression): TypeInfo {
         switch (expression.kind) {
@@ -27,6 +35,8 @@ export function getInferer(uniqueTypeVar: () => TVariable): Inferer {
             return inferLet(context, expression);
         case 'application':
             return inferApplication(context, expression);
+        case 'conditional':
+            return inferConditional(context, expression);
         default:
             // helps the compiler check for exhaustiveness
             assertUnreachable(expression);
@@ -102,6 +112,25 @@ export function getInferer(uniqueTypeVar: () => TVariable): Inferer {
         };
     }
 
+    function inferConditional(context: Context, conditional: Conditional): TypeInfo {
+        const { condition, thenBranch, elseBranch } = conditional;
+
+        const { substitution: s1, type: condType } = infer(context, condition);
+        const s2 = unify(condType, BOOL_TYPE);
+        const contextAfterCond = substituteInContext(composeSubstitutions(s1, s2), context);
+
+        const { substitution: s3, type: thenType } = infer(contextAfterCond, thenBranch);
+        const contextAfterThen = substituteInContext(s3, contextAfterCond);
+
+        const { substitution: s4, type: elseType } = infer(contextAfterThen, elseBranch);
+
+        const s5 = unify(substituteInType(s4, thenType), elseType);
+        return {
+            substitution: composeSubstitutions(s1, s2, s3, s4, s5),
+            type: substituteInType(s5, elseType),
+        };
+    }
+
     return infer;
 }
 
@@ -109,5 +138,7 @@ export type Inferer = (ctx: Context, expr: Expression) => TypeInfo;
 
 interface TypeInfo<ExpressionType = Type> {
     type: ExpressionType;
-    substitution: { [variableName: string]: Type };
+    substitution: {
+        [variableName: string]: Type;
+    };
 }

@@ -30,11 +30,20 @@ export interface Lambda {
     body: Expression;
 }
 
+// extensions to the lambda calculus
+
 export interface Let {
     kind: 'let';
     variable: string;
     initializer: Expression;
     body: Expression;
+}
+
+export interface Conditional {
+    kind: 'conditional';
+    condition: Expression;
+    thenBranch: Expression;
+    elseBranch: Expression;
 }
 
 export interface Literal {
@@ -46,4 +55,13 @@ export type Expression = Literal
     | Variable
     | Application
     | Lambda
-    | Let;
+    | Let
+    | Conditional;
+
+export function makeLambdaExpression(head: string, body: Expression): Lambda {
+    return {
+        head,
+        body,
+        kind: 'lambda',
+    };
+}

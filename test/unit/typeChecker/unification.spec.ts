@@ -1,6 +1,6 @@
-import { OccursError, UnificationError, unify } from '../../src/typeChecker/unification';
+import { OccursError, UnificationError, unify } from '../../../src/typeChecker/unification';
 import assert from 'assert';
-import { BOOL_TYPE, functionType, BIGINT_TYPE, TFunction, typeVar, NUMBER_TYPE } from '../../src/typeChecker/types';
+import { BOOL_TYPE, functionType, BIGINT_TYPE, TFunction, typeVar, NUMBER_TYPE } from '../../../src/typeChecker/types';
 
 describe('unification', function () {
     describe('#unify', function () {

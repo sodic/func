@@ -1,5 +1,5 @@
 import assert from 'assert';
-import { difference, mapObjectValues, union } from '../src/util';
+import { difference, mapObjectValues, union } from '../../src/util';
 
 describe('set operations', function () {
     describe('#union', function () {

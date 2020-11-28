@@ -1,6 +1,6 @@
 import assert from 'assert';
-import { composeSubstitutions, substituteInType, Substitution } from '../../src/typeChecker/substitution';
-import { BOOL_TYPE, functionType, BIGINT_TYPE, typeVar, NUMBER_TYPE } from '../../src/typeChecker/types';
+import { composeSubstitutions, substituteInType, Substitution } from '../../../src/typeChecker/substitution';
+import { BOOL_TYPE, functionType, BIGINT_TYPE, typeVar, NUMBER_TYPE } from '../../../src/typeChecker/types';
 
 describe('substitution', function () {
     describe('#substituteInType', function () {

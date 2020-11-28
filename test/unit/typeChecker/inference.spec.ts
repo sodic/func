@@ -1,6 +1,6 @@
 import assert from 'assert';
-import { Application, Conditional, Expression, Lambda, Let } from '../../src/typeChecker/expressions';
-import { getInferer, Inferer } from '../../src/typeChecker/inference';
+import { Application, Conditional, Expression, Lambda, Let } from '../../../src/typeChecker/expressions';
+import { getInferer, Inferer } from '../../../src/typeChecker/inference';
 import {
     BOOL_TYPE,
     Context,
@@ -10,8 +10,8 @@ import {
     typeVarGenerator,
     unboundScheme,
     NUMBER_TYPE,
-} from '../../src/typeChecker/types';
-import { UnificationError } from '../../src/typeChecker/unification';
+} from '../../../src/typeChecker/types';
+import { UnificationError } from '../../../src/typeChecker/unification';
 
 describe('inference', function () {
     describe('#infer', function () {

@@ -6,7 +6,8 @@
   "scripts": {
     "build": "node_modules/typescript/bin/tsc",
     "start": "npm run build && node dist/main.js",
-    "test": "mocha test/*.spec.ts test/**/*.spec.ts -r ts-node/register"
+    "test": "mocha test/*.spec.ts test/**/*.spec.ts -r ts-node/register",
+    "update-grammar": "npm run build && resources/grammar/update-grammar.bash"
   },
   "author": "sodic",
   "license": "ISC",
@@ -21,6 +22,8 @@
     "typescript": "^4.0.5"
   },
   "dependencies": {
-    "@typescript-eslint/parser": "^4.7.0"
+    "@types/pegjs": "^0.10.2",
+    "@typescript-eslint/parser": "^4.7.0",
+    "pegjs": "^0.10.0"
   }
 }

@@ -35,6 +35,12 @@ export interface FunctionExpression {
     body: Expression;
 }
 
+export interface FunctionCall {
+    kind: 'call';
+    functionName: string;
+    arguments: Expression[];
+}
+
 export interface IfExpression {
     kind: 'if';
     condition: Expression;

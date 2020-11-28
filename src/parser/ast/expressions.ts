@@ -1,6 +1,7 @@
 export type Expression = Literal
     | Variable
     | FunctionExpression
+    | FunctionCall
     | IfExpression;
 
 export interface BigintLiteral {

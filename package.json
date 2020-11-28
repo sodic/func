@@ -6,8 +6,8 @@
   "scripts": {
     "build": "node_modules/typescript/bin/tsc",
     "start": "npm run build && node dist/main.js",
-    "test": "mocha test/*.spec.ts test/**/*.spec.ts -r ts-node/register",
-    "update-grammar": "npm run build && resources/grammar/update-grammar.bash"
+    "test": "npm run update-grammar && mocha test/unit/*.spec.ts test/unit/**/*.spec.ts -r ts-node/register",
+    "update-grammar": "npm run build && resources/grammar/update-grammar.bash $PWD"
   },
   "author": "sodic",
   "license": "ISC",

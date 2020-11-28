@@ -1,4 +1,11 @@
 {
+function buildBinaryExpressionChain(head, tail) {
+    return tail.reduce((acc, element) => ({
+        kind: 'call',
+        functionName: element[1],
+        arguments: [acc, element[3]],
+    }), head);
+}
 function makeCall(functionName, args) {
     return {
         kind: 'call',
@@ -17,50 +24,58 @@ function makeNumber(value) {
 }
 }
 Expression =
-    Additive
+    AdditiveExpression
 
 /*
-<Additive> :=
-    | <Term> "+" <Additive>
-    | <Term> "-" <Additive>
-    | <Term>
+<AdditiveExpression> :=
+    | <Term> (<AdditiveOperator> <Term>)
 */
-Additive =
-    left:Multiplicative operator:("+" / "-") right:Additive {
-        return makeCall(operator, [left, right]);
+AdditiveExpression =
+    head:Term tail:(_ AdditiveOperator _ Term)* {
+        return buildBinaryExpressionChain(head, tail);
     }
-    / Multiplicative
 
+AdditiveOperator =
+    "+"
+    / "-"
+
+Term =
+    MultiplicativeExpression
 
 /*
-<Multiplicative> :=
-    | <Factor> * <Multiplicative>
-    | <Factor> / <Multiplicative>
-    | <Factor>
+<MultiplicativeExpression> :=
+    | <Factor> (<MultiplicativeOperator> <Factor>)*
 */
-Multiplicative =
-    left:Factor operator:("*" / "/") right:Multiplicative {
-        return makeCall(operator, [left, right]);
+MultiplicativeExpression =
+    head:Factor tail:(_ MultiplicativeOperator _ Factor)* {
+        return buildBinaryExpressionChain(head, tail);
     }
-    / Factor
 
 /*
 <Factor> =
-    | <Number>
-    | <Primary>
+    | <PrimaryExpression>
 */
 Factor =
-    Number
-    / Primary
+    PrimaryExpression
 
-Primary =
-    "(" additive:Additive ")" {
-        return additive;
+MultiplicativeOperator =
+    "*"
+    / "/"
+    / "%"
+
+PrimaryExpression =
+    ParenthesizedExpression
+    / NumberLiteral
+
+ParenthesizedExpression =
+    "(" _ expression:Expression _ ")" {
+        return expression;
     }
 
-Number =
+NumberLiteral =
     digits:[0-9]+ {
         const value = parseInt(digits.join(""), 10);
         return makeNumber(value);
     }
 
+_ "Whitespace" = [ \t]*

@@ -6,7 +6,7 @@
   "scripts": {
     "build": "node_modules/typescript/bin/tsc",
     "start": "npm run build && node dist/main.js",
-    "test": "npm run update-grammar && mocha test/unit/*.spec.ts test/unit/**/*.spec.ts -r ts-node/register",
+    "test": "npm run update-grammar && TS_NODE_FILES=true mocha test/unit/*.spec.ts test/unit/**/*.spec.ts -r ts-node/register",
     "update-grammar": "npm run build && resources/grammar/update-grammar.bash $PWD"
   },
   "author": "sodic",
@@ -24,6 +24,7 @@
   "dependencies": {
     "@types/pegjs": "^0.10.2",
     "@typescript-eslint/parser": "^4.7.0",
-    "pegjs": "^0.10.0"
+    "pegjs": "^0.10.0",
+    "pegjs-backtrace": "^0.2.0"
   }
 }

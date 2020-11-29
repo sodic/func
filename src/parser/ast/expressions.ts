@@ -1,7 +1,7 @@
 export type Expression = Literal
-    | Variable
+    | IdentifierReference
     | FunctionExpression
-    | FunctionCall
+    | Call
     | IfExpression;
 
 export interface BigintLiteral {
@@ -24,8 +24,8 @@ export interface NumberLiteral {
     value: number;
 }
 
-export interface Variable {
-    kind: 'variable';
+export interface IdentifierReference {
+    kind: 'identifier';
     name: string;
 }
 
@@ -36,9 +36,9 @@ export interface FunctionExpression {
     body: Expression;
 }
 
-export interface FunctionCall {
+export interface Call {
     kind: 'call';
-    functionName: string;
+    callee: Expression;
     arguments: Expression[];
 }
 

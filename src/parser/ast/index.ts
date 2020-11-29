@@ -15,14 +15,15 @@ export type Definition = Assignment
 	| FunctionDefinition;
 
 export type Assignment = {
-	variable: Variable;
+	kind: 'assignment';
+	name: string;
 	expression: Expression;
 };
 
-type FunctionDefinition = {
+export type FunctionDefinition = {
+	kind: 'function';
 	name: string;
 	params: string[];
 	body: Expression;
 };
 
-export type Variable = string;

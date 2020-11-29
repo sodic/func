@@ -25,4 +25,8 @@
   },
   "include": ["src/**/*"],
   "ignore": ["dist/**/*", "node_modules/**/*"],
+  "ts-node": {
+    // make tests work with .d.ts files
+    "files": true
+  }
 }

@@ -11,12 +11,12 @@ import {
 describe('parser', function () {
     describe('#parse', function () {
         it('should correctly parse simple literal addition', function () {
-            const result= parse('1 + 2');
+            const result= parse('1+2');
             const expected = makeCall(makeIdentifierReference('+'), [makeNumber(1), makeNumber(2)]);
             assert.deepStrictEqual(result, expected);
         });
         it('should parse longer literal additive expression as left-associative', function () {
-            const result= parse('1 + 2 - 3 + 4 - 5');
+            const result= parse('1+2-3+4-5');
             const expected = makeCall(
                 makeIdentifierReference('-'),
                 [makeCall(
@@ -43,12 +43,12 @@ describe('parser', function () {
             assert.deepStrictEqual(result, expected);
         });
         it('should correctly parse simple literal multiplication', function () {
-            const result= parse('3 * 4');
+            const result= parse('3*4');
             const expected = makeCall(makeIdentifierReference('*'), [makeNumber(3), makeNumber(4)]);
             assert.deepStrictEqual(result, expected);
         });
         it('should parse longer literal multiplicative expression as left-associative', function () {
-            const result= parse('1 * 2 / 3 % 4 * 5');
+            const result= parse('1*2/3%4*5');
             const expected = makeCall(
                 makeIdentifierReference('*'),
                 [makeCall(
@@ -75,7 +75,7 @@ describe('parser', function () {
             assert.deepStrictEqual(result, expected);
         });
         it('should parse a complex literal arithmetic expression with correct operator precedence', function () {
-            const result= parse('1 + 2 * 3 - 4 / 5');
+            const result= parse('1+2*3-4/5');
             const expected = makeCall(
                 makeIdentifierReference('-'),
                 [
@@ -104,7 +104,7 @@ describe('parser', function () {
             assert.deepStrictEqual(result, expected);
         });
         it('should parse a literal arithmetic expression containing parentheses with correct operator precedence', function () {
-            const result= parse('(1 + 2) * ((3 - 4)/ 5)');
+            const result= parse('(1+2)*((3-4)/5)');
             const expected = makeCall(
                 makeIdentifierReference('*'),
                 [
@@ -133,7 +133,7 @@ describe('parser', function () {
             assert.deepStrictEqual(result, expected);
         });
         it('should correctly parse a literal arithmetic expression that even casio calculators can\'t handle', function () {
-            const result = parse('9 / 3 * (1 + 2)');
+            const result = parse('9/3*(1+2)');
             const expected = makeCall(
                 makeIdentifierReference('*'),
                 [
@@ -157,7 +157,7 @@ describe('parser', function () {
 
         });
         it('should correctly parse a complex arithmetic expression containing identifier references', function () {
-            const result= parse('1 * x / 3 % ligma * mate');
+            const result= parse('1*x/3%ligma*mate');
             const expected = makeCall(
                 makeIdentifierReference('*'),
                 [makeCall(
@@ -185,7 +185,7 @@ describe('parser', function () {
 
         });
         it('should be whitespace insensitive when parsing arithmetic expressions', function () {
-            const result1 = parse('1 +   x      /3 - 4%y    *6');
+            const result1 = parse('  1 +   x      /3 - 4%y    *6 ');
             const result2 = parse('1+x/3-4%y*6');
             assert.deepStrictEqual(result1, result2);
 
@@ -201,17 +201,17 @@ describe('parser', function () {
             assert.deepStrictEqual(result, expected);
         });
         it('should be whitespace insensitive in assignment statements', function () {
-            const result1 = parse('x1    =   9* (4 +3     ) %4  +   (1-    2)');
+            const result1 = parse('x1    =   9* (4 +3     ) %4  +   (1-    2) ');
             const result2 = parse('x1=9*(4+3)%4+(1-2)');
             assert.deepStrictEqual(result1, result2);
         });
         it('should correctly parse a unary function definition', function () {
-            const result = parse('func square(x) = x*x');
+            const result = parse('func square(x)=x*x');
             const expected = makeFunctionDefinition('square', ['x'], parse('x * x'));
             assert.deepStrictEqual(result, expected);
         });
         it('should correctly parse an binary function definition', function () {
-            const result = parse('func area(x, y) = x * y');
+            const result = parse('func area(x,y)=x*y');
             const expected = makeFunctionDefinition(
                 'area',
                 ['x', 'y'],
@@ -219,6 +219,11 @@ describe('parser', function () {
             );
             assert.deepStrictEqual(result, expected);
 
+        });
+        it('should be whitespace insensitive when parsing function definitions', function () {
+            const result1 = parse('func some12Func       (   x      ,   y  )    =   x   *  y    ');
+            const result2 = parse('func some12Func(x,y)=x*y');
+            assert.deepStrictEqual(result1, result2);
         });
         it('should correctly parse a unary function call', function () {
             const result = parse('square(x)');
@@ -237,7 +242,7 @@ describe('parser', function () {
             assert.deepStrictEqual(result, expected);
         });
         it('should correctly parse a call chain', function () {
-            const result = parse('f(x)(3)(2 + 1)') ;
+            const result = parse('f(x)(3)(2+1)') ;
             const expected = makeCall(
                 makeCall(
                     makeCall(
@@ -251,7 +256,7 @@ describe('parser', function () {
             assert.deepStrictEqual(result, expected);
         });
         it('should be able to work with function calls within arithmetic expressions', function () {
-            const result = parse('1 - (a + double(5)) + square(3)(4) * area(a, 5)');
+            const result = parse('1-(a+double(5))+square(3)(4)*area(a,5)');
             const expected = makeCall(
                 makeIdentifierReference('+'),
                 [
@@ -279,13 +284,8 @@ describe('parser', function () {
             );
             assert.deepStrictEqual(result, expected);
         });
-        it('should be whitespace insensitive when parsing function definitions', function () {
-            const result1 = parse('func     f   (  x,   y ) = x +       y');
-            const result2 = parse('func f(x,y)=x+y');
-            assert.deepStrictEqual(result1, result2);
-        });
         it('should be whitespace insensitive when parsing function calls in expressions', function () {
-            const result1 = parse('x    + a (  1,    2 )-3  + 5*f   (1,2) (4)   (1)-1');
+            const result1 = parse('x    + a (  1,    2 )-3  + 5*f   (1,2) (4)   (1)-1   ');
             const result2 = parse('x+a(1,2)-3+5*f(1,2)(4)(1)-1');
             assert.deepStrictEqual(result1, result2);
         });

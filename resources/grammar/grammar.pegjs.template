@@ -3,7 +3,9 @@ Module =
     / Expression
 
 Expression =
-    Conditional
+    _ cond:Conditional _ {
+        return cond;
+    }
 
 // keep JSs precedence and associativity
 

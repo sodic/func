@@ -3,10 +3,35 @@ Module =
     / Expression
 
 Expression =
+    ConditionalExpression
+
+// keep JSs precedence and associativity
+
+// todo, check multi-level conditionals
+ConditionalExpression =
+    LogicalOrExpression
+
+LogicalOrExpression =
+    LogicalAndExpression
+
+LogicalAndExpression =
+    BitwiseOrExpression
+
+
+BitwiseOrExpression =
+    EqualityExpression
+
+EqualityExpression =
+    RelationalExpression
+
+RelationalExpression =
+    ShiftExpression
+
+ShiftExpression =
     AdditiveExpression
 
 AdditiveExpression =
-    head:Term tail:(_ AdditiveOperator _ Term)* {
+    head:MultiplicativeExpression tail:(_ AdditiveOperator _ MultiplicativeExpression)* {
         return buildBinaryExpressionChain(head, tail);
     }
 
@@ -14,31 +39,18 @@ AdditiveOperator =
     "+"
     / "-"
 
-Term =
-    MultiplicativeExpression
-
 MultiplicativeExpression =
     head:UnaryExpression tail:(_ MultiplicativeOperator _ UnaryExpression)* {
         return buildBinaryExpressionChain(head, tail);
     }
-
-UnaryExpression =
-    PostfixExpression
 
 MultiplicativeOperator =
     "*"
     / "/"
     / "%"
 
-PrimaryExpression =
-    ParenthesizedExpression
-    / NumberLiteral
-    / IdentifierReference
-
-ParenthesizedExpression =
-    "(" _ expression:Expression _ ")" {
-        return expression;
-    }
+UnaryExpression =
+    PostfixExpression
 
 PostfixExpression =
     LeftHandSideExpression
@@ -52,6 +64,19 @@ CallExpression =
         return buildCallChain(callee, tail);
     }
 
+MemberExpression =
+    PrimaryExpression
+
+PrimaryExpression =
+    NumberLiteral
+    / IdentifierReference
+    / ParenthesizedExpression
+
+ParenthesizedExpression =
+    "(" _ expression:Expression _ ")" {
+        return expression;
+    }
+
 SingleCallExpression =
     callee:MemberExpression _ args:Arguments {
         return makeCall(callee, args);
@@ -61,10 +86,6 @@ Arguments =
     "(" _ args:ArgumentList _ ")" {
         return args;
     }
-
-
-MemberExpression =
-    PrimaryExpression
 
 ArgumentList =
     head:Expression tail:(_ "," _ Expression _)* {

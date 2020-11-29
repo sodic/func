@@ -3,35 +3,35 @@ Module =
     / Expression
 
 Expression =
-    ConditionalExpression
+    Conditional
 
 // keep JSs precedence and associativity
 
 // todo, check multi-level conditionals
-ConditionalExpression =
-    LogicalOrExpression
+Conditional =
+    Disjunction
 
-LogicalOrExpression =
-    LogicalAndExpression
+Disjunction =
+    Conjunction
 
-LogicalAndExpression =
-    BitwiseOrExpression
+Conjunction =
+    BitwiseOr
 
 
-BitwiseOrExpression =
-    EqualityExpression
+BitwiseOr =
+    Equality
 
-EqualityExpression =
-    RelationalExpression
+Equality =
+    Comparison
 
-RelationalExpression =
-    ShiftExpression
+Comparison =
+    Shift
 
-ShiftExpression =
-    AdditiveExpression
+Shift =
+    Sum
 
-AdditiveExpression =
-    head:MultiplicativeExpression tail:(_ AdditiveOperator _ MultiplicativeExpression)* {
+Sum =
+    head:Product tail:(_ AdditiveOperator _ Product)* {
         return buildBinaryExpressionChain(head, tail);
     }
 
@@ -39,7 +39,7 @@ AdditiveOperator =
     "+"
     / "-"
 
-MultiplicativeExpression =
+Product =
     head:UnaryExpression tail:(_ MultiplicativeOperator _ UnaryExpression)* {
         return buildBinaryExpressionChain(head, tail);
     }

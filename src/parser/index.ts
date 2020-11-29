@@ -2,25 +2,42 @@ import fs from 'fs';
 import { generate as generateParser, Parser } from 'pegjs';
 import Tracer from 'pegjs-backtrace';
 import { Expression } from './ast/expressions';
-// import * as helpers from './ast/helpers';
+import { Module, Statement } from './ast';
 
-let parser: Parser | null = null;
+export function parseExpression(source: string): Expression {
 
-export function parse(source: string): Expression {
+    return parseBase(source, 'Expression') as Expression;
+}
+export function parseStatement(source: string): Statement {
+
+    return parseBase(source, 'Statement') as Statement;
+}
+export function parseModule(source: string): Module {
+
+    return parseBase(source, 'Module') as Module;
+}
+
+const parsers: { [key: string]: Parser } = {};
+type ParserResult = Expression | Statement | Module;
+export function parseBase(source: string, startRule: string): ParserResult {
     // todo generate prior to compiling once the parser becomes stable
-    parser = parser ?? getParser();
+    parsers[startRule] = parsers[startRule] ?? getParser(startRule);
     const tracer = new Tracer(source);
+
     try {
-        return parser.parse(source, { tracer });
+        return parsers[startRule].parse(source, { tracer });
     } catch(e) {
         console.log(tracer.getBacktraceString());
         throw e;
     }
 }
 
-function getParser() {
+export const parse = parseModule;
+
+function getParser(startRule: string) {
     const grammar = fs.readFileSync('resources/grammar/grammar.pegjs').toString();
     return generateParser(grammar, {
+        allowedStartRules: [startRule],
         trace: true,
     });
 }

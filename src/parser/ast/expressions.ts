@@ -2,7 +2,7 @@ export type Expression = Literal
     | IdentifierReference
     | FunctionExpression
     | Call
-    | IfExpression;
+    | Conditional;
 
 export interface BigintLiteral {
     kind: 'bigint';
@@ -42,8 +42,8 @@ export interface Call {
     arguments: Expression[];
 }
 
-export interface IfExpression {
-    kind: 'if';
+export interface Conditional {
+    kind: 'conditional';
     condition: Expression;
     thenBranch: Expression;
     elseBranch: Expression;

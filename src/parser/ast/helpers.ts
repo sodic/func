@@ -1,8 +1,8 @@
 // functions are exported just to satisfy the linter
 // this file is used within the parser generator
 // (see how "update-parser.bash" works)
-import { Expression, Call, IdentifierReference, Literal } from './expressions';
-import { Assignment, FunctionDefinition } from './index';
+import { Expression, Call, IdentifierReference, Literal, Conditional } from './expressions';
+import { Assignment, Statement, FunctionDefinition, Module } from './index';
 
 export function makeCall(callee: Expression, args: Expression[]): Call {
     return {
@@ -46,6 +46,15 @@ export function makeFunctionDefinition(name: string, params: string[], body: Exp
     };
 }
 
+export function makeConditional(condition: Expression, thenBranch: Expression, elseBranch: Expression): Conditional {
+    return {
+        kind: 'conditional',
+        condition,
+        thenBranch,
+        elseBranch,
+    } ;
+}
+
 type BinaryCainElement = [unknown, string, unknown, Expression];
 export function buildBinaryExpressionChain(head: Expression, tail: BinaryCainElement[]): Expression {
     return tail.reduce(
@@ -68,4 +77,11 @@ export function buildCallChain(head: Call, tail: CallChainElement[]): Expression
         }),
         head,
     );
+}
+
+export function makeModule(definitions: Statement[]): Module {
+    return {
+        kind: 'module',
+        definitions,
+    };
 }

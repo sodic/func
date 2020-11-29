@@ -1,6 +1,14 @@
 Module =
-    Statement
-    / Expression
+    EmptyLine* head:Statement tail:(EmptyLine+ Statement)* MultilineWhitespace {
+        const statements = tail.reduce((statements, current) => [...statements, current[1]], [head]);
+        return makeModule(statements);
+    }
+    / MultilineWhitespace {
+        return makeModule([]);
+    }
+
+StatementSeparator =
+    LineEnd MultilineWhitespace LineEnd
 
 Expression =
     _ cond:Conditional _ {
@@ -11,23 +19,47 @@ Expression =
 
 // todo, check multi-level conditionals
 Conditional =
-    Disjunction
+    consequent:Disjunction Space "if" Space test:Disjunction Space "else" Space alternate:Conditional {
+        return makeConditional(test, consequent, alternate);
+    }
+    / Disjunction
 
+// todo find a way to do a < b < c with intuitive semantics
 Disjunction =
-    Conjunction
+    head:Conjunction tail:(_ "or" _ Conjunction)* {
+        return buildBinaryExpressionChain(head, tail);
+    }
 
 Conjunction =
-    BitwiseOr
-
+    head:BitwiseOr tail:(_ "and" _ BitwiseOr)* {
+        return buildBinaryExpressionChain(head, tail);
+    }
 
 BitwiseOr =
     Equality
 
+// todo find a way to do a == b == c with intuitive semantics
 Equality =
-    Comparison
+    left:Comparison _ op:EqualityOperator _ right:Comparison {
+        return makeCall(op, [left, right]);
+    }
+    / Comparison
+
+EqualityOperator =
+    op:("==" / "!=") {
+        return makeIdentifierReference(op);
+    }
 
 Comparison =
-    Shift
+    left:Shift _ op:ComparisonOperator _ right:Shift {
+        return makeCall(op, [left, right]);
+    }
+    / Shift
+
+ComparisonOperator =
+    op:(">=" /">" / "<=" / "<") {
+        return makeIdentifierReference(op);
+    }
 
 Shift =
     Sum
@@ -108,13 +140,16 @@ Statement =
     Assignment
     / FunctionDefinition
 
+StatementNewline =
+    Statement LineEnd
+
 Assignment =
     name:Identifier _ "=" _ expression:Expression {
         return makeAssignment(name, expression);
     }
 
 FunctionDefinition =
-    "func" _s_ name:Identifier _ "(" _ params:ParameterList _ ")" _ "=" _ body:Expression {
+    "func" Space name:Identifier _ "(" _ params:ParameterList _ ")" _ "=" _ body:Expression {
         return makeFunctionDefinition(name, params, body);
     }
 
@@ -152,5 +187,28 @@ Lu = [\u0041-\u005A\u00C0-\u00D6\u00D8-\u00DE\u0100\u0102\u0104\u0106\u0108\u010
 
 
 
-_ "Whitespace" = [ \t]*
-_s_ "Significant whitespace" = [ \t]+
+_ "Ignored" = Whitespace*
+Space "whitespace" = [ \t]+ // significant inline whitespace
+
+Whitespace "whitespace" =
+    "\t"
+    / "\v"
+    / "\f"
+    / " "
+    / "\u00A0"
+    / "\uFEFF"
+
+LineEnd "end of line"
+  = "\n"
+  / "\r\n"
+  / "\r"
+  / "\u2028"
+  / "\u2029"
+
+// whitespace spanning may lines, not necessarily ending with a newline character
+MultilineWhitespace =
+    (Whitespace / LineEnd)*
+
+// a full line containing nothing but whitespace
+EmptyLine =
+    Whitespace* LineEnd

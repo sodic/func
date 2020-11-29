@@ -1,17 +1,11 @@
 import { Expression } from './expressions';
 
-export type Ast = Module;
-
-export interface FlatModule {
-	definitions: [];
-}
-
 export interface Module {
-	definition: Definition;
-	module: Module;
+	kind: 'module';
+	definitions: Statement[];
 }
 
-export type Definition = Assignment
+export type Statement = Assignment
 	| FunctionDefinition;
 
 export type Assignment = {

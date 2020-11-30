@@ -1,49 +1,63 @@
 export type Expression = Literal
-    | IdentifierReference
+    | Identifier
     | FunctionExpression
     | Call
     | Conditional;
 
+export const enum ExpressionKind {
+    Function = 'Function',
+    Call = 'Call',
+    Identifier = 'Identifier',
+    Conditional = 'Conditional',
+    Literal = 'Literal'
+}
+
+export const enum LiteralKind {
+    BigInt = 'BigInt',
+	Boolean = 'Boolean',
+    Number = 'Number'
+}
+
 export interface BigintLiteral {
-    kind: 'bigint';
+    kind: LiteralKind.BigInt;
     value: bigint;
 }
 
 export interface Literal {
-    kind: 'literal';
+    kind: ExpressionKind.Literal;
     value: BooleanLiteral | BigintLiteral | NumberLiteral;
 }
 
 export interface BooleanLiteral {
-    kind: 'boolean';
+    kind: LiteralKind.Boolean;
     value: boolean;
 }
 
 export interface NumberLiteral {
-    kind: 'number';
+    kind: LiteralKind.Number;
     value: number;
 }
 
-export interface IdentifierReference {
-    kind: 'identifier';
+export interface Identifier {
+    kind: ExpressionKind.Identifier;
     name: string;
 }
 
 export interface FunctionExpression {
-    kind: 'function';
+    kind: ExpressionKind.Function;
     name: string;
     params: string[];
     body: Expression;
 }
 
 export interface Call {
-    kind: 'call';
+    kind: ExpressionKind.Call;
     callee: Expression;
     arguments: Expression[];
 }
 
 export interface Conditional {
-    kind: 'conditional';
+    kind: ExpressionKind.Conditional;
     condition: Expression;
     thenBranch: Expression;
     elseBranch: Expression;

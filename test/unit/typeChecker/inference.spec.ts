@@ -1,5 +1,13 @@
 import assert from 'assert';
-import { Application, Conditional, Expression, Lambda, Let } from '../../../src/typeChecker/expressions';
+import {
+    Application,
+    Conditional,
+    Expression,
+    ExpressionKind,
+    Lambda,
+    Let,
+    LiteralKind,
+} from '../../../src/typeChecker/expressions';
 import { getInferer, Inferer } from '../../../src/typeChecker/inference';
 import {
     BOOL_TYPE,
@@ -9,7 +17,7 @@ import {
     typeVar,
     typeVarGenerator,
     unboundScheme,
-    NUMBER_TYPE,
+    NUMBER_TYPE, TypeKind,
 } from '../../../src/typeChecker/types';
 import { UnificationError } from '../../../src/typeChecker/unification';
 
@@ -20,36 +28,36 @@ describe('inference', function () {
             infer = getInferer(typeVarGenerator());
         });
         it('should correctly infer the type of a literal bigint expression', function () {
-            const expr: Expression = { kind: 'literal', value: { kind: 'bigint', value: 4n } };
+            const expr: Expression = { kind: ExpressionKind.Literal, value: { kind: LiteralKind.BigInt, value: 4n } };
             const context = {};
             const { substitution, type } = infer(context, expr);
             assert.deepStrictEqual(substitution, {});
-            assert.deepStrictEqual(type, { kind: 'bigint' });
+            assert.deepStrictEqual(type, { kind: TypeKind.BigInt });
         });
         it('should correctly infer the type of a literal number expression', function () {
-            const expr: Expression = { kind: 'literal', value: { kind: 'number', value: 4 } };
+            const expr: Expression = { kind: ExpressionKind.Literal, value: { kind: LiteralKind.Number, value: 4 } };
             const context = {};
             const { substitution, type } = infer(context, expr);
             assert.deepStrictEqual(substitution, {});
-            assert.deepStrictEqual(type, { kind: 'number' });
+            assert.deepStrictEqual(type, { kind: TypeKind.Number });
         });
         it('should correctly infer the type of a literal boolean expression', function () {
-            const expr: Expression = { kind: 'literal', value: { kind: 'boolean', value: true } };
+            const expr: Expression = { kind: ExpressionKind.Literal, value: { kind: LiteralKind.Boolean, value: true } };
             const context = {};
             const { substitution, type } = infer(context, expr);
             assert.deepStrictEqual(substitution, {});
-            assert.deepStrictEqual(type, { kind: 'boolean' });
+            assert.deepStrictEqual(type, { kind: TypeKind.Boolean });
 
         });
         it('should correctly infer the type of a simple lambda expression', function () {
             // \x -> 6
             const expr: Expression = {
-                kind: 'lambda',
+                kind: ExpressionKind.Lambda,
                 head: 'x',
                 body: {
-                    kind: 'literal',
+                    kind: ExpressionKind.Literal,
                     value: {
-                        kind: 'number',
+                        kind: LiteralKind.Number,
                         value: 6,
                     },
                 },
@@ -61,15 +69,15 @@ describe('inference', function () {
         it('should correctly infer the type of a simple application given the correct context', function () {
             // x 1
             const expr: Expression = {
-                kind: 'application',
+                kind: ExpressionKind.Application,
                 func: {
-                    kind: 'variable',
+                    kind: ExpressionKind.Identifier,
                     name: 'x',
                 },
                 argument: {
-                    kind: 'literal',
+                    kind: ExpressionKind.Literal,
                     value: {
-                        kind: 'number',
+                        kind: LiteralKind.Number,
                         value: 1,
                     },
                 },
@@ -83,16 +91,16 @@ describe('inference', function () {
         it('should correctly infer the type of a lambda expression given a correct context', function () {
             // \x -> y x
             const expr: Expression = {
-                kind: 'lambda',
+                kind: ExpressionKind.Lambda,
                 head: 'x',
                 body: {
-                    kind: 'application',
+                    kind: ExpressionKind.Application,
                     func: {
-                        kind: 'variable',
+                        kind: ExpressionKind.Identifier,
                         name: 'y',
                     },
                     argument: {
-                        kind: 'variable',
+                        kind: ExpressionKind.Identifier,
                         name: 'x',
                     },
                 },
@@ -107,13 +115,13 @@ describe('inference', function () {
         it('should correctly infer the type of the const function', function () {
             // \x -> (\y -> x)
             const constFunction: Expression = {
-                kind: 'lambda',
+                kind: ExpressionKind.Lambda,
                 head: 'x',
                 body: {
-                    kind: 'lambda',
+                    kind: ExpressionKind.Lambda,
                     head: 'y',
                     body: {
-                        kind: 'variable',
+                        kind: ExpressionKind.Identifier,
                         name: 'x',
                     },
                 },
@@ -131,7 +139,7 @@ describe('inference', function () {
         });
         it('should correctly infer the type of the identity function applied to the identity function', function() {
             const expr: Application = {
-                kind: 'application',
+                kind: ExpressionKind.Application,
                 func: ID_FUNCTION,
                 argument: ID_FUNCTION,
             };
@@ -142,19 +150,19 @@ describe('inference', function () {
         it('should correctly infer the type of a let expression', function () {
             // let x = \x -> x in x 6
             const letExpr: Let = {
-                kind: 'let',
+                kind: ExpressionKind.Let,
                 variable: 'x',
                 initializer: ID_FUNCTION,
                 body: {
-                    kind: 'application',
+                    kind: ExpressionKind.Application,
                     func: {
-                        kind: 'variable',
+                        kind: ExpressionKind.Identifier,
                         name: 'x',
                     },
                     argument: {
-                        kind: 'literal',
+                        kind: ExpressionKind.Literal,
                         value: {
-                            kind: 'bigint',
+                            kind: LiteralKind.BigInt,
                             value: 6n,
                         },
                     },
@@ -165,17 +173,17 @@ describe('inference', function () {
         });
         it('should correctly infer the type of a well-typed conditional with variables from context', function () {
             const conditional: Conditional = {
-                kind: 'conditional',
+                kind: ExpressionKind.Conditional,
                 condition: {
-                    kind: 'variable',
+                    kind: ExpressionKind.Identifier,
                     name: 'a',
                 },
                 thenBranch: {
-                    kind: 'variable',
+                    kind: ExpressionKind.Identifier,
                     name: 'b',
                 },
                 elseBranch: {
-                    kind: 'variable',
+                    kind: ExpressionKind.Identifier,
                     name: 'c',
                 },
             };
@@ -188,17 +196,17 @@ describe('inference', function () {
         });
         it('should correctly detect a unification error on the branches', function () {
             const conditional: Conditional = {
-                kind: 'conditional',
+                kind: ExpressionKind.Conditional,
                 condition: {
-                    kind: 'variable',
+                    kind: ExpressionKind.Identifier,
                     name: 'a',
                 },
                 thenBranch: {
-                    kind: 'variable',
+                    kind: ExpressionKind.Identifier,
                     name: 'b',
                 },
                 elseBranch: {
-                    kind: 'variable',
+                    kind: ExpressionKind.Identifier,
                     name: 'c',
                 },
             };
@@ -211,17 +219,17 @@ describe('inference', function () {
         });
         it('should correctly detect an invalid condition expression', function () {
             const conditional: Conditional = {
-                kind: 'conditional',
+                kind: ExpressionKind.Conditional,
                 condition: {
-                    kind: 'variable',
+                    kind: ExpressionKind.Identifier,
                     name: 'a',
                 },
                 thenBranch: {
-                    kind: 'variable',
+                    kind: ExpressionKind.Identifier,
                     name: 'b',
                 },
                 elseBranch: {
-                    kind: 'variable',
+                    kind: ExpressionKind.Identifier,
                     name: 'c',
                 },
             };
@@ -240,10 +248,10 @@ describe('inference', function () {
 
 // \x -> x
 const ID_FUNCTION: Lambda = {
-    kind: 'lambda',
+    kind: ExpressionKind.Lambda,
     head: 'x',
     body: {
-        kind: 'variable',
+        kind: ExpressionKind.Identifier,
         name: 'x',
     },
 };

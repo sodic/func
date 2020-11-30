@@ -2,7 +2,7 @@ import fs from 'fs';
 import { generate as generateParser, Parser } from 'pegjs';
 import Tracer from 'pegjs-backtrace';
 import { Expression } from './ast/expressions';
-import { Module, Statement } from './ast';
+import { Module, Statement } from './ast/statements';
 
 export function parseExpression(source: string): Expression {
 

@@ -1,6 +1,13 @@
 import { OccursError, UnificationError, unify } from '../../../src/typeChecker/unification';
 import assert from 'assert';
-import { BOOL_TYPE, functionType, BIGINT_TYPE, TFunction, typeVar, NUMBER_TYPE } from '../../../src/typeChecker/types';
+import {
+    BOOL_TYPE,
+    functionType,
+    BIGINT_TYPE,
+    TFunction,
+    typeVar,
+    NUMBER_TYPE,
+} from '../../../src/typeChecker/types';
 
 describe('unification', function () {
     describe('#unify', function () {
@@ -9,7 +16,7 @@ describe('unification', function () {
             assert.deepStrictEqual(result, {});
         });
         it('should return an empty substitution type when unifying 2 bool types', function () {
-            const result = unify({ kind: 'boolean' }, { kind: 'boolean' });
+            const result = unify(BOOL_TYPE, BOOL_TYPE);
             assert.deepStrictEqual(result, {});
         });
         it('should return an empty substitution when unifying 2 bigint types', function () {

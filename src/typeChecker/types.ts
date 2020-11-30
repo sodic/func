@@ -7,22 +7,30 @@ export type Type = TLiteral
     | TFunction
     | TArray;
 
+export enum TypeKind {
+	Variable,
+    Boolean,
+    Number,
+    BigInt,
+    Function,
+    Array,
+}
 
 // α (type variable)
 export interface TVariable {
-    kind: 'variable';
+    kind: TypeKind.Variable;
     name: string;
 }
 
 // τ → τ (function type)
 export interface TFunction {
-    kind: 'function';
+    kind: TypeKind.Function;
     input: Type;
     output: Type;
 }
 
 export interface TArray {
-   kind: 'array';
+   kind: TypeKind.Array;
    boxed: Type;
 }
 
@@ -30,15 +38,15 @@ export interface TArray {
 export type TLiteral = TBoolean | TBigint | TNumber;
 
 export interface TBoolean {
-    kind: 'boolean';
+    kind: TypeKind.Boolean;
 }
 
 export interface TBigint {
-    kind: 'bigint';
+    kind: TypeKind.BigInt;
 }
 
 export interface TNumber {
-    kind: 'number';
+    kind: TypeKind.Number;
 }
 
 export interface Scheme {
@@ -49,36 +57,36 @@ export interface Scheme {
 export type Context = { [name: string]: Scheme };
 
 export const BIGINT_TYPE: TBigint = {
-    kind: 'bigint',
+    kind: TypeKind.BigInt,
 };
 
 export const BOOL_TYPE: TBoolean = {
-    kind: 'boolean',
+    kind: TypeKind.Boolean,
 };
 
 export const NUMBER_TYPE: TNumber = {
-    kind: 'number',
+    kind: TypeKind.Number,
 };
 
 export function functionType(input: Type, output: Type): TFunction {
     return {
         input,
         output,
-        kind: 'function',
+        kind: TypeKind.Function,
     };
 }
 
 export function arrayType(type: Type): TArray {
     return {
-        kind: 'array',
+        kind: TypeKind.Array,
         boxed: type,
     };
 }
 
 export function typeVar(name: string): TVariable {
     return {
+        kind: TypeKind.Variable,
         name,
-        kind: 'variable',
     };
 }
 
@@ -109,17 +117,17 @@ export function generalize(context: Context, type: Type): Scheme {
 
 export function show(type: Type): string {
     switch (type.kind) {
-    case 'number':
+    case TypeKind.Number:
         return 'Number';
-    case 'boolean':
+    case TypeKind.Boolean:
         return 'Boolean';
-    case 'bigint':
+    case TypeKind.BigInt:
         return 'Bigint';
-    case 'function':
+    case TypeKind.Function:
         return `${show(type.input)} -> ${show(type.output)}`;
-    case 'variable':
+    case TypeKind.Variable:
         return type.name;
-    case 'array':
+    case TypeKind.Array:
         return `${show(type.boxed)}[]`;
     default:
         assertUnreachable(type);
@@ -137,9 +145,9 @@ export function typeVarGenerator(): () => TVariable {
 
 export function freeTypeVars(type: Type): Set<string> {
     switch (type.kind) {
-    case 'variable':
+    case TypeKind.Variable:
         return new Set([type.name]);
-    case 'function':
+    case TypeKind.Function:
         return union(freeTypeVars(type.input), freeTypeVars(type.output));
     default:
         return new Set();

@@ -1,43 +1,58 @@
 export type Expression = Literal
-    | Variable
+    | Identifier
     | Application
     | Lambda
     | Let
     | Conditional;
 
+export const enum ExpressionKind {
+    Literal= 'Literal',
+    Application = 'Application',
+	Identifier = 'Identifier',
+    Lambda = 'Lambda',
+    Let = 'Let',
+    Conditional = 'Conditional'
+}
+
+export enum LiteralKind {
+    BigInt = 'BigInt',
+    Boolean = 'Boolean',
+    Number = 'Number',
+}
+
 export interface Literal {
-    kind: 'literal';
+    kind: ExpressionKind.Literal;
     value: BooleanLiteral | BigintLiteral | NumberLiteral;
 }
 
 export interface BigintLiteral {
-    kind: 'bigint';
+    kind: LiteralKind.BigInt;
     value: bigint;
 }
 
 export interface BooleanLiteral {
-    kind: 'boolean';
+    kind: LiteralKind.Boolean;
     value: boolean;
 }
 
 export interface NumberLiteral {
-    kind: 'number';
+    kind: LiteralKind.Number;
     value: number;
 }
 
 export interface Application {
-    kind: 'application';
+    kind: ExpressionKind.Application;
     func: Expression;
     argument: Expression;
 }
 
-export interface Variable {
-    kind: 'variable';
+export interface Identifier {
+    kind: ExpressionKind.Identifier;
     name: string;
 }
 
 export interface Lambda {
-    kind: 'lambda';
+    kind: ExpressionKind.Lambda;
     head: string;
     body: Expression;
 }
@@ -45,14 +60,14 @@ export interface Lambda {
 // extensions to the lambda calculus
 
 export interface Let {
-    kind: 'let';
+    kind: ExpressionKind.Let;
     variable: string;
     initializer: Expression;
     body: Expression;
 }
 
 export interface Conditional {
-    kind: 'conditional';
+    kind: ExpressionKind.Conditional;
     condition: Expression;
     thenBranch: Expression;
     elseBranch: Expression;
@@ -62,6 +77,13 @@ export function makeLambdaExpression(head: string, body: Expression): Lambda {
     return {
         head,
         body,
-        kind: 'lambda',
+        kind: ExpressionKind.Lambda,
+    };
+}
+
+export function makeVariableReference(name: string): Identifier {
+    return {
+        kind: ExpressionKind.Identifier,
+        name,
     };
 }

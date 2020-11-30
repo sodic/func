@@ -1,14 +1,26 @@
-import { Application, Conditional, Expression, Lambda, Let, Literal, Variable } from './expressions';
 import {
+    Application,
+    Conditional,
+    Expression,
+    ExpressionKind,
+    Lambda,
+    Let,
+    Literal,
+    LiteralKind,
+    Identifier,
+} from './expressions';
+import {
+    BIGINT_TYPE,
     BOOL_TYPE,
     Context,
-    functionType, instantiate,
-    BIGINT_TYPE,
+    functionType,
+    instantiate,
+    NUMBER_TYPE,
     TFunction,
     TLiteral,
     TVariable,
     Type,
-    unboundScheme, NUMBER_TYPE,
+    unboundScheme,
 } from './types';
 import { composeSubstitutions, substituteInContext, substituteInType } from './substitution';
 import { unify } from './unification';
@@ -25,17 +37,17 @@ import { assertUnreachable } from '../util';
 export function getInferer(uniqueTypeVar: () => TVariable): Inferer {
     function infer(context: Context, expression: Expression): TypeInfo {
         switch (expression.kind) {
-        case 'literal':
+        case ExpressionKind.Literal:
             return inferLiteral(context, expression);
-        case 'variable':
+        case ExpressionKind.Identifier:
             return inferVariable(context, expression);
-        case 'lambda':
+        case ExpressionKind.Lambda:
             return inferLambda(context, expression);
-        case 'let':
+        case ExpressionKind.Let:
             return inferLet(context, expression);
-        case 'application':
+        case ExpressionKind.Application:
             return inferApplication(context, expression);
-        case 'conditional':
+        case ExpressionKind.Conditional:
             return inferConditional(context, expression);
         default:
             // helps the compiler check for exhaustiveness
@@ -45,18 +57,18 @@ export function getInferer(uniqueTypeVar: () => TVariable): Inferer {
 
     function inferLiteral(context: Context, literal: Literal): TypeInfo<TLiteral> {
         switch (literal.value.kind) {
-        case 'number':
+        case LiteralKind.Number:
             return { substitution: {}, type: NUMBER_TYPE };
-        case 'boolean':
+        case LiteralKind.Boolean:
             return { substitution: {}, type: BOOL_TYPE };
-        case 'bigint':
+        case LiteralKind.BigInt:
             return { substitution: {}, type: BIGINT_TYPE };
         default:
             assertUnreachable(literal.value);
         }
     }
 
-    function inferVariable(context: Context, variable: Variable): TypeInfo {
+    function inferVariable(context: Context, variable: Identifier): TypeInfo {
         const scheme = context[variable.name];
         if (!scheme) {
             throw Error(`Unbound variable: ${variable.name}`);

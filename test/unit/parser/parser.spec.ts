@@ -6,7 +6,7 @@ import {
     makeFunctionDefinition,
     makeIdentifierReference, makeModule,
     makeNumber,
-} from '../../../src/parser/ast/helpers';
+} from '../../../src/ast/builders';
 
 describe('parser', function () {
     describe('#parseExpression', function () {

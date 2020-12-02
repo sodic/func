@@ -1,15 +1,17 @@
 export type Expression = Literal
     | Identifier
-    | FunctionExpression
-    | Call
-    | Conditional;
+    | Lambda
+    | Application
+    | Conditional
+    | Let;
 
 export const enum ExpressionKind {
-    Function = 'Function',
-    Call = 'Call',
+    Literal = 'Literal',
     Identifier = 'Identifier',
+    Lambda = 'Lambda',
+    Application = 'Application',
     Conditional = 'Conditional',
-    Literal = 'Literal'
+    Let = 'Let',
 }
 
 export const enum LiteralKind {
@@ -43,17 +45,18 @@ export interface Identifier {
     name: string;
 }
 
-export interface FunctionExpression {
-    kind: ExpressionKind.Function;
-    name: string;
-    params: string[];
+export interface Lambda {
+    kind: ExpressionKind.Lambda;
+    // todo see what to do with named functions
+    name?: string;
+    head: string;
     body: Expression;
 }
 
-export interface Call {
-    kind: ExpressionKind.Call;
+export interface Application {
+    kind: ExpressionKind.Application;
     callee: Expression;
-    arguments: Expression[];
+    argument: Expression;
 }
 
 export interface Conditional {
@@ -63,3 +66,9 @@ export interface Conditional {
     elseBranch: Expression;
 }
 
+export interface Let {
+    kind: ExpressionKind.Let;
+    variable: string;
+    initializer: Expression;
+    body: Expression;
+}

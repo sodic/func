@@ -8,7 +8,7 @@ import {
     Literal,
     LiteralKind,
     Identifier,
-} from './expressions';
+} from '../ast/expressions';
 import {
     BIGINT_TYPE,
     BOOL_TYPE,
@@ -108,8 +108,8 @@ export function getInferer(uniqueTypeVar: () => TVariable): Inferer {
         };
     }
 
-    function inferApplication(context: Context, { func, argument }: Application): TypeInfo {
-        const { substitution: s1, type: funcType } = infer(context, func);
+    function inferApplication(context: Context, { callee, argument }: Application): TypeInfo {
+        const { substitution: s1, type: funcType } = infer(context, callee);
         const { substitution: s2, type: argType } = infer(substituteInContext(s1, context), argument);
 
         const resultType = uniqueTypeVar();

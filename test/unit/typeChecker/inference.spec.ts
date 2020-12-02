@@ -7,7 +7,7 @@ import {
     Lambda,
     Let,
     LiteralKind,
-} from '../../../src/typeChecker/expressions';
+} from '../../../src/ast/expressions';
 import { getInferer, Inferer } from '../../../src/typeChecker/inference';
 import {
     BOOL_TYPE,
@@ -70,7 +70,7 @@ describe('inference', function () {
             // x 1
             const expr: Expression = {
                 kind: ExpressionKind.Application,
-                func: {
+                callee: {
                     kind: ExpressionKind.Identifier,
                     name: 'x',
                 },
@@ -95,7 +95,7 @@ describe('inference', function () {
                 head: 'x',
                 body: {
                     kind: ExpressionKind.Application,
-                    func: {
+                    callee: {
                         kind: ExpressionKind.Identifier,
                         name: 'y',
                     },
@@ -140,7 +140,7 @@ describe('inference', function () {
         it('should correctly infer the type of the identity function applied to the identity function', function() {
             const expr: Application = {
                 kind: ExpressionKind.Application,
-                func: ID_FUNCTION,
+                callee: ID_FUNCTION,
                 argument: ID_FUNCTION,
             };
             const { type } = infer({}, expr);
@@ -155,7 +155,7 @@ describe('inference', function () {
                 initializer: ID_FUNCTION,
                 body: {
                     kind: ExpressionKind.Application,
-                    func: {
+                    callee: {
                         kind: ExpressionKind.Identifier,
                         name: 'x',
                     },

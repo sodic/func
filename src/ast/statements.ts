@@ -7,11 +7,9 @@ export interface Module {
 
 export const enum StatementKind {
 	Assignment = 'Assignment',
-	FunctionDefinition = 'FunctionDefinition',
 }
 
-export type Statement = Assignment
-	| FunctionDefinition;
+export type Statement = Assignment;
 
 export type Assignment = {
 	kind: StatementKind.Assignment;
@@ -19,9 +17,3 @@ export type Assignment = {
 	expression: Expression;
 };
 
-export type FunctionDefinition = {
-	kind: StatementKind.FunctionDefinition;
-	name: string;
-	params: string[];
-	body: Expression;
-};

@@ -1,0 +1,72 @@
+import assert from 'assert';
+import {
+    BinaryChainElement,
+    buildBinaryExpressionChain,
+    makeApplication,
+    makeCall,
+    makeIdentifierReference,
+    makeNumber,
+} from '../../../../src/ast/builders';
+
+describe('helpers', function () {
+    describe('#buildBinaryExpressionChain', function () {
+        it('should correctly build a binary expression chain when the operator is not used', function () {
+            const result = buildBinaryExpressionChain(makeIdentifierReference('a'), []);
+            assert.deepStrictEqual(result, makeIdentifierReference('a'));
+        });
+        it('should correctly build a binary expression chain when the operator is used once', function () {
+            const head = makeIdentifierReference('a');
+            const other: BinaryChainElement = [null, '+', null, makeIdentifierReference('b')];
+            const result = buildBinaryExpressionChain(head, [other]);
+            const expected = makeCall(makeIdentifierReference('+'), [head, other[3]]);
+            assert.deepStrictEqual(result, expected);
+        });
+        it('should correctly build a chained binary expression', function () {
+            const head = makeIdentifierReference('a');
+            const tail: BinaryChainElement[] = [
+                [null, '*', null, makeIdentifierReference('b')],
+                [null, '%', null, makeIdentifierReference('c')],
+                [null, '/', null, makeIdentifierReference('d')],
+            ];
+            const result = buildBinaryExpressionChain(head, tail);
+            const expected = makeCall(
+                makeIdentifierReference(tail[2][1]),
+                [
+                    makeCall(
+                        makeIdentifierReference(tail[1][1]),
+                        [
+                            makeCall(
+                                makeIdentifierReference(tail[0][1]),
+                                [
+                                    head,
+                                    tail[0][3],
+                                ],
+                            ),
+                            tail[1][3],
+                        ],
+                    ),
+                    tail[2][3],
+                ],
+            );
+            assert.deepStrictEqual(result, expected);
+        });
+    });
+    describe('#makeCall', function () {
+        it('should correctly build a unary function call', function () {
+            const result = makeCall(makeIdentifierReference('a'), [makeNumber(1)]);
+            const expected = makeApplication(makeIdentifierReference('a'), makeNumber(1));
+            assert.deepStrictEqual(result, expected);
+        });
+        it('should correctly build a function call chain calling n-ary functions', function () {
+            const result = makeCall(makeIdentifierReference('a'), [makeNumber(1), makeNumber(2)]);
+            const expected = makeApplication(
+                makeApplication(
+                    makeIdentifierReference('a'),
+                    makeNumber(1),
+                ),
+                makeNumber(2),
+            );
+            assert.deepStrictEqual(result, expected);
+        });
+    });
+});

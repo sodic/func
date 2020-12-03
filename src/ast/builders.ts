@@ -50,7 +50,7 @@ export function makeAssignment(name: string, expression: Expression): Assignment
 export function makeModule(definitions: Statement[]): Module {
     return {
         kind: 'module',
-        definitions,
+        statements: definitions,
     };
 }
 
@@ -75,7 +75,7 @@ function curryFunction(params: string[], body: Expression): Lambda {
     return makeLambda(head, lambdaBody);
 }
 
-function makeLambda(head: string, body: Expression): Lambda {
+export function makeLambda(head: string, body: Expression): Lambda {
     return {
         kind: ExpressionKind.Lambda,
         head,
@@ -91,8 +91,8 @@ export function buildCallChain(head: Application, tail: CallChainElement[]): Exp
     );
 }
 
-type BinaryCainElement = [unknown, string, unknown, Expression];
-export function buildBinaryExpressionChain(head: Expression, tail: BinaryCainElement[]): Expression {
+export type BinaryChainElement = [unknown, string, unknown, Expression];
+export function buildBinaryExpressionChain(head: Expression, tail: BinaryChainElement[]): Expression {
     return tail.reduce(
         (acc: Expression, element): Expression => ({
             kind: ExpressionKind.Application,
@@ -121,7 +121,7 @@ function curryApplication(callee: Expression, args: Expression[]): Application {
     return rest.length ? curryApplication(current, rest) : current;
 }
 
-function makeApplication(callee: Expression, argument: Expression): Application {
+export function makeApplication(callee: Expression, argument: Expression): Application {
     return {
         kind: ExpressionKind.Application,
         callee,

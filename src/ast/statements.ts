@@ -2,7 +2,7 @@ import { Expression } from './expressions';
 
 export interface Module {
 	kind: 'module';
-	definitions: Statement[];
+	statements: Statement[];
 }
 
 export const enum StatementKind {

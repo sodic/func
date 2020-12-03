@@ -32,18 +32,20 @@ describe('substitution', function () {
             const sub1: Substitution = {
                 'u0': NUMBER_TYPE,
                 'u1': typeVar('u2'),
-                'u3': functionType(NUMBER_TYPE, typeVar('u3')),
+                'u3': functionType(NUMBER_TYPE, typeVar('u4')),
             };
             const sub2: Substitution = {
                 'u4': NUMBER_TYPE,
+                'u2': functionType(BOOL_TYPE, NUMBER_TYPE),
                 'u5': typeVar('t6'),
                 'u0': BOOL_TYPE,
             };
             const composition = composeSubstitutions(sub1, sub2);
             const expected: Substitution = {
                 'u0': BOOL_TYPE,
-                'u1': typeVar('u2'),
-                'u3': functionType(NUMBER_TYPE, typeVar('u3')),
+                'u1': functionType(BOOL_TYPE, NUMBER_TYPE),
+                'u2': functionType(BOOL_TYPE, NUMBER_TYPE),
+                'u3': functionType(NUMBER_TYPE, NUMBER_TYPE),
                 'u4': NUMBER_TYPE,
                 'u5': typeVar('t6'),
             };

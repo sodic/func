@@ -32,7 +32,10 @@ export function substituteInContext(sub: Substitution, context: Context): Contex
 
 export function composeSubstitutions(...subs: Substitution[]): Substitution {
     return subs.reduce(
-        (result, sub) => ({ ...result, ...sub }),
+        (composition, sub) => ({
+            ...mapObjectValues(composition, type => substituteInType(sub, type)),
+            ...sub,
+        }),
         {},
     );
 }

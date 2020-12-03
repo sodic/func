@@ -14,27 +14,59 @@ import {
     BOOL_TYPE,
     Context,
     functionType,
+    generalize,
     instantiate,
     NUMBER_TYPE,
     TFunction,
     TLiteral,
     TVariable,
     Type,
+    typeVarGenerator,
     unboundScheme,
 } from './types';
 import { composeSubstitutions, substituteInContext, substituteInType } from './substitution';
 import { unify } from './unification';
 import { assertUnreachable } from '../util';
+import { Module, Statement } from '../ast/statements';
+import { builtins } from './builtins';
+
+
+export function inferModule(module: Module): Context {
+    return module.statements.reduce(
+        inferStatement,
+        builtins,
+    );
+}
+
+export function inferStatement(context: Context, statement: Statement): Context {
+    const { name, expression } = statement;
+    try {
+        const type = inferExpression(expression, context);
+        return {
+            ...context,
+            [name]: generalize(context, type),
+        };
+    } catch (e) {
+        throw new Error(e.message + ` in ${name}`);
+    }
+}
+
+export function inferExpression(expression: Expression, context: Context = {}): Type {
+    const infer = getInferer(typeVarGenerator());
+    // we don't want to pullute the global context with local type variables
+    const { type } = infer(context, expression);
+    return type;
+}
 
 /**
- * Returns a Hindley-Milner type inference engine. The inference is done using
+ * Returns a Hindley-Milner type inference engine for expressions. The inference is done using
  * Algorithm W described in the original paper by Damas and Miler:
  * http://steshaw.org/hm/milner-damas.pdf
  *
  * @param uniqueTypeVar A function that provides a type variable with a unique name
  * within the system.
  */
-export function getInferer(uniqueTypeVar: () => TVariable): Inferer {
+export function getInferer(uniqueTypeVar: () => TVariable): ExpressionInferer {
     function infer(context: Context, expression: Expression): TypeInfo {
         switch (expression.kind) {
         case ExpressionKind.Literal:
@@ -136,7 +168,9 @@ export function getInferer(uniqueTypeVar: () => TVariable): Inferer {
 
         const { substitution: s4, type: elseType } = infer(contextAfterThen, elseBranch);
 
-        const s5 = unify(substituteInType(s4, thenType), elseType);
+        // todo check unification, is it supposed to return a substitution that should be applied to the first type
+        // if so, there's a mistake here: https://github.com/namin/spots/blob/309286c2eb63181069f2ae707e07e8a9dbff7eb3/pcf/type.sml#L119
+        const s5 = unify(elseType, substituteInType(s4, thenType));
         return {
             substitution: composeSubstitutions(s1, s2, s3, s4, s5),
             type: substituteInType(s5, elseType),
@@ -146,7 +180,7 @@ export function getInferer(uniqueTypeVar: () => TVariable): Inferer {
     return infer;
 }
 
-export type Inferer = (ctx: Context, expr: Expression) => TypeInfo;
+export type ExpressionInferer = (ctx: Context, expr: Expression) => TypeInfo;
 
 interface TypeInfo<ExpressionType = Type> {
     type: ExpressionType;

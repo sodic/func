@@ -83,6 +83,13 @@ describe('unification', function () {
             };
             assert.deepStrictEqual(result, expected);
         });
+        it('should correctly unify two type variables', function () {
+            const result = unify(typeVar('u1'), typeVar('u2'));
+            const expected = {
+                'u1': typeVar('u2'),
+            };
+            assert.deepStrictEqual(result, expected);
+        });
 
     });
 });

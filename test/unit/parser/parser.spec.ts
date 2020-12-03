@@ -220,6 +220,11 @@ describe('parser', function () {
             );
             assert.deepStrictEqual(result, expected);
         });
+        it('should curry a function application (i.e., parse a multi-argument function as a call chain)', function () {
+            const result1 = parseExpression('f(x,y,g(y),1+2)');
+            const result2 = parseExpression('f(x)(y)(g(y))(1+2)');
+            assert.deepStrictEqual(result1, result2);
+        });
         it('should be able to work with function calls within arithmetic expressions', function () {
             const result = parseExpression('1-(a+double(5))+square(3)(4)*area(a,5)');
             const expected = makeCall(

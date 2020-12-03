@@ -40,10 +40,16 @@ export function composeSubstitutions(...subs: Substitution[]): Substitution {
     );
 }
 
-function substituteInScheme(sub: Substitution, scheme: Scheme): Scheme {
+export function substituteInScheme(sub: Substitution, scheme: Scheme): Scheme {
     const cleanedSub = Object.keys(sub)
         .filter(typeVarName => !scheme.bound.has(typeVarName))
-        .reduce((clean, currentKey) => ({ ...clean, [currentKey]: sub[currentKey] }), {});
+        .reduce(
+            (clean, currentKey) => ({
+                ...clean,
+                [currentKey]: sub[currentKey],
+            }),
+            {},
+        );
     return {
         bound: scheme.bound,
         type: substituteInType(cleanedSub, scheme.type),

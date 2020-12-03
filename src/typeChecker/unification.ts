@@ -1,4 +1,4 @@
-import { freeTypeVars, show, Type, TypeKind } from './types';
+import { freeTypeVars, showType, Type, TypeKind } from './types';
 import { composeSubstitutions, substituteInType, Substitution } from './substitution';
 
 export function unify(t1: Type, t2: Type): Substitution {
@@ -19,7 +19,7 @@ export function unify(t1: Type, t2: Type): Substitution {
     } else if (t2.kind === TypeKind.Variable) {
         return bindToVar(t2.name, t1);
     } else {
-        throw new UnificationError(`Unification error: ${show(t1)} with ${show(t2)}`);
+        throw new UnificationError(`Unification error: ${showType(t1)} with ${showType(t2)}`);
     }
 }
 
@@ -27,7 +27,7 @@ function bindToVar(typeVarName: string, type: Type): Substitution {
     if (type.kind === TypeKind.Variable && typeVarName === type.name) {
         return {};
     } else if (freeTypeVars(type).has(typeVarName)) {
-        throw new OccursError(`Occurs check failed: ${typeVarName} appears in ${show(type)}`);
+        throw new OccursError(`Occurs check failed: ${typeVarName} appears in ${showType(type)}`);
     } else {
         return { [typeVarName]: type };
     }

@@ -8,7 +8,7 @@ import {
     Let,
     LiteralKind,
 } from '../../../src/ast/expressions';
-import { getInferer, Inferer } from '../../../src/typeChecker/inference';
+import { getInferer, ExpressionInferer } from '../../../src/typeChecker/inference';
 import {
     BOOL_TYPE,
     Context,
@@ -17,13 +17,19 @@ import {
     typeVar,
     typeVarGenerator,
     unboundScheme,
-    NUMBER_TYPE, TypeKind,
+    NUMBER_TYPE,
+    TypeKind,
+    curriedFunctionType,
+    showScheme,
+    generalize,
 } from '../../../src/typeChecker/types';
 import { UnificationError } from '../../../src/typeChecker/unification';
+import { makeCall, makeConditional, makeIdentifierReference, makeLambda, makeNumber } from '../../../src/ast/builders';
+import { builtins } from '../../../src/typeChecker/builtins';
 
 describe('inference', function () {
     describe('#infer', function () {
-        let infer: Inferer;
+        let infer: ExpressionInferer;
         beforeEach(function () {
             infer = getInferer(typeVarGenerator());
         });
@@ -63,7 +69,7 @@ describe('inference', function () {
                 },
             };
             const { type } = infer({}, expr);
-            const expected = functionType(typeVar('t0'), NUMBER_TYPE);
+            const expected = functionType(typeVar('t1'), NUMBER_TYPE);
             assert.deepStrictEqual(type, expected);
         });
         it('should correctly infer the type of a simple application given the correct context', function () {
@@ -88,7 +94,16 @@ describe('inference', function () {
             const { type } = infer(context, expr);
             assert.deepStrictEqual(type, BOOL_TYPE);
         });
-        it('should correctly infer the type of a lambda expression given a correct context', function () {
+        it('should correctly infer the type of a binary function application given the correct context', function () {
+            const application = makeCall(makeIdentifierReference('x'), [makeNumber(1), makeNumber(2)]);
+            const context = {
+                x: unboundScheme(curriedFunctionType(NUMBER_TYPE, NUMBER_TYPE, BOOL_TYPE)),
+            };
+            const { type } = infer(context, application);
+            assert.deepStrictEqual(type, BOOL_TYPE);
+
+        });
+        it('should correctly infer the type of a lambda expression given the correct context', function () {
             // \x -> y x
             const expr: Expression = {
                 kind: ExpressionKind.Lambda,
@@ -109,7 +124,7 @@ describe('inference', function () {
                 y: unboundScheme(functionType(typeVar('u0'), BOOL_TYPE)),
             };
             const { type } = infer(context, expr);
-            const expected = functionType(typeVar('t0'), BOOL_TYPE);
+            const expected = functionType(typeVar('t1'), BOOL_TYPE);
             assert.deepStrictEqual(type, expected);
         });
         it('should correctly infer the type of the const function', function () {
@@ -128,13 +143,65 @@ describe('inference', function () {
             };
             const { substitution, type } = infer({}, constFunction);
             assert.deepStrictEqual(substitution, {});
-            const expected = functionType(typeVar('t0'), functionType(typeVar('t1'), typeVar('t0')));
+            const expected = functionType(typeVar('t1'), functionType(typeVar('t2'), typeVar('t1')));
             assert.deepStrictEqual(type, expected);
+        });
+        it('should correctly infer the type of the a reapplication function', function () {
+            const expression = makeLambda(
+                'f',
+                makeLambda(
+                    'x',
+                    makeCall(
+                        makeIdentifierReference('f'),
+                        [makeIdentifierReference('x')],
+                    ),
+                ),
+            );
+            const { type } = infer({}, expression);
+            const expected = curriedFunctionType(
+                functionType(typeVar('t2'), typeVar('t3')),
+                typeVar('t2'),
+                typeVar('t3'),
+            );
+            assert.deepStrictEqual(type, expected);
+        });
+        it('should correctly infer the type of a more complex function', function () {
+            const expression = makeLambda(
+                'f',
+                makeLambda(
+                    'x',
+                    makeLambda(
+                        'times',
+                        makeConditional(
+                            makeCall(
+                                makeIdentifierReference('=='),
+                                [makeIdentifierReference('times'), makeNumber(1)],
+                            ),
+                            makeCall(
+                                makeIdentifierReference('f'),
+                                [makeIdentifierReference('x')],
+                            ),
+                            makeCall(
+                                makeIdentifierReference('f'),
+                                [
+                                    makeCall(
+                                        makeIdentifierReference('f'),
+                                        [makeIdentifierReference('x')],
+                                    ),
+                                ],
+                            ),
+                        ),
+                    ),
+                ),
+            );
+            const { type } = infer(builtins, expression);
+            console.log(showScheme(generalize({},type)));
+
         });
         it('should correctly infer the type of the identity function', function () {
             const { substitution, type } = infer({}, ID_FUNCTION);
             assert.deepStrictEqual(substitution, {});
-            const expected = functionType(typeVar('t0'), typeVar('t0'));
+            const expected = functionType(typeVar('t1'), typeVar('t1'));
             assert.deepStrictEqual(type, expected);
         });
         it('should correctly infer the type of the identity function applied to the identity function', function() {
@@ -144,7 +211,7 @@ describe('inference', function () {
                 argument: ID_FUNCTION,
             };
             const { type } = infer({}, expr);
-            const expected = functionType(typeVar('t1'), typeVar('t1'));
+            const expected = functionType(typeVar('t2'), typeVar('t2'));
             assert.deepStrictEqual(type, expected);
         });
         it('should correctly infer the type of a let expression', function () {

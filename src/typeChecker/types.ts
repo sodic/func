@@ -110,7 +110,7 @@ export function makeScheme(bound: string[], type: Type): Scheme {
     };
 }
 
-export function instantiate(scheme: Scheme, uniqueTypeVar: () => TVariable): Type {
+export function instantiate(scheme: Scheme, uniqueTypeVar: () => TVariable = typeVarGenerator()): Type {
     const sub = [...scheme.bound].reduce(
         (sub, oldName) => ({ ...sub, [oldName]: uniqueTypeVar() }),
         {},
@@ -118,7 +118,7 @@ export function instantiate(scheme: Scheme, uniqueTypeVar: () => TVariable): Typ
     return substituteInType(sub, scheme.type);
 }
 
-export function curriedFunctionScheme(type1: Type, type2: Type, ...types: Type[]): Scheme {
+export function functionScheme(type1: Type, type2: Type, ...types: Type[]): Scheme {
     return generalize({}, curriedFunctionType(type1, type2, ...types));
 }
 

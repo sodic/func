@@ -3,11 +3,11 @@ import {
     Conditional,
     Expression,
     ExpressionKind,
+    Identifier,
     Lambda,
     Let,
     Literal,
     LiteralKind,
-    Identifier,
 } from '../ast/expressions';
 import {
     BIGINT_TYPE,
@@ -21,13 +21,14 @@ import {
     TLiteral,
     TVariable,
     Type,
+    typeVar,
     typeVarGenerator,
     unboundScheme,
 } from './types';
 import { composeSubstitutions, substituteInContext, substituteInType } from './substitution';
 import { unify } from './unification';
 import { assertUnreachable } from '../util';
-import { Module, Statement } from '../ast/statements';
+import { Module, Statement, StatementKind } from '../ast/statements';
 import { builtins } from './builtins';
 
 
@@ -38,24 +39,53 @@ export function inferModule(module: Module): Context {
     );
 }
 
+
 export function inferStatement(context: Context, statement: Statement): Context {
-    const { name, expression } = statement;
+    const { kind, name, expression } = statement;
     try {
-        const type = inferExpression(expression, context);
-        return {
-            ...context,
-            [name]: generalize(context, type),
-        };
+        switch (kind) {
+        case StatementKind.FunctionDefinition:
+            return inferFunctionDefinition(context, name, expression);
+        case StatementKind.Assignment:
+            return inferAssignment(context, name, expression);
+        default:
+            assertUnreachable(kind);
+        }
     } catch (e) {
         throw new Error(e.message + ` in ${name}`);
     }
 }
 
-export function inferExpression(expression: Expression, context: Context = {}): Type {
+function inferAssignment(context: Context, name: string, expression: Expression): Context {
+    const { type } = inferExpression(expression, context);
+    return {
+        ...context,
+        [name]: generalize(context, type),
+    };
+
+}
+
+function inferFunctionDefinition(context: Context, name: string, body: Expression): Context {
+    const contextWithSelfReference = {
+        ...context,
+        [name]: unboundScheme(typeVar('u1')),
+    };
+
+    const { substitution: sub1, type: expressionType } = inferExpression(body, contextWithSelfReference);
+    const updatedContext = substituteInContext(sub1, contextWithSelfReference);
+
+    const sub2 = unify(expressionType, instantiate(updatedContext[name]));
+    const functionType = substituteInType(sub2, expressionType);
+    return {
+        ...updatedContext,
+        [name]: generalize(context, functionType),
+    };
+}
+
+export function inferExpression(expression: Expression, context: Context = {}): TypeInfo {
     const infer = getInferer(typeVarGenerator());
     // we don't want to pullute the global context with local type variables
-    const { type } = infer(context, expression);
-    return type;
+    return infer(context, expression);
 }
 
 /**
@@ -66,7 +96,7 @@ export function inferExpression(expression: Expression, context: Context = {}): 
  * @param uniqueTypeVar A function that provides a type variable with a unique name
  * within the system.
  */
-export function getInferer(uniqueTypeVar: () => TVariable): ExpressionInferer {
+export function getInferer(uniqueTypeVar: () => TVariable = typeVarGenerator()): ExpressionInferer {
     function infer(context: Context, expression: Expression): TypeInfo {
         switch (expression.kind) {
         case ExpressionKind.Literal:

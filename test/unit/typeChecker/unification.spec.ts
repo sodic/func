@@ -2,11 +2,11 @@ import { OccursError, UnificationError, unify } from '../../../src/typeChecker/u
 import assert from 'assert';
 import {
     BOOL_TYPE,
-    functionType,
+    curriedFunctionType,
     BIGINT_TYPE,
     TFunction,
     typeVar,
-    NUMBER_TYPE,
+    NUMBER_TYPE, functionType,
 } from '../../../src/typeChecker/types';
 
 describe('unification', function () {
@@ -45,16 +45,16 @@ describe('unification', function () {
             const result = unify(typeVar1, typeVar2);
             assert.deepStrictEqual(result, { [typeVar1.name]:  typeVar2 });
         });
-        it('should throw an unification error when uniting a number type with a bool type', function () {
+        it('should throw a unification error when uniting a number type with a bool type', function () {
             assert.throws(() => unify(NUMBER_TYPE, BOOL_TYPE), UnificationError);
             assert.throws(() => unify(BOOL_TYPE, NUMBER_TYPE), UnificationError);
         });
-        it('should throw an unification error when uniting a function type with a number type', function () {
+        it('should throw a unification error when uniting a function type with a number type', function () {
             const funType = functionType(typeVar('u1'), typeVar('u2'));
             assert.throws(() => unify(funType, BIGINT_TYPE), UnificationError);
             assert.throws(() => unify(BIGINT_TYPE, funType), UnificationError);
         });
-        it('should throw an unification error when uniting a function type with a bigint type', function () {
+        it('should throw a unification error when uniting a function type with a bigint type', function () {
             const funType = functionType(typeVar('u1'), typeVar('u2'));
             assert.throws(() => unify(funType, BIGINT_TYPE), UnificationError);
             assert.throws(() => unify(BIGINT_TYPE, funType), UnificationError);
@@ -82,6 +82,17 @@ describe('unification', function () {
                 'u2': BOOL_TYPE,
             };
             assert.deepStrictEqual(result, expected);
+        });
+        it('should correctly unify two generic function types', function () {
+            const result = unify(
+                functionType(typeVar('u1'), typeVar('u2')),
+                curriedFunctionType(typeVar('u1'), typeVar('u4'), typeVar('u5')),
+            );
+            const expected = {
+                'u2': functionType(typeVar('u4'), typeVar('u5')),
+            };
+            assert.deepStrictEqual(result, expected);
+
         });
         it('should correctly unify two type variables', function () {
             const result = unify(typeVar('u1'), typeVar('u2'));

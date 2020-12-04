@@ -15,7 +15,6 @@ import {
     functionType,
     BIGINT_TYPE,
     typeVar,
-    typeVarGenerator,
     unboundScheme,
     NUMBER_TYPE,
     TypeKind,
@@ -31,7 +30,7 @@ describe('inference', function () {
     describe('#infer', function () {
         let infer: ExpressionInferer;
         beforeEach(function () {
-            infer = getInferer(typeVarGenerator());
+            infer = getInferer();
         });
         it('should correctly infer the type of a literal bigint expression', function () {
             const expr: Expression = { kind: ExpressionKind.Literal, value: { kind: LiteralKind.BigInt, value: 4n } };

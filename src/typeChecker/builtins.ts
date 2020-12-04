@@ -1,5 +1,6 @@
 import {
-    BOOL_TYPE, curriedFunctionScheme,
+    BOOL_TYPE, 
+    functionScheme,
     NUMBER_TYPE,
     Scheme,
     typeVar,
@@ -7,16 +8,16 @@ import {
 import { Builtin, BuiltinFunction, BuiltinOperator } from '../builtins';
 
 export const builtins: Record<Builtin, Scheme> = {
-    [BuiltinOperator.Add]: curriedFunctionScheme(NUMBER_TYPE, NUMBER_TYPE, NUMBER_TYPE),
-    [BuiltinOperator.Subtract]: curriedFunctionScheme(NUMBER_TYPE, NUMBER_TYPE, NUMBER_TYPE),
-    [BuiltinOperator.Multiply]: curriedFunctionScheme(NUMBER_TYPE, NUMBER_TYPE, NUMBER_TYPE),
-    [BuiltinOperator.Divide]: curriedFunctionScheme(NUMBER_TYPE, NUMBER_TYPE, NUMBER_TYPE),
-    [BuiltinOperator.Modulus]: curriedFunctionScheme(NUMBER_TYPE, NUMBER_TYPE, NUMBER_TYPE),
-    [BuiltinOperator.LessThan]: curriedFunctionScheme(NUMBER_TYPE, NUMBER_TYPE, BOOL_TYPE),
-    [BuiltinOperator.LessEqualThan]: curriedFunctionScheme(NUMBER_TYPE, NUMBER_TYPE, BOOL_TYPE),
-    [BuiltinOperator.GreaterThan]: curriedFunctionScheme(NUMBER_TYPE, NUMBER_TYPE, BOOL_TYPE),
-    [BuiltinOperator.GreaterEqualThan]: curriedFunctionScheme(NUMBER_TYPE, NUMBER_TYPE, BOOL_TYPE),
-    [BuiltinOperator.Equal]: curriedFunctionScheme(NUMBER_TYPE, NUMBER_TYPE, BOOL_TYPE),
-    [BuiltinFunction.Identity]: curriedFunctionScheme(typeVar('u1'), typeVar('u1')),
-    [BuiltinFunction.Constant]: curriedFunctionScheme( typeVar('u1'), typeVar('u2'), typeVar('u1')),
+    [BuiltinOperator.Add]: functionScheme(NUMBER_TYPE, NUMBER_TYPE, NUMBER_TYPE),
+    [BuiltinOperator.Subtract]: functionScheme(NUMBER_TYPE, NUMBER_TYPE, NUMBER_TYPE),
+    [BuiltinOperator.Multiply]: functionScheme(NUMBER_TYPE, NUMBER_TYPE, NUMBER_TYPE),
+    [BuiltinOperator.Divide]: functionScheme(NUMBER_TYPE, NUMBER_TYPE, NUMBER_TYPE),
+    [BuiltinOperator.Modulus]: functionScheme(NUMBER_TYPE, NUMBER_TYPE, NUMBER_TYPE),
+    [BuiltinOperator.LessThan]: functionScheme(NUMBER_TYPE, NUMBER_TYPE, BOOL_TYPE),
+    [BuiltinOperator.LessEqualThan]: functionScheme(NUMBER_TYPE, NUMBER_TYPE, BOOL_TYPE),
+    [BuiltinOperator.GreaterThan]: functionScheme(NUMBER_TYPE, NUMBER_TYPE, BOOL_TYPE),
+    [BuiltinOperator.GreaterEqualThan]: functionScheme(NUMBER_TYPE, NUMBER_TYPE, BOOL_TYPE),
+    [BuiltinOperator.Equal]: functionScheme(NUMBER_TYPE, NUMBER_TYPE, BOOL_TYPE),
+    [BuiltinFunction.Identity]: functionScheme(typeVar('u1'), typeVar('u1')),
+    [BuiltinFunction.Constant]: functionScheme(typeVar('u1'), typeVar('u2'), typeVar('u1')),
 };

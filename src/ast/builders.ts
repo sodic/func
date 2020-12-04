@@ -11,7 +11,7 @@ import {
     Literal,
     LiteralKind,
 } from './expressions';
-import { Assignment, Module, Statement, StatementKind } from './statements';
+import { Assignment, FunctionDefinition, Module, Statement, StatementKind } from './statements';
 
 export function makeNumber(value: number): Literal {
     return {
@@ -54,9 +54,9 @@ export function makeModule(definitions: Statement[]): Module {
     };
 }
 
-export function makeFunctionDefinition(name: string, params: string[], body: Expression): Assignment {
+export function makeFunctionDefinition(name: string, params: string[], body: Expression): FunctionDefinition {
     return {
-        kind: StatementKind.Assignment,
+        kind: StatementKind.FunctionDefinition,
         name,
         expression: curryFunction(params, body),
     };

@@ -21,6 +21,7 @@ import {
     curriedFunctionType,
     showScheme,
     generalize,
+    functionScheme,
 } from '../../../src/typeChecker/types';
 import { UnificationError } from '../../../src/typeChecker/unification';
 import {
@@ -32,6 +33,7 @@ import {
     makeNumber,
 } from '../../../src/ast/builders';
 import { builtins } from '../../../src/typeChecker/builtins';
+import { Operator } from '../../../src/ast/builtins';
 
 describe('inference', function () {
     describe('#infer', function () {
@@ -312,6 +314,15 @@ describe('inference', function () {
                 c: unboundScheme(BOOL_TYPE),
             };
             assert.throws(() => infer(context, conditional), UnificationError);
+        });
+        it('should correctly infer type instantiation on parital applications', function () {
+            const expression = makeApplication(makeIdentifierReference('f'), makeNumber(5));
+            const context = {
+                f: functionScheme(typeVar('u1'), typeVar('u1'), typeVar('u2')),
+            };
+            const expected = functionType(NUMBER_TYPE, typeVar('t2'));
+            const { type } = infer(context, expression);
+            assert.deepStrictEqual(type, expected);
         });
         it('should fail when let would normally generalize', function () {
             // todo

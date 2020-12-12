@@ -7,6 +7,8 @@ import {
     makeIdentifierReference,
     makeNumber,
 } from '../../../../src/ast/builders';
+import { Operator } from '../../../../src/ast/builtins';
+import { BuiltinName } from '../../../../src/builtins';
 
 describe('helpers', function () {
     describe('#buildBinaryExpressionChain', function () {
@@ -16,17 +18,17 @@ describe('helpers', function () {
         });
         it('should correctly build a binary expression chain when the operator is used once', function () {
             const head = makeIdentifierReference('a');
-            const other: BinaryChainElement = [null, '+', null, makeIdentifierReference('b')];
+            const other: BinaryChainElement = [null, BuiltinName.Add, null, makeIdentifierReference('b')];
             const result = buildBinaryExpressionChain(head, [other]);
-            const expected = makeCall(makeIdentifierReference('+'), [head, other[3]]);
+            const expected = makeCall(Operator.Add, [head, other[3]]);
             assert.deepStrictEqual(result, expected);
         });
         it('should correctly build a chained binary expression', function () {
             const head = makeIdentifierReference('a');
             const tail: BinaryChainElement[] = [
-                [null, '*', null, makeIdentifierReference('b')],
-                [null, '%', null, makeIdentifierReference('c')],
-                [null, '/', null, makeIdentifierReference('d')],
+                [null, BuiltinName.Multiply, null, makeIdentifierReference('b')],
+                [null, BuiltinName.Modulus, null, makeIdentifierReference('c')],
+                [null, BuiltinName.Divide, null, makeIdentifierReference('d')],
             ];
             const result = buildBinaryExpressionChain(head, tail);
             const expected = makeCall(

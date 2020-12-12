@@ -63,9 +63,11 @@ describe('source type inference', function () {
             );
             assert.deepStrictEqual(context['applyNTimes'], expected);
         });
-        it('should correctly detect a type mismatch in recursive functions', function () {
+        it('should correctly detect a type mismatch in recursive functions 1', function () {
             assert.throws(() => inferStatementSource('func f(x) = f(x, 1)'), Error);
-
+        });
+        it('should correctly detect a type mismatch in recursive functions 2', function () {
+            assert.throws(() => inferStatementSource('func f(x) = f'));
         });
     });
     describe('module inference', function () {

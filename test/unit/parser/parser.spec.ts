@@ -12,6 +12,7 @@ import {
     makeNumber,
     makeString,
 } from '../../../src/ast/builders';
+import { Operator } from '../../../src/ast/builtins';
 
 describe('parser', function () {
     describe('#parseExpression', function () {
@@ -53,53 +54,54 @@ describe('parser', function () {
         });
         it('should correctly parse simple literal addition', function () {
             const result= parseExpression('1+2');
-            const expected = makeCall(makeIdentifierReference('+'), [makeNumber(1), makeNumber(2)]);
+            const expected = makeCall(Operator.Add, [makeNumber(1), makeNumber(2)]);
             assert.deepStrictEqual(result, expected);
         });
         it('should parse longer literal additive expression as left-associative', function () {
             const result= parseExpression('1+2-3+4-5');
             const expected = makeCall(
-                makeIdentifierReference('-'),
-                [makeCall(
-                    makeIdentifierReference('+'),
-                    [
-                        makeCall(
-                            makeIdentifierReference('-'),
-                            [
-                                makeCall(
-                                    makeIdentifierReference('+'),
-                                    [
-                                        makeNumber(1),
-                                        makeNumber(2),
-                                    ],
-                                ),
-                                makeNumber(3),
-                            ],
-                        ),
-                        makeNumber(4),
-                    ],
-                ),
-                makeNumber(5),
+                Operator.Subtract,
+                [
+                    makeCall(
+                        Operator.Add,
+                        [
+                            makeCall(
+                                Operator.Subtract,
+                                [
+                                    makeCall(
+                                        Operator.Add,
+                                        [
+                                            makeNumber(1),
+                                            makeNumber(2),
+                                        ],
+                                    ),
+                                    makeNumber(3),
+                                ],
+                            ),
+                            makeNumber(4),
+                        ],
+                    ),
+                    makeNumber(5),
                 ]);
             assert.deepStrictEqual(result, expected);
         });
         it('should correctly parse simple literal multiplication', function () {
             const result= parseExpression('3*4');
-            const expected = makeCall(makeIdentifierReference('*'), [makeNumber(3), makeNumber(4)]);
+            const expected = makeCall(Operator.Multiply, [makeNumber(3), makeNumber(4)]);
             assert.deepStrictEqual(result, expected);
         });
         it('should parse longer literal multiplicative expression as left-associative', function () {
             const result= parseExpression('1*2/3%4*5');
             const expected = makeCall(
-                makeIdentifierReference('*'),
+                Operator.Multiply,
                 [makeCall(
-                    makeIdentifierReference('%'),
+                    Operator.Modulus,
                     [
                         makeCall(
-                            makeIdentifierReference('/'),
+                            Operator.Divide,
                             [
                                 makeCall(
-                                    makeIdentifierReference('*'),
+                                    Operator.Multiply,
                                     [
                                         makeNumber(1),
                                         makeNumber(2),
@@ -116,28 +118,28 @@ describe('parser', function () {
             assert.deepStrictEqual(result, expected);
         });
         it('should parse a complex literal arithmetic expression with correct operator precedence', function () {
-            const result= parseExpression('1+2*3-4/5');
+            const result= parseExpression('1.6+2.1*3-4.98/.5');
             const expected = makeCall(
-                makeIdentifierReference('-'),
+                Operator.Subtract,
                 [
                     makeCall(
-                        makeIdentifierReference('+'),
+                        Operator.Add,
                         [
-                            makeNumber(1),
+                            makeNumber(1.6),
                             makeCall(
-                                makeIdentifierReference('*'),
+                                Operator.Multiply,
                                 [
-                                    makeNumber(2),
+                                    makeNumber(2.1),
                                     makeNumber(3),
                                 ],
                             ),
                         ],
                     ),
                     makeCall(
-                        makeIdentifierReference('/'),
+                        Operator.Divide,
                         [
-                            makeNumber(4),
-                            makeNumber(5),
+                            makeNumber(4.98),
+                            makeNumber(.5),
                         ],
                     ),
                 ],
@@ -145,22 +147,22 @@ describe('parser', function () {
             assert.deepStrictEqual(result, expected);
         });
         it('should parse a literal arithmetic expression containing parentheses with correct operator precedence', function () {
-            const result= parseExpression('(1+2)*((3-4)/5)');
+            const result= parseExpression('(0.01+.2)*((3-4)/5)');
             const expected = makeCall(
-                makeIdentifierReference('*'),
+                Operator.Multiply,
                 [
                     makeCall(
-                        makeIdentifierReference('+'),
+                        Operator.Add,
                         [
-                            makeNumber(1),
-                            makeNumber(2),
+                            makeNumber(0.01),
+                            makeNumber(0.2),
                         ],
                     ),
                     makeCall(
-                        makeIdentifierReference('/'),
+                        Operator.Divide,
                         [
                             makeCall(
-                                makeIdentifierReference('-'),
+                                Operator.Subtract,
                                 [
                                     makeNumber(3),
                                     makeNumber(4),
@@ -176,17 +178,17 @@ describe('parser', function () {
         it('should correctly parse a literal arithmetic expression that even casio calculators can\'t handle', function () {
             const result = parseExpression('9/3*(1+2)');
             const expected = makeCall(
-                makeIdentifierReference('*'),
+                Operator.Multiply,
                 [
                     makeCall(
-                        makeIdentifierReference('/'),
+                        Operator.Divide,
                         [
                             makeNumber(9),
                             makeNumber(3),
                         ],
                     ),
                     makeCall(
-                        makeIdentifierReference('+'),
+                        Operator.Add,
                         [
                             makeNumber(1),
                             makeNumber(2),
@@ -200,15 +202,15 @@ describe('parser', function () {
         it('should correctly parse a complex arithmetic expression containing identifier references', function () {
             const result= parseExpression('1*x/3%ligma*mate');
             const expected = makeCall(
-                makeIdentifierReference('*'),
+                Operator.Multiply,
                 [makeCall(
-                    makeIdentifierReference('%'),
+                    Operator.Modulus,
                     [
                         makeCall(
-                            makeIdentifierReference('/'),
+                            Operator.Divide,
                             [
                                 makeCall(
-                                    makeIdentifierReference('*'),
+                                    Operator.Multiply,
                                     [
                                         makeNumber(1),
                                         makeIdentifierReference('x'),
@@ -229,6 +231,24 @@ describe('parser', function () {
             const result1 = parseExpression('1 +   x      /3 - 4%y    *6');
             const result2 = parseExpression('1+x/3-4%y*6');
             assert.deepStrictEqual(result1, result2);
+
+        });
+        it('should correctly parse a logical expression with literals', function () {
+            const result = parseExpression('True or False and True');
+            const expected = makeCall(
+                Operator.Or,
+                [
+                    makeBoolean(true),
+                    makeCall(
+                        Operator.And,
+                        [
+                            makeBoolean(false),
+                            makeBoolean(true),
+                        ],
+                    ),
+                ],
+            );
+            assert.deepStrictEqual(result, expected);
 
         });
         it('should correctly parse a unary function call', function () {
@@ -269,14 +289,14 @@ describe('parser', function () {
         it('should be able to work with function calls within arithmetic expressions', function () {
             const result = parseExpression('1-(a+double(5))+square(3)(4)*area(a,5)');
             const expected = makeCall(
-                makeIdentifierReference('+'),
+                Operator.Add,
                 [
                     makeCall(
-                        makeIdentifierReference('-'),
+                        Operator.Subtract,
                         [
                             parseExpression('1'),
                             makeCall(
-                                makeIdentifierReference('+'),
+                                Operator.Add,
                                 [
                                     parseExpression('a'),
                                     parseExpression('double(5)'),
@@ -285,7 +305,7 @@ describe('parser', function () {
                         ],
                     ),
                     makeCall(
-                        makeIdentifierReference('*'),
+                        Operator.Multiply,
                         [
                             parseExpression('square(3)(4)'),
                             parseExpression('area(a, 5)'),
@@ -303,7 +323,7 @@ describe('parser', function () {
         it('should correctly parse an equality check', function () {
             const result1 = parseExpression('a+1==f(5)+3');
             const expected = makeCall(
-                makeIdentifierReference('=='),
+                Operator.Equal,
                 [
                     parseExpression('a+1'),
                     parseExpression('f(5)+3'),
@@ -314,7 +334,7 @@ describe('parser', function () {
         it('should correctly parse an inequality check', function () {
             const result1 = parseExpression('a+1!=f(5)+3');
             const expected = makeCall(
-                makeIdentifierReference('!='),
+                Operator.NotEqual,
                 [
                     parseExpression('a+1'),
                     parseExpression('f(5)+3'),
@@ -325,7 +345,7 @@ describe('parser', function () {
         it('should correctly parse a less-then check', function () {
             const result = parseExpression('a-1<5');
             const expected = makeCall(
-                makeIdentifierReference('<'),
+                Operator.LessThan,
                 [
                     parseExpression('a-1'),
                     parseExpression('5'),
@@ -336,7 +356,7 @@ describe('parser', function () {
         it('should correctly parse a less-then-or-equal check', function () {
             const result = parseExpression('a<=5+2');
             const expected = makeCall(
-                makeIdentifierReference('<='),
+                Operator.LessEqualThan,
                 [
                     parseExpression('a'),
                     parseExpression('5+2'),
@@ -347,7 +367,7 @@ describe('parser', function () {
         it('should correctly parse a greater-then check', function () {
             const result = parseExpression('a>5-1');
             const expected = makeCall(
-                makeIdentifierReference('>'),
+                Operator.GreaterThan,
                 [
                     parseExpression('a'),
                     parseExpression('5-1'),
@@ -358,7 +378,7 @@ describe('parser', function () {
         it('should correctly parse a greater-then-or-equal check', function () {
             const result = parseExpression('a>=5');
             const expected = makeCall(
-                makeIdentifierReference('>='),
+                Operator.GreaterEqualThan,
                 [
                     parseExpression('a'),
                     parseExpression('5'),
@@ -369,7 +389,7 @@ describe('parser', function () {
         it('should correctly parse a logical conjunction', function () {
             const result = parseExpression('a==1 and b<3');
             const expected = makeCall(
-                makeIdentifierReference('and'),
+                Operator.And,
                 [
                     parseExpression('a==1'),
                     parseExpression('b<3'),
@@ -380,13 +400,13 @@ describe('parser', function () {
         it('should correctly parse a longer logical conjunction', function () {
             const result = parseExpression('a==1 and b<3 and f(5) and g(4+3)-1');
             const expected = makeCall(
-                makeIdentifierReference('and'),
+                Operator.And,
                 [
                     makeCall(
-                        makeIdentifierReference('and'),
+                        Operator.And,
                         [
                             makeCall(
-                                makeIdentifierReference('and'),
+                                Operator.And,
                                 [
                                     parseExpression('a==1'),
                                     parseExpression('b<3'),
@@ -403,7 +423,7 @@ describe('parser', function () {
         it('should correctly parse a simple logical disjunction', function () {
             const result = parseExpression('a==1 and 3*2==6 or b+3==1 and 4==5');
             const expected = makeCall(
-                makeIdentifierReference('or'),
+                Operator.Or,
                 [
                     parseExpression('a==1 and 3*2==6'),
                     parseExpression('b+3==1 and 4==5'),
@@ -414,13 +434,13 @@ describe('parser', function () {
         it('should correctly parse a longer logical disjunction', function () {
             const result = parseExpression('(a==1 or 3) and 3*2==6 or b+3==1 and 4==5 and 4*2==1');
             const expected = makeCall(
-                makeIdentifierReference('or'),
+                Operator.Or,
                 [
                     makeCall(
-                        makeIdentifierReference('and'),
+                        Operator.And,
                         [
                             makeCall(
-                                makeIdentifierReference('or'),
+                                Operator.Or,
                                 [
                                     parseExpression('a==1'),
                                     parseExpression('3'),
@@ -438,6 +458,15 @@ describe('parser', function () {
             const result1 = parseExpression('a==1 or 3 and 3*2==6 or b+3==1 and 4==5 and 4*2==1');
             const result2 = parseExpression('a    ==  1   or    3   and   3   *2  == 6     or   b +  3    ==  1  and  4 ==    5  and  4 * 2== 1');
             assert.deepStrictEqual(result1, result2);
+        });
+        it('should correctly parse a simple conditional expression', function () {
+            const result = parseExpression('"Mlad" if age<15 else "Star"');
+            const expected = makeConditional(
+                parseExpression('age<15'),
+                parseExpression('"Mlad"'),
+                parseExpression('"Star"'),
+            );
+            assert.deepStrictEqual(result, expected);
         });
         it('should correctly parse a simple conditional expression', function () {
             const result = parseExpression('4+5 if a==5 or a==3 else f(5)-1');
@@ -471,7 +500,7 @@ describe('parser', function () {
             const expected = makeConditional(
                 parseExpression('c<4'),
                 makeCall(
-                    makeIdentifierReference('+'),
+                    Operator.Add,
                     [
                         parseExpression('1'),
                         parseExpression('3 if a==3 else b'),
@@ -586,7 +615,7 @@ result=square(start) * 3 - larger(a,b)`);
             );
             assert.deepStrictEqual(result, expected);
         });
-        it('should be case insensitive when parsing modules', function() {
+        it('should be space insensitive when parsing modules', function() {
             const result = parseModule( `        
               
 func            square(x)=x                    *x
@@ -594,14 +623,14 @@ func            square(x)=x                    *x
             
            
 func        add(  x, y)    =x  +y    
-func larger             ( a, b )=    a if    a>= b else b
+func larger             ( a, b )=    a if    a>= b else b  
         
         
 start     =      5
     
     
 
-a=2
+a=2  
 
 b=  8 if  a>  2  and start ==   5 else  9
 

@@ -1,4 +1,5 @@
-export enum BuiltinOperator {
+export enum BuiltinName {
+	// operators
 	Add = '+',
 	Subtract = '-',
 	Multiply = '*',
@@ -8,12 +9,13 @@ export enum BuiltinOperator {
 	GreaterEqualThan = '>=',
 	LessThan = '<',
 	LessEqualThan = '<=',
-	Equal= '==',
-}
+	Equal = '==',
+	NotEqual = '!=',
+	And = 'and',
+	Or = 'or',
 
-export enum BuiltinFunction {
+	// functions
 	Constant= 'const',
 	Identity = 'id',
+	ToString = 'toString',
 }
-
-export type Builtin = BuiltinOperator | BuiltinFunction;

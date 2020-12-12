@@ -18,6 +18,8 @@ export function substituteInType(sub: Substitution, type: Type): Type {
         return type;
     case TypeKind.BigInt:
         return type;
+    case TypeKind.String:
+        return type;
     case TypeKind.Array:
         return arrayType(substituteInType(sub, type.boxed));
     default:

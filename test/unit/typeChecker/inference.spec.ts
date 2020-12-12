@@ -23,7 +23,14 @@ import {
     generalize,
 } from '../../../src/typeChecker/types';
 import { UnificationError } from '../../../src/typeChecker/unification';
-import { makeCall, makeConditional, makeIdentifierReference, makeLambda, makeNumber } from '../../../src/ast/builders';
+import {
+    makeApplication,
+    makeCall,
+    makeConditional,
+    makeIdentifierReference,
+    makeLambda,
+    makeNumber,
+} from '../../../src/ast/builders';
 import { builtins } from '../../../src/typeChecker/builtins';
 
 describe('inference', function () {
@@ -173,7 +180,7 @@ describe('inference', function () {
                         'times',
                         makeConditional(
                             makeCall(
-                                makeIdentifierReference('=='),
+                                Operator.Equal,
                                 [makeIdentifierReference('times'), makeNumber(1)],
                             ),
                             makeCall(

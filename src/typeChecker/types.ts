@@ -12,6 +12,7 @@ export enum TypeKind {
     Boolean = 'Boolean',
     Number = 'Number',
     BigInt = 'BigInt',
+    String = 'String',
     Function = 'Function',
     Array = 'Array',
 }
@@ -35,7 +36,10 @@ export interface TArray {
 }
 
 // ι (literal)
-export type TLiteral = TBoolean | TBigint | TNumber;
+export type TLiteral = TBoolean
+    | TBigint
+    | TNumber
+    | TString;
 
 export interface TBoolean {
     kind: TypeKind.Boolean;
@@ -47,6 +51,10 @@ export interface TBigint {
 
 export interface TNumber {
     kind: TypeKind.Number;
+}
+
+export interface TString {
+    kind: TypeKind.String;
 }
 
 export interface Scheme {
@@ -66,6 +74,10 @@ export const BOOL_TYPE: TBoolean = {
 
 export const NUMBER_TYPE: TNumber = {
     kind: TypeKind.Number,
+};
+
+export const STRING_TYPE: TString = {
+    kind: TypeKind.String,
 };
 
 export function functionType(input: Type, output: Type): TFunction {
@@ -163,6 +175,8 @@ export function showType(type: Type): string {
         return 'Boolean';
     case TypeKind.BigInt:
         return 'Bigint';
+    case TypeKind.String:
+        return 'String';
     case TypeKind.Function:
         return showFunction(type);
     case TypeKind.Variable:

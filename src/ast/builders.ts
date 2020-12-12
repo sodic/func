@@ -8,6 +8,7 @@ import {
     ExpressionKind,
     Identifier,
     Lambda,
+    Let,
     Literal,
     LiteralKind,
 } from './expressions';
@@ -18,6 +19,27 @@ export function makeNumber(value: number): Literal {
         kind: ExpressionKind.Literal,
         value: {
             kind: LiteralKind.Number,
+            value,
+        },
+    };
+}
+
+export function makeBoolean(value: boolean): Literal {
+    return {
+        kind: ExpressionKind.Literal,
+        value: {
+            kind: LiteralKind.Boolean,
+            value,
+        },
+    };
+}
+
+// todo check notes to improve this
+export function makeString(value: string): Literal {
+    return {
+        kind: ExpressionKind.Literal,
+        value: {
+            kind: LiteralKind.String,
             value,
         },
     };
@@ -80,6 +102,15 @@ export function makeLambda(head: string, body: Expression): Lambda {
         kind: ExpressionKind.Lambda,
         head,
         body,
+    };
+}
+
+export function makeLet(statement: Statement, expression: Expression): Let {
+    return {
+        kind: ExpressionKind.Let,
+        variable: statement.name,
+        initializer: statement.expression,
+        body: expression,
     };
 }
 

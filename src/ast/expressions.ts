@@ -17,7 +17,8 @@ export const enum ExpressionKind {
 export const enum LiteralKind {
     BigInt = 'BigInt',
 	Boolean = 'Boolean',
-    Number = 'Number'
+    Number = 'Number',
+    String = 'String',
 }
 
 export interface BigintLiteral {
@@ -27,7 +28,10 @@ export interface BigintLiteral {
 
 export interface Literal {
     kind: ExpressionKind.Literal;
-    value: BooleanLiteral | BigintLiteral | NumberLiteral;
+    value: BooleanLiteral
+        | BigintLiteral
+        | NumberLiteral
+        | StringLiteral;
 }
 
 export interface BooleanLiteral {
@@ -38,6 +42,11 @@ export interface BooleanLiteral {
 export interface NumberLiteral {
     kind: LiteralKind.Number;
     value: number;
+}
+
+export interface StringLiteral {
+    kind: LiteralKind.String;
+    value: string;
 }
 
 export interface Identifier {

@@ -2,14 +2,55 @@ import assert from 'assert';
 import { parseExpression, parseModule, parseStatement } from '../../../src/parser';
 import {
     makeAssignment,
-    makeCall, makeConditional,
+    makeBoolean,
+    makeCall,
+    makeConditional,
     makeFunctionDefinition,
-    makeIdentifierReference, makeModule,
+    makeIdentifierReference,
+    makeLet,
+    makeModule,
     makeNumber,
+    makeString,
 } from '../../../src/ast/builders';
 
 describe('parser', function () {
     describe('#parseExpression', function () {
+        it('should correctly parse a string literal', function () {
+            const result = parseExpression('"Ja sam string literal"');
+            const expected = makeString('Ja sam string literal');
+            assert.deepStrictEqual(result, expected);
+
+        });
+        it('should correctly parse a boolean true literal', function () {
+            const result = parseExpression('True');
+            const expected = makeBoolean(true);
+            assert.deepStrictEqual(result, expected);
+        });
+        it('should correctly parse a boolean false literal', function () {
+            const result = parseExpression('False');
+            const expected = makeBoolean(false);
+            assert.deepStrictEqual(result, expected);
+        });
+        it('should correctly parse a simple numeric literal', function () {
+            const result = parseExpression('1235');
+            const expected = makeNumber(1235);
+            assert.deepStrictEqual(result, expected);
+        });
+        it('should correctly parse a decimal numeric literal', function () {
+            const result = parseExpression('12.35');
+            const expected = makeNumber(12.35);
+            assert.deepStrictEqual(result, expected);
+        });
+        it('should correctly parse a numeric literal starting with a dot', function () {
+            const result = parseExpression('.123');
+            const expected = makeNumber(0.123);
+            assert.deepStrictEqual(result, expected);
+        });
+        it('should correctly parse a numeric literal with exponentiation', function () {
+            const result = parseExpression('12.35e-5');
+            const expected = makeNumber(12.35e-5);
+            assert.deepStrictEqual(result, expected);
+        });
         it('should correctly parse simple literal addition', function () {
             const result= parseExpression('1+2');
             const expected = makeCall(makeIdentifierReference('+'), [makeNumber(1), makeNumber(2)]);
@@ -185,7 +226,7 @@ describe('parser', function () {
 
         });
         it('should be whitespace insensitive when parsing arithmetic expressions', function () {
-            const result1 = parseExpression('  1 +   x      /3 - 4%y    *6 ');
+            const result1 = parseExpression('1 +   x      /3 - 4%y    *6');
             const result2 = parseExpression('1+x/3-4%y*6');
             assert.deepStrictEqual(result1, result2);
 
@@ -255,7 +296,7 @@ describe('parser', function () {
             assert.deepStrictEqual(result, expected);
         });
         it('should be whitespace insensitive when parsing function calls in expressions', function () {
-            const result1 = parseExpression('x    + a (  1,    2 )-3  + 5*f   (1,2) (4)   (1)-1   ');
+            const result1 = parseExpression('x    + a (  1,    2 )-3  + 5*f   (1 ,2) ( 4)   (1)-1');
             const result2 = parseExpression('x+a(1,2)-3+5*f(1,2)(4)(1)-1');
             assert.deepStrictEqual(result1, result2);
         });
@@ -395,7 +436,7 @@ describe('parser', function () {
         });
         it('should be space insensitive when parsing long logical expressions', function() {
             const result1 = parseExpression('a==1 or 3 and 3*2==6 or b+3==1 and 4==5 and 4*2==1');
-            const result2 = parseExpression('a    ==  1   or    3   and   3   *2  == 6     or   b +  3    ==  1  and  4 ==    5  and  4 * 2== 1  ');
+            const result2 = parseExpression('a    ==  1   or    3   and   3   *2  == 6     or   b +  3    ==  1  and  4 ==    5  and  4 * 2== 1');
             assert.deepStrictEqual(result1, result2);
         });
         it('should correctly parse a simple conditional expression', function () {
@@ -449,6 +490,22 @@ describe('parser', function () {
             );
             assert.deepStrictEqual(result, expected);
         });
+        it('should correctly parse a let expression', function () {
+            const result = parseExpression('let x=2 in x*x');
+            const expected = makeLet(
+                parseStatement('x=2'),
+                parseExpression('x*x'),
+            );
+            assert.deepStrictEqual(result, expected);
+        });
+        it('should correctly parse a more complicated let expression', function () {
+            const result = parseExpression('let func f(x)=1 if x == 0 else x*f(x-1) in f(4*y)+5');
+            const expected = makeLet(
+                parseStatement('func f(x)=1 if x==0 else x*f(x-1)'),
+                parseExpression('f(4*y)+5'),
+            );
+            assert.deepStrictEqual(result, expected);
+        });
     });
     describe('#parseStatement', function () {
         it('should parse a simple assignment correctly', function () {
@@ -462,7 +519,7 @@ describe('parser', function () {
             assert.deepStrictEqual(result, expected);
         });
         it('should be whitespace insensitive in assignment statements', function () {
-            const result1 = parseStatement('x1    =   9* (4 +3     ) %4  +   (1-    2) ');
+            const result1 = parseStatement('x1    =   9* (4 +3     ) %4  +   (1-    2)');
             const result2 = parseStatement('x1=9*(4+3)%4+(1-2)');
             assert.deepStrictEqual(result1, result2);
         });
@@ -481,7 +538,7 @@ describe('parser', function () {
             assert.deepStrictEqual(result, expected);
         });
         it('should be whitespace insensitive when parsing function definitions', function () {
-            const result1 = parseStatement('func some12Func       (   x      ,   y  )    =   x   *  f(y + 3  )    ');
+            const result1 = parseStatement('func some12Func       (   x      ,   y  )    =   x   *  f(y + 3  )');
             const result2 = parseStatement('func some12Func(x,y)=x*f(y+3)');
             assert.deepStrictEqual(result1, result2);
         });
@@ -504,7 +561,7 @@ describe('parser', function () {
             assert.deepStrictEqual(result, expected);
         });
         it('should correctly parse a one-line module with trailing and preceding spaces', function () {
-            const result = parseModule('\n   \na=3\n   \n   \n');
+            const result = parseModule('\n   \na=3  \n   \n   \n');
             const expected = makeModule([parseStatement('a=3')]);
             assert.deepStrictEqual(result, expected);
         });

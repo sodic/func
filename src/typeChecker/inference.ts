@@ -17,6 +17,7 @@ import {
     generalize,
     instantiate,
     NUMBER_TYPE,
+    STRING_TYPE,
     TFunction,
     TLiteral,
     TVariable,
@@ -125,6 +126,8 @@ export function getInferer(uniqueTypeVar: () => TVariable = typeVarGenerator()):
             return { substitution: {}, type: BOOL_TYPE };
         case LiteralKind.BigInt:
             return { substitution: {}, type: BIGINT_TYPE };
+        case LiteralKind.String:
+            return { substitution: {}, type: STRING_TYPE };
         default:
             assertUnreachable(literal.value);
         }

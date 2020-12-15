@@ -29,7 +29,7 @@ export function inferStatement(context: Context, statement: Statement): Context 
 }
 
 function inferAssignment(context: Context, name: string, expression: Expression): Context {
-    const { type } = inferExpression(expression, context);
+    const type = inferExpression(expression, context).type;
     return {
         ...context,
         [name]: generalize(context, type),

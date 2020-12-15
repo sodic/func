@@ -27,8 +27,8 @@ import { Context } from '../types/context';
 export type ExpressionInferer = (ctx: Context, expr: Expression) => TypeInfo;
 
 export function inferExpression(expression: Expression, context: Context = {}): TypeInfo {
-    const infer = getExpressionInferer(typeVarGenerator());
-    // we don't want to pullute the global context with local type variables
+    // we don't want to pulute the global context with local type variables
+    const infer = getExpressionInferer();
     return infer(context, expression);
 }
 
@@ -56,7 +56,6 @@ export function getExpressionInferer(uniqueTypeVar: () => TVariable = typeVarGen
         case ExpressionKind.Conditional:
             return inferConditional(context, expression);
         default:
-            // helps the compiler check for exhaustiveness
             assertUnreachable(expression);
         }
     }

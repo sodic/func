@@ -228,7 +228,6 @@ Identifier =
 
 IdentifierStart
     = UnicodeLetter
-    / "$"
     / "_"
 
 IdentifierPart

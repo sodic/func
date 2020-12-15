@@ -8,7 +8,7 @@ import {
     makeNumber,
 } from '../../../src/ast';
 import { BuiltinName } from '../../../src/builtins';
-import { translateExpression } from '../../../src/generator';
+import { translateExpression } from '../../../src/generator/translation/expressions';
 
 describe('translate', function () {
     describe('#translateExpression', function () {

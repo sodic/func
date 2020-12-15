@@ -33,7 +33,7 @@ import {
     makeNumber,
 } from '../../../src/ast/builders';
 import { builtins } from '../../../src/typeChecker/builtins';
-import { Operator } from '../../../src/ast/builtins';
+import { Builtin } from '../../../src/ast/builtins';
 
 describe('inference', function () {
     describe('#infer', function () {
@@ -182,7 +182,7 @@ describe('inference', function () {
                         'times',
                         makeConditional(
                             makeCall(
-                                Operator.Equal,
+                                Builtin.Equal,
                                 [makeIdentifierReference('times'), makeNumber(1)],
                             ),
                             makeCall(

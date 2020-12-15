@@ -15,7 +15,7 @@ export enum BuiltinName {
 	Or = 'or',
 
 	// functions
-	Constant= 'const',
+	Constant= 'constant',
 	Identity = 'id',
 	ToString = 'toString',
 }

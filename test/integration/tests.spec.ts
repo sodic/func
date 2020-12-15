@@ -37,7 +37,7 @@ describe('source type inference', function () {
     });
     describe('statement inference', function () {
         it('should correctly infer a type of a variable', function () {
-            const context = inferStatementSource('luka = const(4)');
+            const context = inferStatementSource('luka = constant(4)');
             assert.deepStrictEqual(context['luka'], functionScheme(typeVar('u1'), NUMBER_TYPE));
         });
         it('should correctly infer a type of a function', function () {
@@ -84,7 +84,7 @@ result = squareLarger(input1, input2)
 func applyNTimes(f, x, n) = x if n < 0 else f(applyNTimes(f, x, n - 1))
 result2 = applyNTimes(square, 4, 2)
 
-const2 = const(2)
+const2 = constant(2)
 
         	`;
             const context = inferModuleSource(source);

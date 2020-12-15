@@ -84,19 +84,6 @@ export function makeFunctionDefinition(name: string, params: string[], body: Exp
     };
 }
 
-/**
- * Transforms a function taking multiple arguments into a sequence of functions that
- * each take a single argument (e.g., (a, b) -> c is transformed into a -> (b -> c))
- *
- * @param params The function's parameter list.
- * @param body The function's body.
- */
-function curryFunction(params: string[], body: Expression): Lambda {
-    const [head, ...rest] = params;
-    const lambdaBody = rest.length ? curryFunction(rest, body) : body;
-    return makeLambda(head, lambdaBody);
-}
-
 export function makeLambda(head: string, body: Expression): Lambda {
     return {
         kind: ExpressionKind.Lambda,
@@ -112,6 +99,18 @@ export function makeLet(statement: Statement, expression: Expression): Let {
         initializer: statement.expression,
         body: expression,
     };
+}
+
+export function makeApplication(callee: Expression, argument: Expression): Application {
+    return {
+        kind: ExpressionKind.Application,
+        callee,
+        argument,
+    };
+}
+
+export function makeCall(callee: Expression, args: Expression[]): Application {
+    return curryApplication(callee, args);
 }
 
 type CallChainElement = [unknown, Expression[]];
@@ -134,8 +133,17 @@ export function buildBinaryExpressionChain(head: Expression, tail: BinaryChainEl
     );
 }
 
-export function makeCall(callee: Expression, args: Expression[]): Application {
-    return curryApplication(callee, args);
+/**
+ * Transforms a function taking multiple arguments into a sequence of functions that
+ * each take a single argument (e.g., (a, b) -> c is transformed into a -> (b -> c))
+ *
+ * @param params The function's parameter list.
+ * @param body The function's body.
+ */
+function curryFunction(params: string[], body: Expression): Lambda {
+    const [head, ...rest] = params;
+    const lambdaBody = rest.length ? curryFunction(rest, body) : body;
+    return makeLambda(head, lambdaBody);
 }
 
 /**
@@ -150,12 +158,4 @@ function curryApplication(callee: Expression, args: Expression[]): Application {
     const [head, ...rest] = args;
     const current: Application = makeApplication(callee, head);
     return rest.length ? curryApplication(current, rest) : current;
-}
-
-export function makeApplication(callee: Expression, argument: Expression): Application {
-    return {
-        kind: ExpressionKind.Application,
-        callee,
-        argument,
-    };
 }

@@ -161,12 +161,14 @@ export function getInferer(uniqueTypeVar: () => TVariable = typeVarGenerator()):
 
     function inferLet(context: Context, { variable, initializer, body }: Let): TypeInfo {
         const { substitution: sub1, type: initializerType } = infer(context, initializer);
+
         const tempContext: Context = {
             ...context,
             [variable]: unboundScheme(initializerType),
         };
         const subbedContext = substituteInContext(sub1, tempContext);
         const { substitution: sub2, type: typeOfBody } = infer(subbedContext, body);
+
         return {
             substitution: composeSubstitutions(sub1, sub2),
             type: typeOfBody,
@@ -201,8 +203,10 @@ export function getInferer(uniqueTypeVar: () => TVariable = typeVarGenerator()):
 
         const { substitution: s4, type: elseType } = infer(contextAfterThen, elseBranch);
 
-        // todo check unification, is it supposed to return a substitution that should be applied to the first type
-        // if so, there's a mistake here: https://github.com/namin/spots/blob/309286c2eb63181069f2ae707e07e8a9dbff7eb3/pcf/type.sml#L119
+        // todo check unification
+        // is it supposed to return a substitution that should be applied to the first type
+        // if so, there's a mistake here:
+        // https://github.com/namin/spots/blob/309286c2eb63181069f2ae707e07e8a9dbff7eb3/pcf/type.sml#L119
         const s5 = unify(elseType, substituteInType(s4, thenType));
         return {
             substitution: composeSubstitutions(s1, s2, s3, s4, s5),

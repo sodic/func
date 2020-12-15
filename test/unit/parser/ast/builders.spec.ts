@@ -7,7 +7,7 @@ import {
     makeIdentifierReference,
     makeNumber,
 } from '../../../../src/ast/builders';
-import { Operator } from '../../../../src/ast/builtins';
+import { Builtin } from '../../../../src/ast/builtins';
 import { BuiltinName } from '../../../../src/builtins';
 
 describe('helpers', function () {
@@ -20,7 +20,7 @@ describe('helpers', function () {
             const head = makeIdentifierReference('a');
             const other: BinaryChainElement = [null, BuiltinName.Add, null, makeIdentifierReference('b')];
             const result = buildBinaryExpressionChain(head, [other]);
-            const expected = makeCall(Operator.Add, [head, other[3]]);
+            const expected = makeCall(Builtin.Add, [head, other[3]]);
             assert.deepStrictEqual(result, expected);
         });
         it('should correctly build a chained binary expression', function () {

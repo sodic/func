@@ -1,15 +1,13 @@
 import assert from 'assert';
-import { inferExpression, inferModule, inferStatement } from '../../src/typeChecker/inference';
-import {
-    BOOL_TYPE,
-    Context,
-    functionScheme, functionType,
-    NUMBER_TYPE,
-    typeVar,
-    unboundScheme,
-} from '../../src/typeChecker/types';
+import { inferExpression } from '../../src/checker/inference/expressions';
 import { parseExpression, parseModule, parseStatement } from '../../src/parser';
-import { builtins } from '../../src/typeChecker/builtins';
+import { builtins } from '../../src/checker/inference/builtins';
+import { inferStatement } from '../../src/checker/inference/statements';
+import { BOOL_TYPE, NUMBER_TYPE } from '../../src/checker/types/common';
+import { functionType, typeVar, unboundScheme } from '../../src/checker/types/builders';
+import { inferModule } from '../../src/checker/inference/module';
+import { functionScheme } from '../../src/checker/inference/helpers';
+import { Context } from '../../src/checker/types/context';
 
 describe('source type inference', function () {
     describe('expression inference', function () {

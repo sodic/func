@@ -1,19 +1,17 @@
 import fs from 'fs';
-import { generate as generateParser, Parser } from 'pegjs';
 import Tracer from 'pegjs-backtrace';
-import { Expression } from '../ast/expressions';
-import { Module, Statement } from '../ast/statements';
+import { Module, Expression, Statement } from '../ast';
+import { generate as generateParser, Parser } from 'pegjs';
 
 export function parseExpression(source: string): Expression {
-
     return parseBase(source, 'Expression') as Expression;
 }
-export function parseStatement(source: string): Statement {
 
+export function parseStatement(source: string): Statement {
     return parseBase(source, 'Statement') as Statement;
 }
-export function parseModule(source: string): Module {
 
+export function parseModule(source: string): Module {
     return parseBase(source, 'Module') as Module;
 }
 
@@ -31,8 +29,6 @@ export function parseBase(source: string, startRule: string): ParserResult {
         throw e;
     }
 }
-
-export const parse = parseModule;
 
 function getParser(startRule: string) {
     const grammar = fs.readFileSync('resources/grammar/grammar.pegjs').toString();

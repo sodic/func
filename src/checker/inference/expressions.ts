@@ -8,83 +8,26 @@ import {
     Let,
     Literal,
     LiteralKind,
-} from '../ast/expressions';
+} from '../../ast';
 import {
-    BIGINT_TYPE,
-    BOOL_TYPE,
-    Context,
-    functionType,
-    generalize,
-    instantiate,
-    NUMBER_TYPE,
-    STRING_TYPE,
     TFunction,
     TLiteral,
     TVariable,
     Type,
-    typeVar,
-    typeVarGenerator,
-    unboundScheme,
-} from './types';
-import { composeSubstitutions, substituteInContext, substituteInType } from './substitution';
-import { unify } from './unification';
-import { assertUnreachable } from '../util';
-import { Module, Statement, StatementKind } from '../ast/statements';
-import { builtins } from './builtins';
 
+} from '../types/type';
+import { BIGINT_TYPE, BOOL_TYPE, NUMBER_TYPE, STRING_TYPE } from '../types/common';
+import { functionType, unboundScheme } from '../types/builders';
+import { composeSubstitutions, substituteInContext, substituteInType } from '../substitution';
+import { unify } from '../unification';
+import { assertUnreachable } from '../../util';
+import { instantiate, typeVarGenerator } from './helpers';
+import { Context } from '../types/context';
 
-export function inferModule(module: Module): Context {
-    return module.statements.reduce(
-        inferStatement,
-        builtins,
-    );
-}
-
-
-export function inferStatement(context: Context, statement: Statement): Context {
-    const { kind, name, expression } = statement;
-    try {
-        switch (kind) {
-        case StatementKind.FunctionDefinition:
-            return inferFunctionDefinition(context, name, expression);
-        case StatementKind.Assignment:
-            return inferAssignment(context, name, expression);
-        default:
-            assertUnreachable(kind);
-        }
-    } catch (e) {
-        throw new Error(e.message + ` in ${name}`);
-    }
-}
-
-function inferAssignment(context: Context, name: string, expression: Expression): Context {
-    const { type } = inferExpression(expression, context);
-    return {
-        ...context,
-        [name]: generalize(context, type),
-    };
-
-}
-
-function inferFunctionDefinition(context: Context, name: string, body: Expression): Context {
-    const contextWithSelfReference = {
-        ...context,
-        [name]: unboundScheme(typeVar('u1')),
-    };
-
-    const { substitution: sub1, type: expressionType } = inferExpression(body, contextWithSelfReference);
-    const updatedContext = substituteInContext(sub1, contextWithSelfReference);
-
-    const sub2 = unify(expressionType, instantiate(updatedContext[name]));
-    const functionType = substituteInType(sub2, expressionType);
-    return {
-        ...updatedContext,
-        [name]: generalize(context, functionType),
-    };
-}
+export type ExpressionInferer = (ctx: Context, expr: Expression) => TypeInfo;
 
 export function inferExpression(expression: Expression, context: Context = {}): TypeInfo {
-    const infer = getInferer(typeVarGenerator());
+    const infer = getExpressionInferer(typeVarGenerator());
     // we don't want to pullute the global context with local type variables
     return infer(context, expression);
 }
@@ -97,7 +40,7 @@ export function inferExpression(expression: Expression, context: Context = {}): 
  * @param uniqueTypeVar A function that provides a type variable with a unique name
  * within the system.
  */
-export function getInferer(uniqueTypeVar: () => TVariable = typeVarGenerator()): ExpressionInferer {
+export function getExpressionInferer(uniqueTypeVar: () => TVariable = typeVarGenerator()): ExpressionInferer {
     function infer(context: Context, expression: Expression): TypeInfo {
         switch (expression.kind) {
         case ExpressionKind.Literal:
@@ -119,18 +62,16 @@ export function getInferer(uniqueTypeVar: () => TVariable = typeVarGenerator()):
     }
 
     function inferLiteral(context: Context, literal: Literal): TypeInfo<TLiteral> {
-        switch (literal.value.kind) {
-        case LiteralKind.Number:
-            return { substitution: {}, type: NUMBER_TYPE };
-        case LiteralKind.Boolean:
-            return { substitution: {}, type: BOOL_TYPE };
-        case LiteralKind.BigInt:
-            return { substitution: {}, type: BIGINT_TYPE };
-        case LiteralKind.String:
-            return { substitution: {}, type: STRING_TYPE };
-        default:
-            assertUnreachable(literal.value);
-        }
+        const typeForKind: Record<LiteralKind, TLiteral> = {
+            [LiteralKind.Number]: NUMBER_TYPE,
+            [LiteralKind.Boolean]: BOOL_TYPE,
+            [LiteralKind.String]: STRING_TYPE,
+            [LiteralKind.BigInt]: BIGINT_TYPE,
+        };
+        return {
+            substitution: {},
+            type: typeForKind[literal.value.kind],
+        };
     }
 
     function inferVariable(context: Context, variable: Identifier): TypeInfo {
@@ -216,8 +157,6 @@ export function getInferer(uniqueTypeVar: () => TVariable = typeVarGenerator()):
 
     return infer;
 }
-
-export type ExpressionInferer = (ctx: Context, expr: Expression) => TypeInfo;
 
 interface TypeInfo<ExpressionType = Type> {
     type: ExpressionType;

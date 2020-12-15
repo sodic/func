@@ -1,14 +1,14 @@
 import assert from 'assert';
 import {
+    Builtin,
     makeAssignment,
     makeCall,
     makeIdentifierReference,
     makeLet,
     makeNumber,
-} from '../../../src/ast/builders';
+} from '../../../src/ast';
 import { BuiltinName } from '../../../src/builtins';
-import { translateExpression } from '../../../src/generator/translate';
-import { Builtin } from '../../../src/ast/builtins';
+import { translateExpression } from '../../../src/generator';
 
 describe('translate', function () {
     describe('#translateExpression', function () {

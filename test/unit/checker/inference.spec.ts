@@ -1,5 +1,6 @@
 import assert from 'assert';
 import {
+    Builtin,
     Application,
     Conditional,
     Expression,
@@ -7,39 +8,30 @@ import {
     Lambda,
     Let,
     LiteralKind,
-} from '../../../src/ast/expressions';
-import { getInferer, ExpressionInferer } from '../../../src/typeChecker/inference';
-import {
-    BOOL_TYPE,
-    Context,
-    functionType,
-    BIGINT_TYPE,
-    typeVar,
-    unboundScheme,
-    NUMBER_TYPE,
-    TypeKind,
-    curriedFunctionType,
-    showScheme,
-    generalize,
-    functionScheme,
-} from '../../../src/typeChecker/types';
-import { UnificationError } from '../../../src/typeChecker/unification';
-import {
     makeApplication,
     makeCall,
     makeConditional,
     makeIdentifierReference,
     makeLambda,
     makeNumber,
-} from '../../../src/ast/builders';
-import { builtins } from '../../../src/typeChecker/builtins';
-import { Builtin } from '../../../src/ast/builtins';
+} from '../../../src/ast';
+import { getExpressionInferer, ExpressionInferer } from '../../../src/checker/inference/expressions';
+import {
+    TypeKind,
+} from '../../../src/checker/types/type';
+import { builtins } from '../../../src/checker/inference/builtins';
+import { BIGINT_TYPE, BOOL_TYPE, NUMBER_TYPE } from '../../../src/checker/types/common';
+import { curriedFunctionType, functionType, typeVar, unboundScheme } from '../../../src/checker/types/builders';
+import { showScheme } from '../../../src/checker/types/scheme';
+import { functionScheme, generalize } from '../../../src/checker/inference/helpers';
+import { UnificationError } from '../../../src/checker/unification';
+import { Context } from '../../../src/checker/types/context';
 
 describe('inference', function () {
     describe('#infer', function () {
         let infer: ExpressionInferer;
         beforeEach(function () {
-            infer = getInferer();
+            infer = getExpressionInferer();
         });
         it('should correctly infer the type of a literal bigint expression', function () {
             const expr: Expression = { kind: ExpressionKind.Literal, value: { kind: LiteralKind.BigInt, value: 4n } };

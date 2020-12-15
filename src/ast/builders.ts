@@ -12,7 +12,13 @@ import {
     Literal,
     LiteralKind,
 } from './expressions';
-import { Assignment, FunctionDefinition, Module, Statement, StatementKind } from './statements';
+import {
+    Assignment,
+    FunctionDefinition,
+    Statement,
+    StatementKind,
+} from './statements';
+import { Module } from './module';
 
 export function makeNumber(value: number): Literal {
     return {
@@ -71,7 +77,6 @@ export function makeAssignment(name: string, expression: Expression): Assignment
 
 export function makeModule(definitions: Statement[]): Module {
     return {
-        kind: 'module',
         statements: definitions,
     };
 }
@@ -113,7 +118,6 @@ export function makeCall(callee: Expression, args: Expression[]): Application {
     return curryApplication(callee, args);
 }
 
-type CallChainElement = [unknown, Expression[]];
 export function buildCallChain(head: Application, tail: CallChainElement[]): Expression {
     return tail.reduce(
         (acc: Application, element: CallChainElement): Application => curryApplication(acc, element[1]),
@@ -121,7 +125,6 @@ export function buildCallChain(head: Application, tail: CallChainElement[]): Exp
     );
 }
 
-export type BinaryChainElement = [unknown, string, unknown, Expression];
 export function buildBinaryExpressionChain(head: Expression, tail: BinaryChainElement[]): Expression {
     return tail.reduce(
         (acc: Expression, element): Expression => ({
@@ -132,6 +135,10 @@ export function buildBinaryExpressionChain(head: Expression, tail: BinaryChainEl
         head,
     );
 }
+
+export type BinaryChainElement = [unknown, string, unknown, Expression];
+
+type CallChainElement = [unknown, Expression[]];
 
 /**
  * Transforms a function taking multiple arguments into a sequence of functions that

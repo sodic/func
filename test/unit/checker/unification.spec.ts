@@ -1,13 +1,11 @@
-import { OccursError, UnificationError, unify } from '../../../src/typeChecker/unification';
+import { OccursError, UnificationError, unify } from '../../../src/checker/unification';
 import assert from 'assert';
 import {
-    BOOL_TYPE,
-    curriedFunctionType,
-    BIGINT_TYPE,
     TFunction,
-    typeVar,
-    NUMBER_TYPE, functionType,
-} from '../../../src/typeChecker/types';
+
+} from '../../../src/checker/types/type';
+import { BIGINT_TYPE, BOOL_TYPE, NUMBER_TYPE } from '../../../src/checker/types/common';
+import { curriedFunctionType, functionType, typeVar } from '../../../src/checker/types/builders';
 
 describe('unification', function () {
     describe('#unify', function () {

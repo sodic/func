@@ -1,10 +1,5 @@
 import { Expression } from './expressions';
 
-export interface Module {
-	kind: 'module';
-	statements: Statement[];
-}
-
 export const enum StatementKind {
 	Assignment = 'Assignment',
 	FunctionDefinition = 'FunctionDefinition',

@@ -24,15 +24,34 @@
             "error",
             "single"
         ],
-        "@typescript-eslint/semi": [
+        "eol-last": [
             "error",
             "always"
+        ],
+        "no-multiple-empty-lines": [
+            "error",
+            {
+                "max": 2,
+                "maxEOF": 1
+            }
         ],
         "comma-dangle": [
             "error",
             "always-multiline"
         ],
         "object-curly-spacing": [
+            "error",
+            "always"
+        ],
+        "padding-line-between-statements": [
+            "error",
+            { "blankLine": "always", "prev": "function", "next": "function" },
+            { "blankLine": "always", "prev": "function", "next": "export" },
+            { "blankLine": "always", "prev": "export", "next": "function" },
+            { "blankLine": "always", "prev": "export", "next": "export" }
+        ],
+        "no-duplicate-imports": "error",
+        "@typescript-eslint/semi": [
             "error",
             "always"
         ],

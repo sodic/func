@@ -1,13 +1,13 @@
 import assert from 'assert';
 import {
+    Builtin,
     BinaryChainElement,
     buildBinaryExpressionChain,
     makeApplication,
     makeCall,
     makeIdentifierReference,
     makeNumber,
-} from '../../../../src/ast/builders';
-import { Builtin } from '../../../../src/ast/builtins';
+} from '../../../../src/ast';
 import { BuiltinName } from '../../../../src/builtins';
 
 describe('helpers', function () {

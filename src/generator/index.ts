@@ -6,7 +6,7 @@ import {
     Lambda, Let,
     Literal,
     LiteralKind,
-} from '../ast/expressions';
+} from '../ast';
 import { BuiltinName } from '../builtins';
 import { assertUnreachable } from '../util';
 import { validJsName } from './names';

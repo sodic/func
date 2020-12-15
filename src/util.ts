@@ -17,3 +17,42 @@ export function difference<T>(s1: Set<T>, s2: Set<T>): Set<T> {
 export function assertUnreachable(x: never): never {
     throw Error('This code should be unreachable');
 }
+
+export type Result<Value, Error> = Success<Value> | Failure<Error>;
+
+type Success<Value> = {
+    kind: ResultKind.Success;
+    value: Value;
+};
+
+type Failure<Error> = {
+    kind: ResultKind.Failure;
+    error: Error;
+};
+
+enum ResultKind {
+    Success = 'Success',
+    Failure = 'Failure',
+}
+
+export function isFailure<TError>(result: Result<unknown, TError>): result is Failure<TError> {
+    return result.kind === ResultKind.Failure;
+}
+
+export function isSuccess<TValue>(result: Result<TValue, unknown>): result is Success<TValue> {
+    return result.kind === ResultKind.Success;
+}
+
+export function success<TValue>(value: TValue): Success<TValue> {
+    return {
+        kind: ResultKind.Success,
+        value,
+    };
+}
+
+export function failure<TError>(error: TError): Failure<TError> {
+    return {
+        kind: ResultKind.Failure,
+        error,
+    };
+}

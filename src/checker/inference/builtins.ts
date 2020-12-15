@@ -1,11 +1,8 @@
-import {
-    BOOL_TYPE,
-    functionScheme,
-    NUMBER_TYPE,
-    Scheme, STRING_TYPE,
-    typeVar,
-} from './types';
-import { BuiltinName } from '../builtins';
+import { BuiltinName } from '../../builtins';
+import { BOOL_TYPE, NUMBER_TYPE, STRING_TYPE } from '../types/common';
+import { typeVar } from '../types/builders';
+import { Scheme } from '../types/scheme';
+import { functionScheme } from './helpers';
 
 export const builtins: Record<BuiltinName, Scheme> = {
     [BuiltinName.Add]: functionScheme(NUMBER_TYPE, NUMBER_TYPE, NUMBER_TYPE),

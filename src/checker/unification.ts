@@ -1,5 +1,18 @@
-import { freeTypeVars, showType, Type, TypeKind } from './types';
+import { showType, Type, TypeKind } from './types/type';
 import { composeSubstitutions, substituteInType, Substitution } from './substitution';
+import { freeTypeVars } from './types/builders';
+
+export class UnificationError extends Error {
+    constructor(message: string) {
+        super(message);
+    }
+}
+
+export class OccursError extends Error {
+    constructor(message: string) {
+        super(message);
+    }
+}
 
 export function unify(t1: Type, t2: Type): Substitution {
     if (t1.kind === TypeKind.Number && t2.kind === TypeKind.Number) {
@@ -30,17 +43,5 @@ function bindToVar(typeVarName: string, type: Type): Substitution {
         throw new OccursError(`Occurs check failed: ${typeVarName} appears in ${showType(type)}`);
     } else {
         return { [typeVarName]: type };
-    }
-}
-
-export class OccursError extends Error {
-    constructor(message: string) {
-        super(message);
-    }
-}
-
-export class UnificationError extends Error {
-    constructor(message: string) {
-        super(message);
     }
 }

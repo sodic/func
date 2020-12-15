@@ -1,6 +1,7 @@
 import assert from 'assert';
 import { parseExpression, parseModule, parseStatement } from '../../../src/parser';
 import {
+    Builtin,
     makeAssignment,
     makeBoolean,
     makeCall,
@@ -11,8 +12,7 @@ import {
     makeModule,
     makeNumber,
     makeString,
-} from '../../../src/ast/builders';
-import { Builtin } from '../../../src/ast/builtins';
+} from '../../../src/ast';
 
 describe('parser', function () {
     describe('#parseExpression', function () {

@@ -1,8 +1,8 @@
-import fs from 'fs';
+import { Parser } from 'pegjs';
 import Tracer from 'pegjs-backtrace';
 import { Module, Expression, Statement } from '../ast';
-import { generate as generateParser, Parser } from 'pegjs';
 import { failure, Result, success } from '../util';
+import { moduleParser, expressionParser, statementParser } from './pegjsParsers.js';
 
 export function parse(source: string): Result<Module, string> {
     try {
@@ -14,36 +14,24 @@ export function parse(source: string): Result<Module, string> {
 }
 
 export function parseExpression(source: string): Expression {
-    return parseBase(source, 'Expression') as Expression;
+    return parseBase(source, expressionParser) as Expression;
 }
 
 export function parseStatement(source: string): Statement {
-    return parseBase(source, 'Statement') as Statement;
+    return parseBase(source, statementParser) as Statement;
 }
 
 export function parseModule(source: string): Module {
-    return parseBase(source, 'Module') as Module;
+    return parseBase(source, moduleParser) as Module;
 }
 
-const parsers: { [key: string]: Parser } = {};
 type ParserResult = Expression | Statement | Module;
-export function parseBase(source: string, startRule: string): ParserResult {
-    // todo generate prior to compiling once the parser becomes stable
-    parsers[startRule] = parsers[startRule] ?? getParser(startRule);
+function parseBase(source: string, parser: Parser): ParserResult {
     const tracer = new Tracer(source);
-
     try {
-        return parsers[startRule].parse(source, { tracer });
+        return parser.parse(source, { tracer });
     } catch(e) {
         console.log(tracer.getBacktraceString());
         throw e;
     }
-}
-
-function getParser(startRule: string) {
-    const grammar = fs.readFileSync('resources/grammar/grammar.pegjs').toString();
-    return generateParser(grammar, {
-        allowedStartRules: [startRule],
-        trace: true,
-    });
 }

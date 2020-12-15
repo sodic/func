@@ -1,7 +1,8 @@
-import { parseModule } from './parser';
+import { parse } from './parser';
 import { check } from './checker';
-import { failure, isFailure, Result, success } from './util';
 import { Context } from './checker/types/context';
+import { generateJs } from './generator';
+import { failure, isFailure, Result, success } from './util';
 
 interface CompilerOutput {
     types: Context;
@@ -9,16 +10,26 @@ interface CompilerOutput {
 }
 
 export function compile(source: string): Result<CompilerOutput, string> {
-    const ast = parseModule(source);
+    const parserResult = parse(source);
+    if (isFailure(parserResult)) {
+        return failure(`Syntax error: ${parserResult.error}`);
+    }
+
+    const ast = parserResult.value;
 
     const checkerResult = check(ast);
     if (isFailure(checkerResult)) {
-        return failure(checkerResult.error);
+        return failure(`TypeError: ${checkerResult.error}`);
+    }
+
+    const generatedCode = generateJs(ast);
+    if (isFailure(generatedCode)) {
+        return failure(`Unexpected error: ${generatedCode.error}`);
     }
 
     return success({
         types: checkerResult.value,
-        code: 'not yet',
+        code: generatedCode.value,
     });
 }
 

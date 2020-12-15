@@ -18,22 +18,10 @@ export function assertUnreachable(x: never): never {
     throw Error('This code should be unreachable');
 }
 
+/**
+ * Similar semantics as in Rust and Swift.
+ */
 export type Result<Value, Error> = Success<Value> | Failure<Error>;
-
-type Success<Value> = {
-    kind: ResultKind.Success;
-    value: Value;
-};
-
-type Failure<Error> = {
-    kind: ResultKind.Failure;
-    error: Error;
-};
-
-enum ResultKind {
-    Success = 'Success',
-    Failure = 'Failure',
-}
 
 export function isFailure<TError>(result: Result<unknown, TError>): result is Failure<TError> {
     return result.kind === ResultKind.Failure;
@@ -55,4 +43,19 @@ export function failure<TError>(error: TError): Failure<TError> {
         kind: ResultKind.Failure,
         error,
     };
+}
+
+type Success<Value> = {
+    kind: ResultKind.Success;
+    value: Value;
+};
+
+type Failure<Error> = {
+    kind: ResultKind.Failure;
+    error: Error;
+};
+
+enum ResultKind {
+    Success = 'Success',
+    Failure = 'Failure',
 }

@@ -2,6 +2,16 @@ import fs from 'fs';
 import Tracer from 'pegjs-backtrace';
 import { Module, Expression, Statement } from '../ast';
 import { generate as generateParser, Parser } from 'pegjs';
+import { failure, Result, success } from '../util';
+
+export function parse(source: string): Result<Module, string> {
+    try {
+        const ast = parseModule(source);
+        return success(ast);
+    } catch (e) {
+        return failure(e.message);
+    }
+}
 
 export function parseExpression(source: string): Expression {
     return parseBase(source, 'Expression') as Expression;

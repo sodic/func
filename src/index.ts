@@ -4,7 +4,7 @@ import { Context } from './checker/types/context';
 import { generateJs } from './generator';
 import { failure, isFailure, Result, success } from './util';
 
-interface CompilerOutput {
+export interface CompilerOutput {
     types: Context;
     code: string;
 }

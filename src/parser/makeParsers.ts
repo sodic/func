@@ -16,6 +16,8 @@ function makeParser(startRule: string) {
 function makeParsers() {
     const parsersSource = ['Module', 'Statement', 'Expression']
         .map(makeParser)
+        // prevents "declaration emit for this file requires using private name" error
+        .map(parserSource => ['/** @type {any} */', parserSource].join('\n'))
         .join('\n');
     fs.writeFileSync('src/parser/pegjsParsers.js', parsersSource);
 }

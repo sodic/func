@@ -2,7 +2,7 @@ import { Parser } from 'pegjs';
 import Tracer from 'pegjs-backtrace';
 import { Module, Expression, Statement } from '../ast';
 import { failure, Result, success } from '../util';
-import { moduleParser, expressionParser, statementParser } from './pegjsParsers.js';
+import { moduleParser, expressionParser, statementParser } from './pegjsParsers';
 
 export function parse(source: string): Result<Module, string> {
     try {

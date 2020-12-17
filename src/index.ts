@@ -32,5 +32,3 @@ export function compile(source: string): Result<CompilerOutput, string> {
         code: generatedCode.value,
     });
 }
-
-compile('marko');

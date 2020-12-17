@@ -67,6 +67,13 @@ export function makeConditional(condition: Expression, thenBranch: Expression, e
     } ;
 }
 
+export function parenthesize(expression: Expression): Expression {
+    return {
+        ...expression,
+        parentheses: true,
+    };
+}
+
 export function makeAssignment(name: string, expression: Expression): Assignment {
     return {
         kind: StatementKind.Assignment,

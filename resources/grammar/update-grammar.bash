@@ -4,7 +4,7 @@ project_root="$1"
 grammar_root="${project_root}/resources/grammar"
 
 cat <(echo '{') \
-    <(tail -n +4 "${project_root}/dist/ast/builders.js" | sed '/exports./d') \
+    <(sed '/exports./d' "${project_root}/dist/ast/builders.js" | sed 's/export //') \
     <(echo '}') \
     "${grammar_root}/grammar.pegjs.template" \
     > "${grammar_root}/grammar.pegjs";

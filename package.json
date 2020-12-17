@@ -14,7 +14,7 @@
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {
-    "build-ast": "npx tsc src/ast/* --outDir dist",
+    "build-ast": "npx tsc src/ast/* --outDir dist --target es2020",
     "update-grammar": "npm run build-ast && resources/grammar/update-grammar.bash \"$PWD\"",
     "make-parsers": "npm run update-grammar && npx ts-node src/parser/makeParsers.ts",
     "ts-compile": "npx tsc",

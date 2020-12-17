@@ -12,6 +12,7 @@ import {
     makeModule,
     makeNumber,
     makeString,
+    parenthesize,
 } from '../../../src/ast';
 
 describe('parser', function () {
@@ -151,26 +152,26 @@ describe('parser', function () {
             const expected = makeCall(
                 Builtin.Multiply,
                 [
-                    makeCall(
+                    parenthesize(makeCall(
                         Builtin.Add,
                         [
                             makeNumber(0.01),
                             makeNumber(0.2),
                         ],
-                    ),
-                    makeCall(
+                    )),
+                    parenthesize(makeCall(
                         Builtin.Divide,
                         [
-                            makeCall(
+                            parenthesize(makeCall(
                                 Builtin.Subtract,
                                 [
                                     makeNumber(3),
                                     makeNumber(4),
                                 ],
-                            ),
+                            )),
                             makeNumber(5),
                         ],
-                    ),
+                    )),
                 ],
             );
             assert.deepStrictEqual(result, expected);
@@ -187,13 +188,13 @@ describe('parser', function () {
                             makeNumber(3),
                         ],
                     ),
-                    makeCall(
+                    parenthesize(makeCall(
                         Builtin.Add,
                         [
                             makeNumber(1),
                             makeNumber(2),
                         ],
-                    ),
+                    )),
                 ],
             );
             assert.deepStrictEqual(result, expected);
@@ -295,13 +296,13 @@ describe('parser', function () {
                         Builtin.Subtract,
                         [
                             parseExpression('1'),
-                            makeCall(
+                            parenthesize(makeCall(
                                 Builtin.Add,
                                 [
                                     parseExpression('a'),
                                     parseExpression('double(5)'),
                                 ],
-                            ),
+                            )),
                         ],
                     ),
                     makeCall(
@@ -439,13 +440,13 @@ describe('parser', function () {
                     makeCall(
                         Builtin.And,
                         [
-                            makeCall(
+                            parenthesize(makeCall(
                                 Builtin.Or,
                                 [
                                     parseExpression('a==1'),
                                     parseExpression('3'),
                                 ],
-                            ),
+                            )),
                             parseExpression('3*2==6'),
                         ] ,
                     ),
@@ -459,7 +460,7 @@ describe('parser', function () {
             const result2 = parseExpression('a    ==  1   or    3   and   3   *2  == 6     or   b +  3    ==  1  and  4 ==    5  and  4 * 2== 1');
             assert.deepStrictEqual(result1, result2);
         });
-        it('should correctly parse a simple conditional expression', function () {
+        it('should correctly parse a simple conditional expression 1', function () {
             const result = parseExpression('"Mlad" if age<15 else "Star"');
             const expected = makeConditional(
                 parseExpression('age<15'),
@@ -468,7 +469,7 @@ describe('parser', function () {
             );
             assert.deepStrictEqual(result, expected);
         });
-        it('should correctly parse a simple conditional expression', function () {
+        it('should correctly parse a simple conditional expression 2', function () {
             const result = parseExpression('4+5 if a==5 or a==3 else f(5)-1');
             const expected = makeConditional(
                 parseExpression('a==5 or a==3'),
@@ -490,6 +491,20 @@ describe('parser', function () {
             );
             assert.deepStrictEqual(result, expected);
         });
+        it('should correctly parse a conditional expression with let', function () {
+            const result = parseExpression(
+                'let z=x*x in z if let y=x*2 in y>2 else let z=x*x in z+z',
+            );
+            const expected = makeLet(
+                parseStatement('z = x*x'),
+                makeConditional(
+                    parseExpression('let y=x*2 in y>2'),
+                    parseExpression('z'),
+                    parseExpression('let z=x*x in z+z'),
+                ),
+            );
+            assert.deepStrictEqual(result, expected);
+        });
         it('should be space insensitive when parsing conditional expressions', function () {
             const result1 = parseExpression('4    +   5 if a  !=  3   else    3    if a   >= 5    else  a   > 5');
             const result2 = parseExpression('4+5 if a!=3 else 3 if a>=5 else a>5');
@@ -503,7 +518,7 @@ describe('parser', function () {
                     Builtin.Add,
                     [
                         parseExpression('1'),
-                        parseExpression('3 if a==3 else b'),
+                        parenthesize(parseExpression('3 if a==3 else b')),
                     ],
                 ),
                 makeCall(
@@ -578,6 +593,12 @@ describe('parser', function () {
             const result = parseModule('a=3');
             const expected = makeModule([parseStatement('a=3')]);
             assert.deepStrictEqual(result, expected);
+        });
+        it('should correctly parse a one-line module with a function definition', function () {
+            const result = parseModule('func add(x, y) = x + y');
+            const expected = makeModule([parseStatement('func add(x, y) = x + y')]);
+            assert.deepStrictEqual(result, expected);
+
         });
         it('should correctly parse a one-line module with a trailing newline', function () {
             const result = parseModule('a=3\n');

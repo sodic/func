@@ -40,6 +40,7 @@ Expression =
     / cond:Conditional {
         return cond;
     }
+    / Disjunction
 
 // todo see what happens on multilevel let expressions
 LetExpression =
@@ -51,10 +52,9 @@ LetExpression =
 
 // todo, check multi-level conditionals
 Conditional =
-    consequent:Disjunction Space IfToken Space test:Disjunction Space ElseToken Space alternate:Conditional {
+    consequent:Disjunction Space IfToken Space test:Expression Space ElseToken Space alternate:Expression {
         return makeConditional(test, consequent, alternate);
     }
-    / Disjunction
 
 // todo find a way to do a < b < c with intuitive semantics
 Disjunction =
@@ -145,7 +145,7 @@ Literal =
 
 ParenthesizedExpression =
     "(" _ expression:Expression _ ")" {
-        return expression;
+        return parenthesize(expression);
     }
 
 SingleCallExpression =

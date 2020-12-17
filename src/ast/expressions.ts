@@ -21,17 +21,17 @@ export const enum LiteralKind {
     String = 'String',
 }
 
-export interface BigintLiteral {
-    kind: LiteralKind.BigInt;
-    value: bigint;
-}
-
-export interface Literal {
+export interface Literal extends PossiblyParenthesized {
     kind: ExpressionKind.Literal;
     value: BooleanLiteral
         | BigintLiteral
         | NumberLiteral
         | StringLiteral;
+}
+
+export interface BigintLiteral {
+    kind: LiteralKind.BigInt;
+    value: bigint;
 }
 
 export interface BooleanLiteral {
@@ -49,12 +49,12 @@ export interface StringLiteral {
     value: string;
 }
 
-export interface Identifier {
+export interface Identifier extends PossiblyParenthesized {
     kind: ExpressionKind.Identifier;
     name: string;
 }
 
-export interface Lambda {
+export interface Lambda extends PossiblyParenthesized {
     kind: ExpressionKind.Lambda;
     // todo see what to do with named functions
     name?: string;
@@ -62,22 +62,26 @@ export interface Lambda {
     body: Expression;
 }
 
-export interface Application {
+export interface Application extends PossiblyParenthesized {
     kind: ExpressionKind.Application;
     callee: Expression;
     argument: Expression;
 }
 
-export interface Conditional {
+export interface Conditional extends PossiblyParenthesized {
     kind: ExpressionKind.Conditional;
     condition: Expression;
     thenBranch: Expression;
     elseBranch: Expression;
 }
 
-export interface Let {
+export interface Let extends PossiblyParenthesized {
     kind: ExpressionKind.Let;
     variable: string;
     initializer: Expression;
     body: Expression;
+}
+
+export interface PossiblyParenthesized {
+    parentheses?: true;
 }

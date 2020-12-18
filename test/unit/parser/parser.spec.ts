@@ -636,6 +636,29 @@ result=square(start) * 3 - larger(a,b)`);
             );
             assert.deepStrictEqual(result, expected);
         });
+        it('should ignore comments when parsing', function () {
+            const result1 = parseModule( `func square(x)=x*x
+func add(x,y)=x+y
+func larger(a,b)=a if a>=b else b
+start=5
+a=2
+b=8 if a>2 and start==5 else 9
+result=square(start) * 3 - larger(a,b)`);
+            const result2 = parseModule( `func square(x)=x*x
+// this is a function for adding stuff            
+func add(x,y)=x+y
+   // this is a function for finding a larger number
+func larger(a,b)=a if a>=b else b
+
+  // these are values   
+start=5
+a=2
+b=8 if a>2 and start==5 else 9
+
+// this is the final operation result   
+result=square(start) * 3 - larger(a,b)`);
+            assert.deepStrictEqual(result1, result2);
+        });
         it('should be space insensitive when parsing modules', function() {
             const result = parseModule( `        
               

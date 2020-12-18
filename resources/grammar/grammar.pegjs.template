@@ -29,7 +29,6 @@ ParameterList =
         return tail.reduce((list, curr) => [...list, curr[3]], [head]);
     }
 
-
 StatementSeparator =
     LineEnd MultilineWhitespace LineEnd
 
@@ -262,10 +261,16 @@ IfToken   = "if"   !IdentifierPart
 ElseToken = "else" !IdentifierPart
 FuncToken = "func" !IdentifierPart
 
+Comment "comment" =
+    SingleLineComment
+
+SingleLineComment =
+    "//" (!LineTerminator Character)*
+
 Character =
     .
 
-_ "Ignored" = Whitespace*
+_ "Ignored" = (Whitespace / Comment)*
 Space "whitespace" = [ \t]+ // significant inline whitespace
 
 Whitespace "whitespace" =
@@ -288,8 +293,8 @@ LineEnd "end of line"
 
 // whitespace spanning may lines, not necessarily ending with a newline character
 MultilineWhitespace =
-    (Whitespace / LineEnd)*
+    (Whitespace / Comment / LineEnd)*
 
 // a full line containing nothing but whitespace
 EmptyLine =
-    Whitespace* LineEnd
+    (Whitespace / SingleLineComment)* LineEnd

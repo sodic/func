@@ -42,12 +42,17 @@ type TVarSubstitution = { [name: string]: TVariable };
 
 function humanFriendlyScheme(scheme: Scheme): Scheme {
     const newTypeVar = typeVarGenerator();
-    const renaming: TVarSubstitution = [...scheme.bound].reduce(
+
+    const renamingSubstitution: TVarSubstitution = [...scheme.bound].reduce(
         (acc, varName) => ({ ...acc, [varName]: newTypeVar() }),
         {},
     );
+    const renamedBoundVariables = new Set(
+        [...scheme.bound].map(varName => renamingSubstitution[varName].name),
+    );
+
     return {
-        bound: new Set([...scheme.bound].map(varName => renaming[varName].name)),
-        type: substituteInType(renaming, scheme.type),
+        bound: renamedBoundVariables,
+        type: substituteInType(renamingSubstitution, scheme.type),
     };
 }

@@ -24,7 +24,7 @@ export function inferStatement(context: Context, statement: Statement): Context 
             assertUnreachable(kind);
         }
     } catch (e) {
-        throw e.constructor(e.message + ` in ${name}`);
+        throw new e.constructor(e.message + ` in ${name}`);
     }
 }
 

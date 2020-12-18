@@ -19,13 +19,12 @@ import { getExpressionInferer, ExpressionInferer } from '../../../src/checker/in
 import {
     TypeKind,
 } from '../../../src/checker/types/type';
-import { builtins } from '../../../src/checker/inference/builtins';
 import { BIGINT_TYPE, BOOL_TYPE, NUMBER_TYPE } from '../../../src/checker/types/common';
 import { curriedFunctionType, functionType, typeVar, unboundScheme } from '../../../src/checker/types/builders';
-import { showScheme } from '../../../src/checker/types/scheme';
-import { functionScheme, generalize } from '../../../src/checker/inference/helpers';
+import { functionScheme } from '../../../src/checker/inference/helpers';
 import { UnificationError } from '../../../src/checker/unification';
 import { Context } from '../../../src/checker/types/context';
+import { builtins } from '../../../src/checker/inference/builtins';
 
 describe('inference', function () {
     describe('#infer', function () {
@@ -195,8 +194,13 @@ describe('inference', function () {
                 ),
             );
             const { type } = infer(builtins, expression);
-            console.log(showScheme(generalize({},type)));
-
+            const expected = curriedFunctionType(
+                curriedFunctionType(typeVar('t8'), typeVar('t8')),
+                typeVar('t8'),
+                NUMBER_TYPE,
+                typeVar('t8'),
+            );
+            assert.deepStrictEqual(type, expected);
         });
         it('should correctly infer the type of the identity function', function () {
             const { substitution, type } = infer({}, ID_FUNCTION);

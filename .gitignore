@@ -2,3 +2,4 @@
 dist
 node_modules/
 resources/grammar/grammar.pegjs
+src/parser/pegjsParsers.js

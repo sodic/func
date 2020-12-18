@@ -1,0 +1,10 @@
+pi = 3.14159265359
+
+func calcArea(r) = let r2 = r * r in r2 * pi
+func calcCircumference(r) = 2 * r * pi
+
+// Should be 4
+area = calcArea(2 / sqrt(pi))
+
+// Should be 5
+circumference = calcCircumference(1 / (0.4 * pi))

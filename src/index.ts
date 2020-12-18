@@ -2,14 +2,14 @@ import { parse } from './parser';
 import { check } from './checker';
 import { Context } from './checker/types/context';
 import { generateJs } from './generator';
-import { failure, isFailure, Result, success } from './util';
+import { failure, isFailure, isSuccess, Result, success } from './util';
 
 export interface CompilerOutput {
     types: Context;
     code: string;
 }
 
-export function compile(source: string): Result<CompilerOutput, string> {
+export function compileVerbose(source: string): Result<CompilerOutput, string> {
     const parserResult = parse(source);
     if (isFailure(parserResult)) {
         return failure(`Syntax error: ${parserResult.error}`);
@@ -17,18 +17,24 @@ export function compile(source: string): Result<CompilerOutput, string> {
 
     const ast = parserResult.value;
 
-    const checkerResult = check(ast);
-    if (isFailure(checkerResult)) {
-        return failure(`TypeError: ${checkerResult.error}`);
+    const types = check(ast);
+    if (isFailure(types)) {
+        return failure(`TypeError: ${types.error}`);
     }
 
-    const generatedCode = generateJs(ast);
-    if (isFailure(generatedCode)) {
-        return failure(`Unexpected error: ${generatedCode.error}`);
+    const code = generateJs(ast);
+    if (isFailure(code)) {
+        return failure(`Unexpected error: ${code.error}`);
     }
 
     return success({
-        types: checkerResult.value,
-        code: generatedCode.value,
+        ast,
+        types: types.value,
+        code: code.value,
     });
+}
+
+export function compile(source: string): Result<string, string> {
+    const result = compileVerbose(source);
+    return isSuccess(result) ? success(result.value.code) : failure(result.error);
 }

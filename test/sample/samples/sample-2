@@ -1,5 +1,0 @@
-pi = 3.14159265359
-
-func area(r) = let r2 = r * r in r2 * pi
-
-result = area(2 / sqrt(pi))

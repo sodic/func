@@ -8,11 +8,11 @@ import {
     makeNumber,
 } from '../../../src/ast';
 import { BuiltinName } from '../../../src/builtins';
-import { translateExpression } from '../../../src/generator/translation/expressions';
+import { transpileExpression } from '../../../src/generator/transpile/expressions';
 
-describe('translate', function () {
-    describe('#translateExpression', function () {
-        it('should correctly translate a sum', function () {
+describe('transpile', function () {
+    describe('#transpileExpression', function () {
+        it('should correctly transpile a sum', function () {
             const expression = makeCall(
                 makeIdentifierReference(BuiltinName.Add),
                 [
@@ -26,11 +26,11 @@ describe('translate', function () {
                     makeNumber(3),
                 ],
             );
-            const code = translateExpression(expression);
+            const code = transpileExpression(expression);
             const expected = '1 - 2 + 3';
             assert.deepStrictEqual(code, expected);
         });
-        it('should correctly translate a complex arithmetic expression', function () {
+        it('should correctly transpile a complex arithmetic expression', function () {
             const expression = makeCall(
                 Builtin.Add,
                 [
@@ -63,11 +63,11 @@ describe('translate', function () {
                     ),
                 ],
             );
-            const code  = translateExpression(expression);
+            const code  = transpileExpression(expression);
             const expected = 'f(a >= 10)(b) - 2 + sum(1)(2)(result)';
             assert.deepStrictEqual(code, expected);
         });
-        it('should correctly translate a let expression', function () {
+        it('should correctly transpile a let expression', function () {
             // let x = 6 in x * x
             const expression = makeLet(
                 makeAssignment('x', makeNumber(6)),
@@ -77,7 +77,7 @@ describe('translate', function () {
                 ],
                 ),
             );
-            const code = translateExpression(expression);
+            const code = transpileExpression(expression);
             const expected = 6 * 6;
             assert.deepStrictEqual(eval(code), expected);
         });

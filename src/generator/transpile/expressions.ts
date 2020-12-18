@@ -13,30 +13,30 @@ import { assertUnreachable } from '../../util';
 import { validJsName } from '../names';
 import { indent } from './helpers';
 
-export function translateExpression(e: Expression, depth = 0): string {
-    return invokeWrapped(translateExpressionWrapped(e, depth));
+export function transpileExpression(e: Expression, depth = 0): string {
+    return invokeWrapped(transpileExpressionWrapped(e, depth));
 }
 
-export function translateExpressionWrapped(e: Expression, depth = 0): Code {
+export function transpileExpressionWrapped(e: Expression, depth = 0): Code {
     switch (e.kind)	{
     case ExpressionKind.Literal:
-        return translateLiteral(e);
+        return transpileLiteral(e);
     case ExpressionKind.Identifier:
         return clean(validJsName(e.name));
     case ExpressionKind.Conditional:
-        return translateConditional(e, depth);
+        return transpileConditional(e, depth);
     case ExpressionKind.Let:
-        return translateLet(e, depth);
+        return transpileLet(e, depth);
     case ExpressionKind.Lambda:
-        return translateLambda(e, depth);
+        return transpileLambda(e, depth);
     case ExpressionKind.Application:
-        return translateApplication(e, depth);
+        return transpileApplication(e, depth);
     default:
         assertUnreachable(e);
     }
 }
 
-function translateLiteral(literal: Literal): Code {
+function transpileLiteral(literal: Literal): Code {
     const value = literal.value;
     return clean((() => {
         switch (value.kind) {
@@ -47,19 +47,19 @@ function translateLiteral(literal: Literal): Code {
         case LiteralKind.Number:
             return String(value.value);
         case LiteralKind.String:
-            return value.value;
+            return `'${value.value}'`;
         default:
             assertUnreachable(value);
         }
     })());
 }
 
-function translateConditional(conditional: Conditional, depth: number): Code {
+function transpileConditional(conditional: Conditional, depth: number): Code {
     const { condition, thenBranch, elseBranch } = conditional;
 
-    const conditionCode = translateExpression(condition, depth + 1);
-    const thenCode = translateExpression(thenBranch, depth + 2);
-    const elseCode = translateExpression(elseBranch, depth + 2);
+    const conditionCode = transpileExpression(condition, depth + 1);
+    const thenCode = transpileExpression(thenBranch, depth + 2);
+    const elseCode = transpileExpression(elseBranch, depth + 2);
 
     return wrappedLines(
         'function () {',
@@ -72,11 +72,11 @@ function translateConditional(conditional: Conditional, depth: number): Code {
     );
 }
 
-function translateLet(letExpression: Let, depth: number): Code {
+function transpileLet(letExpression: Let, depth: number): Code {
     const { variable, initializer, body } = letExpression;
 
-    const initCode = translateExpression(initializer, depth+1);
-    const bodyCode = translateExpression(body, depth);
+    const initCode = transpileExpression(initializer, depth+1);
+    const bodyCode = transpileExpression(body, depth);
 
     return wrappedLines('function() {',
         `${indent(depth + 1)}const ${validJsName(variable)} = ${initCode};`,
@@ -85,9 +85,9 @@ function translateLet(letExpression: Let, depth: number): Code {
     );
 }
 
-function translateLambda(lambda: Lambda, depth: number): Code {
+function transpileLambda(lambda: Lambda, depth: number): Code {
     const { head, body } = lambda;
-    const bodyCode = translateExpression(body, depth + 1);
+    const bodyCode = transpileExpression(body, depth + 1);
 
     return cleanLines(
         `function(${validJsName(head)}) {`,
@@ -96,17 +96,17 @@ function translateLambda(lambda: Lambda, depth: number): Code {
     );
 }
 
-function translateApplication(application: Application, depth: number): Code {
+function transpileApplication(application: Application, depth: number): Code {
     return isBinOpApplication(application) ?
-        translateOperatorCall(application, depth) : translateRegularCall(application, depth);
+        transpileOperatorCall(application, depth) : transpileRegularCall(application, depth);
 }
 
-function translateOperatorCall(application: BinOpApplication, depth: number): Code {
+function transpileOperatorCall(application: BinOpApplication, depth: number): Code {
     const { argument: arg2, callee: partialCall } = application;
     const { argument: arg1, callee: operator } = partialCall;
 
-    const arg1Code = translateExpression(arg1, depth + 1);
-    const arg2Code = translateExpression(arg2, depth + 1);
+    const arg1Code = transpileExpression(arg1, depth + 1);
+    const arg2Code = transpileExpression(arg2, depth + 1);
 
     const expressionCode = `${arg1Code} ${operator.name} ${arg2Code}`;
     const code = application.parentheses ? `(${expressionCode})` : expressionCode;
@@ -114,11 +114,11 @@ function translateOperatorCall(application: BinOpApplication, depth: number): Co
     return clean(code);
 }
 
-function translateRegularCall(application: Application, depth: number): Code {
+function transpileRegularCall(application: Application, depth: number): Code {
     const { callee, argument } = application;
 
-    const calleeCode = translateExpression(callee, depth + 1);
-    const argCode = translateExpression(argument, depth + 1);
+    const calleeCode = transpileExpression(callee, depth + 1);
+    const argCode = transpileExpression(argument, depth + 1);
 
     return clean(`${calleeCode}(${argCode})`);
 }

@@ -1,0 +1,6 @@
+func divisible(n, k) = n % k == 0
+
+func decide(divWith, current, limit) = current > limit or not (divWith(current) and decide(predicate, current + 1))
+func isPrime(n) =
+    let limit = sqrt(n) in
+        divisible(n, k)

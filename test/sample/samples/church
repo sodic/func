@@ -1,0 +1,20 @@
+// Implementation of Church numerals
+// https://en.wikipedia.org/wiki/Church_encoding#Church_Booleans
+func true(x, y) = x
+func false(x, y) = y
+
+// Implementation of Church pairs
+// https://en.wikipedia.org/wiki/Church_encoding#Church_pairs
+func pair(x, y, z) = z(x, y)
+func first(p) = p(true)
+func second(p) = p(false)
+
+movie1 = pair(12, "Monkeys") // creates pair (12, "Monkeys")
+movie2 = pair(96, "Hours")
+movie3 = pair(True, "Grit")
+movie4 = pair("Fast", 5)
+
+twelve = first(movie1)
+hours = second(movie2)
+trueVal = first(movie3)
+five = second(movie4)

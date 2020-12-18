@@ -1,4 +1,6 @@
 import { TBigint, TBoolean, TNumber, TString, TypeKind } from './type';
+import { Scheme } from './scheme';
+import { unboundScheme } from './builders';
 
 export const NUMBER_TYPE: TNumber = {
     kind: TypeKind.Number,
@@ -15,3 +17,14 @@ export const STRING_TYPE: TString = {
 export const BIGINT_TYPE: TBigint = {
     kind: TypeKind.BigInt,
 };
+
+// todo see if making type a kind of scheme would make things easier
+// Scheme = Type | { bound: Set<string>; type: Type }
+
+export const NUMBER_SCHEME: Scheme = unboundScheme(NUMBER_TYPE);
+
+export const BOOL_SCHEME: Scheme = unboundScheme(BOOL_TYPE);
+
+export const STRING_SCHEME: Scheme = unboundScheme(STRING_TYPE);
+
+export const BIGINT_SCHEME: Scheme = unboundScheme(BIGINT_TYPE);

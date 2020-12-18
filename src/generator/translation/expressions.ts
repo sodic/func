@@ -1,14 +1,23 @@
-import { Application, Conditional, Expression, ExpressionKind, Lambda, Let, Literal, LiteralKind } from '../../ast';
+import {
+    Application,
+    Conditional,
+    Expression,
+    ExpressionKind,
+    Lambda,
+    Let,
+    Literal,
+    LiteralKind,
+} from '../../ast';
 import { BuiltinName } from '../../builtins';
 import { assertUnreachable } from '../../util';
 import { validJsName } from '../names';
 import { indent } from './helpers';
 
-export function translateExpression(e: Expression, depth = 1): string {
+export function translateExpression(e: Expression, depth = 0): string {
     return invokeWrapped(translateExpressionWrapped(e, depth));
 }
 
-export function translateExpressionWrapped(e: Expression, depth = 1): Code {
+export function translateExpressionWrapped(e: Expression, depth = 0): Code {
     switch (e.kind)	{
     case ExpressionKind.Literal:
         return translateLiteral(e);
@@ -49,16 +58,17 @@ function translateConditional(conditional: Conditional, depth: number): Code {
     const { condition, thenBranch, elseBranch } = conditional;
 
     const conditionCode = translateExpression(condition, depth + 1);
-    const thenCode = translateExpression(thenBranch, depth + 1);
-    const elseCode = translateExpression(elseBranch, depth + 1);
+    const thenCode = translateExpression(thenBranch, depth + 2);
+    const elseCode = translateExpression(elseBranch, depth + 2);
 
     return wrappedLines(
         'function () {',
-        `${indent(depth)}if (${conditionCode}) {`,
-        `${indent(depth + 1)}return ${thenCode};`,
-        `${indent(depth + 1)}return ${elseCode};`,
+        `${indent(depth + 1)}if (${conditionCode}) {`,
+        `${indent(depth + 2)}return ${thenCode};`,
+        `${indent(depth + 1)}} else {`,
+        `${indent(depth + 2)}return ${elseCode};`,
+        `${indent(depth + 1)}}`,
         `${indent(depth)}}`,
-        '}',
     );
 }
 
@@ -69,24 +79,20 @@ function translateLet(letExpression: Let, depth: number): Code {
     const bodyCode = translateExpression(body, depth);
 
     return wrappedLines('function() {',
-        `${indent(depth)}const ${validJsName(variable)} = ${initCode};`,
-        `${indent(depth)}return ${bodyCode};`,
-        '}',
+        `${indent(depth + 1)}const ${validJsName(variable)} = ${initCode};`,
+        `${indent(depth + 1)}return ${bodyCode};`,
+        `${indent(depth)}}`,
     );
 }
 
 function translateLambda(lambda: Lambda, depth: number): Code {
     const { head, body } = lambda;
-    const bodyCode = translateExpressionWrapped(body, depth + 1);
-
-    if (bodyCode.kind === CodeKind.Wrapped) {
-        return clean(bodyCode.code);
-    }
+    const bodyCode = translateExpression(body, depth + 1);
 
     return cleanLines(
         `function(${validJsName(head)}) {`,
-        `${indent(depth)}return ${bodyCode};`,
-        '}',
+        `${indent(depth + 1)}return ${bodyCode};`,
+        `${indent(depth)}}`,
     );
 }
 
@@ -102,7 +108,10 @@ function translateOperatorCall(application: BinOpApplication, depth: number): Co
     const arg1Code = translateExpression(arg1, depth + 1);
     const arg2Code = translateExpression(arg2, depth + 1);
 
-    return clean(`${arg1Code} ${operator.name} ${arg2Code}`);
+    const expressionCode = `${arg1Code} ${operator.name} ${arg2Code}`;
+    const code = application.parentheses ? `(${expressionCode})` : expressionCode;
+
+    return clean(code);
 }
 
 function translateRegularCall(application: Application, depth: number): Code {

@@ -1,0 +1,11 @@
+func applyNTimes(n, f, arg) = arg if n <= 0 else let x = applyNTimes(n - 1, f, arg) in f(x)
+
+func multiply(x, y) = x * y
+
+func square(x) = multiply(x, x)
+
+apply5Times = applyNTimes(5)
+
+power32 = apply5Times(square)
+
+result = power32(2)

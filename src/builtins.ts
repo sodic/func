@@ -18,4 +18,5 @@ export enum BuiltinName {
 	Constant= 'constant',
 	Identity = 'id',
 	ToString = 'toString',
+	SquareRoot = 'sqrt',
 }

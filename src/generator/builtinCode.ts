@@ -13,4 +13,8 @@ function ${BuiltinName.Constant}(x) {
     return function(y) {
         return x;
     };
+}
+
+function sqrt(n) {
+    return Math.sqrt(n);
 }`.substring(1);

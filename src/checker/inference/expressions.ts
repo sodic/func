@@ -24,10 +24,10 @@ import { assertUnreachable } from '../../util';
 import { instantiate, typeVarGenerator } from './helpers';
 import { Context } from '../types/context';
 
-export type ExpressionInferer = (ctx: Context, expr: Expression) => TypeInfo;
+export type ExpressionInferrer = (ctx: Context, expr: Expression) => TypeInfo;
 
 export function inferExpression(expression: Expression, context: Context = {}): TypeInfo {
-    // we don't want to pulute the global context with local type variables
+    // we don't want to pollute the global context with local type variables
     const infer = getExpressionInferer();
     return infer(context, expression);
 }
@@ -40,7 +40,7 @@ export function inferExpression(expression: Expression, context: Context = {}): 
  * @param uniqueTypeVar A function that provides a type variable with a unique name
  * within the system.
  */
-export function getExpressionInferer(uniqueTypeVar: () => TVariable = typeVarGenerator()): ExpressionInferer {
+export function getExpressionInferer(uniqueTypeVar: () => TVariable = typeVarGenerator()): ExpressionInferrer {
     function infer(context: Context, expression: Expression): TypeInfo {
         switch (expression.kind) {
         case ExpressionKind.Literal:

@@ -15,7 +15,7 @@ import {
     makeLambda,
     makeNumber,
 } from '../../../src/ast';
-import { getExpressionInferer, ExpressionInferer } from '../../../src/checker/inference/expressions';
+import { getExpressionInferer, ExpressionInferrer } from '../../../src/checker/inference/expressions';
 import {
     TypeKind,
 } from '../../../src/checker/types/type';
@@ -28,7 +28,7 @@ import { builtins } from '../../../src/checker/inference/builtins';
 
 describe('inference', function () {
     describe('#infer', function () {
-        let infer: ExpressionInferer;
+        let infer: ExpressionInferrer;
         beforeEach(function () {
             infer = getExpressionInferer();
         });

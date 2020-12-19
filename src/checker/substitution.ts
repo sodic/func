@@ -14,7 +14,7 @@ export function substituteInType(sub: Substitution, type: Type): Type {
             substituteInType(sub, type.output),
         );
     case TypeKind.Variable:
-        return sub[type.name] ?? type;
+        return sub[type.name] || type;
     case TypeKind.Number:
         return type;
     case TypeKind.Boolean:

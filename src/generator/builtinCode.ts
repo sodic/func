@@ -1,21 +1,22 @@
 import { BuiltinName } from '../builtins';
 import { indent } from './transpile/helpers';
+import { mapBuiltinName } from './transpile/names';
 
 export const builtinCode = `
-function ${BuiltinName.ToString}(x) {
+function ${mapBuiltinName(BuiltinName.ToString)}(x) {
 ${indent(1)}return x.toString();
 }
 
-function ${BuiltinName.Identity}(x) {
+function ${mapBuiltinName(BuiltinName.Identity)}(x) {
 ${indent(1)}return x;
 }
 
-function ${BuiltinName.Constant}(x) {
+function ${mapBuiltinName(BuiltinName.Constant)}(x) {
 ${indent(1)}return function(y) {
 ${indent(2)}return x;
 ${indent(1)}};
 }
 
-function ${BuiltinName.SquareRoot}(n) {
+function ${mapBuiltinName(BuiltinName.SquareRoot)}(n) {
 ${indent(1)}return Math.sqrt(n);
 }`.substring(1);

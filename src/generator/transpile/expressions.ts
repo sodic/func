@@ -12,7 +12,7 @@ import {
     UnaryOpApplication,
 } from '../../ast';
 import { assertUnreachable } from '../../util';
-import { validJsName } from '../names';
+import { validJsName } from './names';
 import { indent } from './helpers';
 
 export function transpileExpression(e: Expression, depth = 0): string {
@@ -111,7 +111,7 @@ function transpileApplication(application: Application, depth: number): Code {
 function transpileUnaryExpression(application: UnaryOpApplication, depth: number) {
     const { argument, callee: operator } = application;
     const argCode = transpileExpression(argument, depth + 1);
-    return clean(`${operator.name}${argCode}`);
+    return clean(`${validJsName(operator.name)}${argCode}`);
 }
 
 function transpileBinaryExpression(application: BinaryExpression, depth: number): Code {
@@ -121,7 +121,7 @@ function transpileBinaryExpression(application: BinaryExpression, depth: number)
     const arg1Code = transpileExpression(arg1, depth + 1);
     const arg2Code = transpileExpression(arg2, depth + 1);
 
-    const expressionCode = `${arg1Code} ${operator.name} ${arg2Code}`;
+    const expressionCode = `${arg1Code} ${validJsName(operator.name)} ${arg2Code}`;
     const code = application.parentheses ? `(${expressionCode})` : expressionCode;
 
     return clean(code);

@@ -16,8 +16,12 @@ export enum BuiltinName {
     Not = '!',
 
     // functions
-    Constant= 'constant',
+    Constant= 'const',
     Identity = 'id',
     ToString = 'toString',
     SquareRoot = 'sqrt',
+}
+
+export function isBuiltinName(name: string | BuiltinName): name is BuiltinName {
+    return Object.values(BuiltinName).includes(name as BuiltinName);
 }

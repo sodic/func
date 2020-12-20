@@ -8,6 +8,7 @@ import { functionType, typeVar, unboundScheme } from '../../src/checker/types/bu
 import { inferModule } from '../../src/checker/inference/module';
 import { functionScheme } from '../../src/checker/inference/helpers';
 import { Context } from '../../src/checker/types/context';
+import { BuiltinName } from '../../src/builtins';
 
 describe('source type inference', function () {
     describe('expression inference', function () {
@@ -35,7 +36,7 @@ describe('source type inference', function () {
     });
     describe('statement inference', function () {
         it('should correctly infer a type of a variable', function () {
-            const context = inferStatementSource('luka = constant(4)');
+            const context = inferStatementSource(`luka = ${BuiltinName.Constant}(4)`);
             assert.deepStrictEqual(context['luka'], functionScheme(typeVar('u1'), NUMBER_TYPE));
         });
         it('should correctly infer a type of a function', function () {
@@ -82,7 +83,7 @@ result = squareLarger(input1, input2)
 func applyNTimes(f, x, n) = x if n < 0 else f(applyNTimes(f, x, n - 1))
 result2 = applyNTimes(square, 4, 2)
 
-const2 = constant(2)
+const2 = ${BuiltinName.Constant}(2)
             `;
             const context = inferModuleSource(source);
             assert.deepStrictEqual(context['square'], functionScheme(NUMBER_TYPE, NUMBER_TYPE));

@@ -3,10 +3,12 @@ import {
     Builtin,
     makeAssignment,
     makeBinOpCall,
+    makeBoolean,
     makeCall,
     makeIdentifierReference,
     makeLet,
     makeNumber,
+    makeUnaryOpApplication,
 } from '../../../src/ast';
 import { BuiltinName } from '../../../src/builtins';
 import { transpileExpression } from '../../../src/generator/transpile/expressions';
@@ -82,6 +84,27 @@ describe('transpile', function () {
             );
             const code = transpileExpression(expression);
             const expected = 6 * 6;
+            assert.deepStrictEqual(eval(code), expected);
+        });
+        it('should correctly transpile a logical expression', function () {
+            const expression = makeBinOpCall(
+                Builtin.Or,
+                [
+                    makeBoolean(true),
+                    makeBinOpCall(
+                        Builtin.And,
+                        [
+                            makeBoolean(false),
+                            makeUnaryOpApplication(
+                                Builtin.Not,
+                                makeBoolean(false),
+                            ),
+                        ],
+                    ),
+                ],
+            );
+            const code = transpileExpression(expression);
+            const expected = true;
             assert.deepStrictEqual(eval(code), expected);
         });
     });

@@ -1,5 +1,34 @@
-export function validJsName(name: string): string {
+import { BuiltinName, isBuiltinName } from '../../builtins';
+
+export function validJsName(name: string | BuiltinName): string {
+    if (isBuiltinName(name)) {
+        return mapBuiltinName(name);
+    }
     return reservedWords.has(name) ? `$$${name}` : name;
+}
+
+export function mapBuiltinName(name: BuiltinName): string {
+    const builtinNameMap: Record<BuiltinName, string> = {
+        [BuiltinName.Add]: '+',
+        [BuiltinName.Subtract]: '-',
+        [BuiltinName.Multiply]: '*',
+        [BuiltinName.Divide]: '/',
+        [BuiltinName.Modulus]: '%',
+        [BuiltinName.LessThan]: '<',
+        [BuiltinName.LessEqualThan]: '<=',
+        [BuiltinName.GreaterThan]: '>',
+        [BuiltinName.GreaterEqualThan]: '>=',
+        [BuiltinName.Equal]: '===',
+        [BuiltinName.NotEqual]: '!==',
+        [BuiltinName.And]: '&&',
+        [BuiltinName.Or]: '||',
+        [BuiltinName.Not]: '!',
+        [BuiltinName.Identity]: 'id',
+        [BuiltinName.Constant]: 'constant',
+        [BuiltinName.ToString]: 'toString',
+        [BuiltinName.SquareRoot]: 'sqrt',
+    };
+    return builtinNameMap[name];
 }
 
 const keywords =[

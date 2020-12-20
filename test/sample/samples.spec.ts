@@ -146,11 +146,12 @@ const specification: TestDefinition[] = [
                 typeVar('u1'),
                 BOOL_TYPE,
             ),
-            plus1: functionScheme(NUMBER_TYPE, NUMBER_TYPE),
+            add: functionScheme(NUMBER_TYPE, NUMBER_TYPE, NUMBER_TYPE),
             lessThan: functionScheme(NUMBER_TYPE, NUMBER_TYPE, BOOL_TYPE),
             divisibleBy: functionScheme(NUMBER_TYPE, NUMBER_TYPE, BOOL_TYPE),
             testIntRange: functionScheme(
                 functionType(NUMBER_TYPE, BOOL_TYPE),
+                NUMBER_TYPE,
                 NUMBER_TYPE,
                 NUMBER_TYPE,
                 BOOL_TYPE,

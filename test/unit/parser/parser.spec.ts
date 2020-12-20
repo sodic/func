@@ -589,6 +589,12 @@ describe('parser', function () {
     });
 
     describe('#parseModule', function () {
+        it('should correctly parse an empty module', function () {
+            const result = parseModule('');
+            const expected = makeModule([]);
+            assert.deepStrictEqual(result, expected);
+
+        });
         it('should correctly parse a one-line module', function () {
             const result = parseModule('a=3');
             const expected = makeModule([parseStatement('a=3')]);

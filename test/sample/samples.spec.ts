@@ -136,6 +136,48 @@ const specification: TestDefinition[] = [
             five:  5,
         },
     },
+    {
+        file: 'prime',
+        expectedTypes: {
+            testSequence: functionScheme(
+                functionType(typeVar('u1'), BOOL_TYPE),
+                functionType(typeVar('u1'), BOOL_TYPE),
+                functionType(typeVar('u1'), typeVar('u1')),
+                typeVar('u1'),
+                BOOL_TYPE,
+            ),
+            plus1: functionScheme(NUMBER_TYPE, NUMBER_TYPE),
+            lessThan: functionScheme(NUMBER_TYPE, NUMBER_TYPE, BOOL_TYPE),
+            divisibleBy: functionScheme(NUMBER_TYPE, NUMBER_TYPE, BOOL_TYPE),
+            testIntRange: functionScheme(
+                functionType(NUMBER_TYPE, BOOL_TYPE),
+                NUMBER_TYPE,
+                NUMBER_TYPE,
+                BOOL_TYPE,
+            ),
+            isPrime: functionScheme(NUMBER_TYPE, BOOL_TYPE),
+            is1Prime: BOOL_SCHEME,
+            is2Prime: BOOL_SCHEME,
+            is4Prime: BOOL_SCHEME,
+            is7Prime: BOOL_SCHEME,
+            is27Prime: BOOL_SCHEME,
+            is63Prime: BOOL_SCHEME,
+            is97Prime: BOOL_SCHEME,
+            is117Prime: BOOL_SCHEME,
+            is269Prime: BOOL_SCHEME,
+        },
+        expectedValues: {
+            is1Prime: false,
+            is2Prime: true,
+            is4Prime: false,
+            is7Prime: true,
+            is27Prime: false,
+            is63Prime: false,
+            is97Prime: true,
+            is117Prime: false,
+            is269Prime: true,
+        },
+    },
 ];
 
 type TestDefinition = {

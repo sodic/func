@@ -1,6 +1,28 @@
-func divisible(n, k) = n % k == 0
+// make something like this a builtin
+func testSequence(test, isLast, next, curr) =
+    True if test(curr) else
+    False if isLast(curr) else
+        testSequence(test, isLast, next, next(curr))
 
-func decide(divWith, current, limit) = current > limit or not (divWith(current) and decide(predicate, current + 1))
+// will become redundant once operator passing gets implemented
+func plus1(x) = x + 1
+func lessThan(x, y) = x < y
+func divisibleBy(n, k) = n % k == 0
+
+func testIntRange(test, start, end) =
+    testSequence(test, lessThan(end), plus1, start)
+
 func isPrime(n) =
-    let limit = sqrt(n) in
-        divisible(n, k)
+    False if n == 1 else
+    True if n == 2 else
+    !testIntRange(divisibleBy(n), 2, sqrt(n))
+
+is1Prime = isPrime(1)
+is2Prime = isPrime(2)
+is4Prime = isPrime(4)
+is7Prime = isPrime(7)
+is27Prime = isPrime(27)
+is63Prime = isPrime(63)
+is97Prime = isPrime(97)
+is117Prime = isPrime(117)
+is269Prime = isPrime(269)

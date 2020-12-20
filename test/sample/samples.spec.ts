@@ -13,6 +13,7 @@ import {
 } from '../../src/checker/types/common';
 import { Scheme, showScheme } from '../../src/checker/types/scheme';
 import { curriedFunctionType, functionType, typeVar } from '../../src/checker/types/builders';
+import { evaluateAndRead } from '../helpers';
 
 const specification: TestDefinition[] = [
     {
@@ -193,6 +194,3 @@ function assertDoubleEquals(n1: number, n2: number, message: string) {
     assert.deepStrictEqual(n1.toFixed(8), n2.toFixed(8), message);
 }
 
-function evaluateAndRead(source: string, variable: string) {
-    return (new Function(`${source}\nreturn ${variable};`))();
-}

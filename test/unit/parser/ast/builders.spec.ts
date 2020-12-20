@@ -3,7 +3,7 @@ import {
     Builtin,
     BinaryChainElement,
     buildBinaryExpressionChain,
-    makeApplication,
+    makeRegularApplication,
     makeCall,
     makeIdentifierReference,
     makeNumber,
@@ -56,13 +56,13 @@ describe('helpers', function () {
     describe('#makeCall', function () {
         it('should correctly build a unary function call', function () {
             const result = makeCall(makeIdentifierReference('a'), [makeNumber(1)]);
-            const expected = makeApplication(makeIdentifierReference('a'), makeNumber(1));
+            const expected = makeRegularApplication(makeIdentifierReference('a'), makeNumber(1));
             assert.deepStrictEqual(result, expected);
         });
         it('should correctly build a function call chain calling n-ary functions', function () {
             const result = makeCall(makeIdentifierReference('a'), [makeNumber(1), makeNumber(2)]);
-            const expected = makeApplication(
-                makeApplication(
+            const expected = makeRegularApplication(
+                makeRegularApplication(
                     makeIdentifierReference('a'),
                     makeNumber(1),
                 ),

@@ -2,6 +2,7 @@ import assert from 'assert';
 import {
     Builtin,
     makeAssignment,
+    makeBinOpCall,
     makeCall,
     makeIdentifierReference,
     makeLet,
@@ -13,10 +14,10 @@ import { transpileExpression } from '../../../src/generator/transpile/expression
 describe('transpile', function () {
     describe('#transpileExpression', function () {
         it('should correctly transpile a sum', function () {
-            const expression = makeCall(
+            const expression = makeBinOpCall(
                 makeIdentifierReference(BuiltinName.Add),
                 [
-                    makeCall(
+                    makeBinOpCall(
                         makeIdentifierReference(BuiltinName.Subtract),
                         [
                             makeNumber(1),
@@ -31,16 +32,16 @@ describe('transpile', function () {
             assert.deepStrictEqual(code, expected);
         });
         it('should correctly transpile a complex arithmetic expression', function () {
-            const expression = makeCall(
+            const expression = makeBinOpCall(
                 Builtin.Add,
                 [
-                    makeCall(
+                    makeBinOpCall(
                         Builtin.Subtract,
                         [
                             makeCall(
                                 makeIdentifierReference('f'),
                                 [
-                                    makeCall(
+                                    makeBinOpCall(
                                         Builtin.GreaterEqualThan,
                                         [
                                             makeIdentifierReference('a'),
@@ -71,10 +72,12 @@ describe('transpile', function () {
             // let x = 6 in x * x
             const expression = makeLet(
                 makeAssignment('x', makeNumber(6)),
-                makeCall(Builtin.Multiply, [
-                    makeIdentifierReference('x'),
-                    makeIdentifierReference('x'),
-                ],
+                makeBinOpCall(
+                    Builtin.Multiply,
+                    [
+                        makeIdentifierReference('x'),
+                        makeIdentifierReference('x'),
+                    ],
                 ),
             );
             const code = transpileExpression(expression);

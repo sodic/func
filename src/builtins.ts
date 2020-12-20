@@ -13,6 +13,7 @@ export enum BuiltinName {
     NotEqual = '!=',
     And = 'and',
     Or = 'or',
+    Not = '!',
 
     // functions
     Constant= 'constant',

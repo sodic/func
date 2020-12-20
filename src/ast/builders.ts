@@ -3,6 +3,8 @@
 // (see how "update-parser.bash" works)
 import {
     Application,
+    ApplicationKind,
+    BinaryOpApplication,
     Conditional,
     Expression,
     ExpressionKind,
@@ -11,13 +13,10 @@ import {
     Let,
     Literal,
     LiteralKind,
+    RegularApplication,
+    UnaryOpApplication,
 } from './expressions';
-import {
-    Assignment,
-    FunctionDefinition,
-    Statement,
-    StatementKind,
-} from './statements';
+import { Assignment, FunctionDefinition, Statement, StatementKind } from './statements';
 import { Module } from './module';
 
 export function makeNumber(value: number): Literal {
@@ -46,6 +45,16 @@ export function makeString(value: string): Literal {
         kind: ExpressionKind.Literal,
         value: {
             kind: LiteralKind.String,
+            value,
+        },
+    };
+}
+
+export function makeBigInt(value: bigint): Literal {
+    return {
+        kind: ExpressionKind.Literal,
+        value: {
+            kind: LiteralKind.BigInt,
             value,
         },
     };
@@ -113,9 +122,28 @@ export function makeLet(statement: Statement, expression: Expression): Let {
     };
 }
 
-export function makeApplication(callee: Expression, argument: Expression): Application {
+export function makeRegularApplication(callee: Expression, argument: Expression): RegularApplication {
     return {
         kind: ExpressionKind.Application,
+        applicationKind: ApplicationKind.Regular,
+        callee,
+        argument,
+    };
+}
+
+export function makeUnaryOpApplication(callee: Identifier, argument: Expression): UnaryOpApplication {
+    return {
+        kind: ExpressionKind.Application,
+        applicationKind: ApplicationKind.UnaryOperator,
+        callee,
+        argument,
+    };
+}
+
+export function makeBinaryOpApplication(callee: Identifier, argument: Expression): BinaryOpApplication {
+    return {
+        kind: ExpressionKind.Application,
+        applicationKind: ApplicationKind.BinaryOperator,
         callee,
         argument,
     };
@@ -123,6 +151,13 @@ export function makeApplication(callee: Expression, argument: Expression): Appli
 
 export function makeCall(callee: Expression, args: Expression[]): Application {
     return curryApplication(callee, args);
+}
+
+export function makeBinOpCall(callee: Identifier, [arg1, arg2]: [Expression, Expression]): Application {
+    return makeRegularApplication(
+        makeBinaryOpApplication(callee, arg1),
+        arg2,
+    );
 }
 
 export function buildCallChain(head: Application, tail: CallChainElement[]): Expression {
@@ -134,11 +169,10 @@ export function buildCallChain(head: Application, tail: CallChainElement[]): Exp
 
 export function buildBinaryExpressionChain(head: Expression, tail: BinaryChainElement[]): Expression {
     return tail.reduce(
-        (acc: Expression, element): Expression => ({
-            kind: ExpressionKind.Application,
-            callee: makeApplication(makeIdentifierReference(element[1]), acc),
-            argument: element[3],
-        }),
+        (acc: Expression, element): Expression => makeRegularApplication(
+            makeBinaryOpApplication(makeIdentifierReference(element[1]), acc),
+            element[3],
+        ),
         head,
     );
 }
@@ -170,6 +204,6 @@ function curryFunction(params: string[], body: Expression): Lambda {
  */
 function curryApplication(callee: Expression, args: Expression[]): Application {
     const [head, ...rest] = args;
-    const current: Application = makeApplication(callee, head);
+    const current: Application = makeRegularApplication(callee, head);
     return rest.length ? curryApplication(current, rest) : current;
 }

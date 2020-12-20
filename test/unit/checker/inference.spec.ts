@@ -8,12 +8,13 @@ import {
     Lambda,
     Let,
     LiteralKind,
-    makeApplication,
+    makeRegularApplication,
     makeCall,
     makeConditional,
     makeIdentifierReference,
     makeLambda,
     makeNumber,
+    makeBigInt,
 } from '../../../src/ast';
 import { getExpressionInferer, ExpressionInferrer } from '../../../src/checker/inference/expressions';
 import {
@@ -73,20 +74,10 @@ describe('inference', function () {
         });
         it('should correctly infer the type of a simple application given the correct context', function () {
             // x 1
-            const expr: Expression = {
-                kind: ExpressionKind.Application,
-                callee: {
-                    kind: ExpressionKind.Identifier,
-                    name: 'x',
-                },
-                argument: {
-                    kind: ExpressionKind.Literal,
-                    value: {
-                        kind: LiteralKind.Number,
-                        value: 1,
-                    },
-                },
-            };
+            const expr: Expression = makeRegularApplication(
+                makeIdentifierReference('x'),
+                makeNumber(1),
+            );
             const context: Context = {
                 x: unboundScheme(functionType(NUMBER_TYPE, BOOL_TYPE)),
             };
@@ -104,21 +95,13 @@ describe('inference', function () {
         });
         it('should correctly infer the type of a lambda expression given the correct context', function () {
             // \x -> y x
-            const expr: Expression = {
-                kind: ExpressionKind.Lambda,
-                head: 'x',
-                body: {
-                    kind: ExpressionKind.Application,
-                    callee: {
-                        kind: ExpressionKind.Identifier,
-                        name: 'y',
-                    },
-                    argument: {
-                        kind: ExpressionKind.Identifier,
-                        name: 'x',
-                    },
-                },
-            };
+            const expr: Expression = makeLambda(
+                'x',
+                makeRegularApplication(
+                    makeIdentifierReference('y'),
+                    makeIdentifierReference('x'),
+                ),
+            );
             const context: Context = {
                 y: unboundScheme(functionType(typeVar('u0'), BOOL_TYPE)),
             };
@@ -209,11 +192,7 @@ describe('inference', function () {
             assert.deepStrictEqual(type, expected);
         });
         it('should correctly infer the type of the identity function applied to the identity function', function() {
-            const expr: Application = {
-                kind: ExpressionKind.Application,
-                callee: ID_FUNCTION,
-                argument: ID_FUNCTION,
-            };
+            const expr: Application = makeRegularApplication(ID_FUNCTION, ID_FUNCTION);
             const { type } = infer({}, expr);
             const expected = functionType(typeVar('t2'), typeVar('t2'));
             assert.deepStrictEqual(type, expected);
@@ -224,20 +203,10 @@ describe('inference', function () {
                 kind: ExpressionKind.Let,
                 variable: 'x',
                 initializer: ID_FUNCTION,
-                body: {
-                    kind: ExpressionKind.Application,
-                    callee: {
-                        kind: ExpressionKind.Identifier,
-                        name: 'x',
-                    },
-                    argument: {
-                        kind: ExpressionKind.Literal,
-                        value: {
-                            kind: LiteralKind.BigInt,
-                            value: 6n,
-                        },
-                    },
-                },
+                body: makeRegularApplication(
+                    makeIdentifierReference('x'),
+                    makeBigInt(6n),
+                ),
             };
             const { type } = infer({}, letExpr);
             assert.deepStrictEqual(type, BIGINT_TYPE);
@@ -312,7 +281,7 @@ describe('inference', function () {
             assert.throws(() => infer(context, conditional), UnificationError);
         });
         it('should correctly infer type instantiation on parital applications', function () {
-            const expression = makeApplication(makeIdentifierReference('f'), makeNumber(5));
+            const expression = makeRegularApplication(makeIdentifierReference('f'), makeNumber(5));
             const context = {
                 f: functionScheme(typeVar('u1'), typeVar('u1'), typeVar('u2')),
             };

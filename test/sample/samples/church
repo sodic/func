@@ -1,9 +1,9 @@
-// Implementation of Church numerals
+// Implementation of Church numerals (booleans in lambda calculus)
 // https://en.wikipedia.org/wiki/Church_encoding#Church_Booleans
 func true(x, y) = x
 func false(x, y) = y
 
-// Implementation of Church pairs
+// Implementation of Church pairs (tuples in lambda calculus)
 // https://en.wikipedia.org/wiki/Church_encoding#Church_pairs
 func pair(x, y, z) = z(x, y)
 func first(p) = p(true)

@@ -19,6 +19,7 @@ export const builtins: Record<BuiltinName, Scheme> = {
     [BuiltinName.NotEqual]: functionScheme(NUMBER_TYPE, NUMBER_TYPE, BOOL_TYPE),
     [BuiltinName.And]: functionScheme(BOOL_TYPE, BOOL_TYPE, BOOL_TYPE),
     [BuiltinName.Or]: functionScheme(BOOL_TYPE, BOOL_TYPE, BOOL_TYPE),
+    [BuiltinName.Not]: functionScheme(BOOL_TYPE, BOOL_TYPE),
     [BuiltinName.Identity]: functionScheme(typeVar('u1'), typeVar('u1')),
     [BuiltinName.Constant]: functionScheme(typeVar('u1'), typeVar('u2'), typeVar('u1')),
     [BuiltinName.ToString]: functionScheme(typeVar('u1'), STRING_TYPE),

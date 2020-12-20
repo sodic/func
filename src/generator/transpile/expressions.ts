@@ -1,5 +1,7 @@
 import {
     Application,
+    ApplicationKind,
+    BinaryOpApplication,
     Conditional,
     Expression,
     ExpressionKind,
@@ -7,8 +9,8 @@ import {
     Let,
     Literal,
     LiteralKind,
+    UnaryOpApplication,
 } from '../../ast';
-import { BuiltinName } from '../../builtins';
 import { assertUnreachable } from '../../util';
 import { validJsName } from '../names';
 import { indent } from './helpers';
@@ -97,11 +99,22 @@ function transpileLambda(lambda: Lambda, depth: number): Code {
 }
 
 function transpileApplication(application: Application, depth: number): Code {
-    return isBinOpApplication(application) ?
-        transpileOperatorCall(application, depth) : transpileRegularCall(application, depth);
+    if (isUnaryExpression(application))  {
+        return transpileUnaryExpression(application, depth);
+    } else if(isBinaryExpression(application)) {
+        return transpileBinaryExpression(application, depth);
+    } else {
+        return transpileRegularCall(application, depth);
+    }
 }
 
-function transpileOperatorCall(application: BinOpApplication, depth: number): Code {
+function transpileUnaryExpression(application: UnaryOpApplication, depth: number) {
+    const { argument, callee: operator } = application;
+    const argCode = transpileExpression(argument, depth + 1);
+    return clean(`${operator.name}${argCode}`);
+}
+
+function transpileBinaryExpression(application: BinaryExpression, depth: number): Code {
     const { argument: arg2, callee: partialCall } = application;
     const { argument: arg1, callee: operator } = partialCall;
 
@@ -123,27 +136,27 @@ function transpileRegularCall(application: Application, depth: number): Code {
     return clean(`${calleeCode}(${argCode})`);
 }
 
-function isOperatorPartialApplication(application: Application): application is BinOpPartialApplication {
-    const { callee } = application;
-    return callee.kind === ExpressionKind.Identifier
-        && Object.values(BuiltinName).includes(callee.name as BuiltinName);
+/**
+ * Returns true if application is a unary operator call, false otherwise.
+ * E.g., !False, +1, -2
+ */
+function isUnaryExpression(application: Application): application is UnaryOpApplication {
+    return application.applicationKind === ApplicationKind.UnaryOperator;
 }
 
-function isBinOpApplication(application: Application): application is BinOpApplication {
-    const { callee } = application;
-    return callee.kind === ExpressionKind.Application && isOperatorPartialApplication(callee);
+/**
+ * Returns true if application is a full application of a binary operator, false otherwise
+ * E.g., 1+2, 2*3, 3-1
+ */
+function isBinaryExpression(application: Application): application is BinaryExpression {
+    const callee = application.callee;
+    return callee.kind === ExpressionKind.Application && callee.applicationKind === ApplicationKind.BinaryOperator;
 }
 
-interface BinOpPartialApplication extends Application {
-    callee: {
-        kind: ExpressionKind.Identifier;
-        name: BuiltinName;
-    };
-}
+type BinaryExpression = {
+    callee: BinaryOpApplication;
+} & Application;
 
-interface BinOpApplication extends Application {
-    callee: BinOpPartialApplication;
-}
 export function invokeWrapped(code: Code): string {
     return code.kind === CodeKind.Clean ? code.code : `(${code.code}())`;
 }

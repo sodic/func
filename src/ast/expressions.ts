@@ -62,9 +62,29 @@ export interface Lambda extends PossiblyParenthesized {
     body: Expression;
 }
 
-export interface Application extends PossiblyParenthesized {
-    kind: ExpressionKind.Application;
-    callee: Expression;
+export const enum ApplicationKind {
+    BinaryOperator= 'BinaryOperator',
+    UnaryOperator = 'UnaryOperator',
+    Regular = 'Regular',
+}
+
+export type Application = RegularApplication
+    | BinaryOpApplication
+    | UnaryOpApplication;
+
+export interface RegularApplication extends ApplicationBase {
+    applicationKind: ApplicationKind.Regular;
+}
+
+export interface BinaryOpApplication extends ApplicationBase {
+    applicationKind: ApplicationKind.BinaryOperator;
+    callee: Identifier;
+    argument: Expression;
+}
+
+export interface UnaryOpApplication extends ApplicationBase {
+    applicationKind: ApplicationKind.UnaryOperator;
+    callee: Identifier;
     argument: Expression;
 }
 
@@ -84,4 +104,10 @@ export interface Let extends PossiblyParenthesized {
 
 export interface PossiblyParenthesized {
     parentheses?: true;
+}
+
+interface ApplicationBase extends PossiblyParenthesized {
+    kind: ExpressionKind.Application;
+    callee: Expression;
+    argument: Expression;
 }

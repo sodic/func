@@ -20,7 +20,7 @@ Assignment =
     }
 
 FunctionDefinition =
-    FuncToken Space name:Identifier _ "(" _ params:ParameterList _ ")" _ "=" (_ / EmptyLine*) body:Expression {
+    FuncToken Space name:Identifier _ "(" _ params:ParameterList _ ")" _ "=" MultilineWhitespace body:Expression {
         return makeFunctionDefinition(name, params, body);
     }
 
@@ -43,7 +43,7 @@ Expression =
 
 // todo see what happens on multilevel let expressions
 LetExpression =
-    LetToken Space statement:Statement Space InToken Space expression:Expression {
+    LetToken OneOrMoreSpace statement:Statement OneOrMoreSpace InToken OneOrMoreSpace expression:Expression {
         return makeLet(statement, expression);
     }
 
@@ -51,7 +51,7 @@ LetExpression =
 
 // todo, check multi-level conditionals
 Conditional =
-    consequent:Disjunction Space IfToken Space test:Expression Space ElseToken Space alternate:Expression {
+    consequent:Disjunction OneOrMoreSpace IfToken OneOrMoreSpace test:Expression OneOrMoreSpace ElseToken OneOrMoreSpace alternate:Expression {
         return makeConditional(test, consequent, alternate);
     }
 
@@ -72,7 +72,7 @@ BitwiseOr =
 // todo find a way to do a == b == c with intuitive semantics
 Equality =
     left:Comparison _ op:EqualityOperator _ right:Comparison {
-        return makeCall(op, [left, right]);
+        return makeBinOpCall(op, [left, right]);
     }
     / Comparison
 
@@ -83,7 +83,7 @@ EqualityOperator =
 
 Comparison =
     left:Shift _ op:ComparisonOperator _ right:Shift {
-        return makeCall(op, [left, right]);
+        return makeBinOpCall(op, [left, right]);
     }
     / Shift
 
@@ -116,6 +116,13 @@ MultiplicativeOperator =
 
 UnaryExpression =
     PostfixExpression
+    / operator:UnaryOperator argument:UnaryExpression {
+        const operatorExpression = makeIdentifierReference(operator);
+        return makeUnaryOpApplication(operatorExpression, argument);
+    }
+
+UnaryOperator =
+    "!"
 
 PostfixExpression =
     LeftHandSideExpression
@@ -294,6 +301,9 @@ LineEnd "end of line"
 // whitespace spanning may lines, not necessarily ending with a newline character
 MultilineWhitespace =
     (Whitespace / Comment / LineEnd)*
+
+OneOrMoreSpace =
+    (Whitespace / LineEnd) MultilineWhitespace
 
 // a full line containing nothing but whitespace
 EmptyLine =

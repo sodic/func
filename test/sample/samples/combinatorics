@@ -1,5 +1,7 @@
-func fact(n) = 1 if n <= 0 else n * fact(n - 1)
+func fact(n) =
+    1 if n <= 0 else n * fact(n - 1)
 
-func combinations(n, k) = fact(n) / (fact(n - k) * fact(k))
+func combinations(n, k) =
+    fact(n) / (fact(n - k) * fact(k))
 
 result = combinations(5, 3)

@@ -1,4 +1,6 @@
-func raiseToPower(number, power) = 1 if power <= 0 else number * raiseToPower(number, power - 1)
+func raiseToPower(number, power) =
+    1 if power <= 0 else
+    number * raiseToPower(number, power - 1)
 
 func flipArgs(f, x, y) = f(y, x)
 

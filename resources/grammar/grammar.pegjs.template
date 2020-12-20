@@ -198,7 +198,7 @@ ExponentIndicator =
 SignedInteger =
     [+-]? DecimalDigit+
 
-BooleanLiteral =
+BooleanLiteral "boolean literal" =
     "True" { return makeBoolean(true); }
     / "False" { return makeBoolean(false); }
 
@@ -220,7 +220,7 @@ IdentifierReference =
         return makeIdentifierReference(name);
     }
 
-Identifier =
+Identifier "identifier" =
     !ReservedWord head:IdentifierStart tail:IdentifierPart* {
         return head + tail.join("");
     }
@@ -255,11 +255,11 @@ Keyword =
     / FuncToken
 
 // Tokens
-LetToken  = "let"  !IdentifierPart
-InToken   = "in"   !IdentifierPart
-IfToken   = "if"   !IdentifierPart
-ElseToken = "else" !IdentifierPart
-FuncToken = "func" !IdentifierPart
+LetToken  "keyword \"let\""  = "let"  !IdentifierPart
+InToken   "keyword \"in\""   = "in"   !IdentifierPart
+IfToken   "keyword \"if\""   = "if"   !IdentifierPart
+ElseToken "keyword \"else\"" = "else" !IdentifierPart
+FuncToken "keyword \"func\"" = "func" !IdentifierPart
 
 Comment "comment" =
     SingleLineComment
@@ -267,7 +267,7 @@ Comment "comment" =
 SingleLineComment =
     "//" (!LineTerminator Character)*
 
-Character =
+Character "source character" =
     .
 
 _ "Ignored" = (Whitespace / Comment)*

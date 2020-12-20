@@ -83,8 +83,7 @@ func applyNTimes(f, x, n) = x if n < 0 else f(applyNTimes(f, x, n - 1))
 result2 = applyNTimes(square, 4, 2)
 
 const2 = constant(2)
-
-        	`;
+            `;
             const context = inferModuleSource(source);
             assert.deepStrictEqual(context['square'], functionScheme(NUMBER_TYPE, NUMBER_TYPE));
             assert.deepStrictEqual(context['larger'], functionScheme(NUMBER_TYPE, NUMBER_TYPE, NUMBER_TYPE));

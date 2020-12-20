@@ -32,7 +32,7 @@ export function unify(t1: Type, t2: Type): Substitution {
     } else if (t2.kind === TypeKind.Variable) {
         return bindToVar(t2.name, t1);
     } else {
-        throw new UnificationError(`Cannot unify ${showType(t1)} with ${showType(t2)}`);
+        throw new UnificationError(`Cannot unify types "${showType(t1)}" and "${showType(t2)}"`);
     }
 }
 

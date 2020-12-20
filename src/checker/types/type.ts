@@ -7,7 +7,7 @@ export type Type = TLiteral
     | TArray;
 
 export enum TypeKind {
-	Variable = 'Variable',
+    Variable = 'Variable',
     Boolean = 'Boolean',
     Number = 'Number',
     BigInt = 'BigInt',

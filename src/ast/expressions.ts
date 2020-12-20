@@ -16,7 +16,7 @@ export const enum ExpressionKind {
 
 export const enum LiteralKind {
     BigInt = 'BigInt',
-	Boolean = 'Boolean',
+    Boolean = 'Boolean',
     Number = 'Number',
     String = 'String',
 }

@@ -1,11 +1,12 @@
 import { showType, Type } from './type';
 
 export interface Scheme {
-	bound: Set<string>;
-	type: Type;
+    bound: Set<string>;
+    type: Type;
 }
 
-export function showScheme(scheme: Scheme): string {
+export function showScheme(scheme: Scheme, showQuantifiers = false): string {
     const typeString = showType(scheme.type);
-    return scheme.bound.size ? `∀${[...scheme.bound].join(',')}: ${typeString}` : typeString;
+    const prefix = `∀${[...scheme.bound].join(',')}: `;
+    return scheme.bound.size  && showQuantifiers ? `${prefix}${typeString}` : typeString;
 }

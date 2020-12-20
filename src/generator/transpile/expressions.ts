@@ -18,7 +18,7 @@ export function transpileExpression(e: Expression, depth = 0): string {
 }
 
 export function transpileExpressionWrapped(e: Expression, depth = 0): Code {
-    switch (e.kind)	{
+    switch (e.kind)    {
     case ExpressionKind.Literal:
         return transpileLiteral(e);
     case ExpressionKind.Identifier:
@@ -76,7 +76,7 @@ function transpileLet(letExpression: Let, depth: number): Code {
     const { variable, initializer, body } = letExpression;
 
     const initCode = transpileExpression(initializer, depth+1);
-    const bodyCode = transpileExpression(body, depth);
+    const bodyCode = transpileExpression(body, depth + 1);
 
     return wrappedLines('function() {',
         `${indent(depth + 1)}const ${validJsName(variable)} = ${initCode};`,

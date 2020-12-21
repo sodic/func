@@ -1,15 +1,12 @@
 import { Module } from '../ast';
 import { failure, Result, success } from '../util';
 import { transpileModule } from './transpile/module';
-import { builtinCode } from './builtinCode';
-
-
-const builtinSeparator = '\n\n// END BUILTINS\n\n';
+import { builtinDefinitions } from './definitions';
 
 export function generateJs(ast: Module): Result<string, string> {
     try {
         const transpiledCode = transpileModule(ast);
-        const code = [builtinCode, transpiledCode].join(builtinSeparator);
+        const code = [builtinDefinitions, transpiledCode].join(builtinSeparator);
         return success(code);
     } catch (e) {
         return failure(e.message);
@@ -19,3 +16,6 @@ export function generateJs(ast: Module): Result<string, string> {
 export function separateBuiltins(code: string): string[] {
     return code.split(builtinSeparator);
 }
+
+const builtinSeparator = '\n\n// END BUILTINS\n\n';
+

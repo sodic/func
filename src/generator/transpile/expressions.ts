@@ -1,19 +1,21 @@
 import {
     Application,
-    ApplicationKind,
-    BinaryOpApplication,
     Conditional,
     Expression,
     ExpressionKind,
+    Identifier,
     Lambda,
     Let,
     Literal,
     LiteralKind,
-    UnaryOpApplication,
 } from '../../ast';
 import { assertUnreachable } from '../../util';
 import { validJsName } from './names';
 import { indent } from './helpers';
+import {
+    isBinaryOperator,
+    isUnaryOperator,
+} from './builtins';
 
 export function transpileExpression(e: Expression, depth = 0): string {
     return invokeWrapped(transpileExpressionWrapped(e, depth));
@@ -99,22 +101,24 @@ function transpileLambda(lambda: Lambda, depth: number): Code {
 }
 
 function transpileApplication(application: Application, depth: number): Code {
-    if (isUnaryExpression(application))  {
+    if (shouldTranspileAsUnary(application))  {
         return transpileUnaryExpression(application, depth);
-    } else if(isBinaryExpression(application)) {
+
+    } else if(shouldTranspileAsBinary(application)) {
         return transpileBinaryExpression(application, depth);
+
     } else {
         return transpileRegularCall(application, depth);
     }
 }
 
-function transpileUnaryExpression(application: UnaryOpApplication, depth: number) {
+function transpileUnaryExpression(application: TranspiledAsUnaryExpression, depth: number) {
     const { argument, callee: operator } = application;
     const argCode = transpileExpression(argument, depth + 1);
     return clean(`${validJsName(operator.name)}${argCode}`);
 }
 
-function transpileBinaryExpression(application: BinaryExpression, depth: number): Code {
+function transpileBinaryExpression(application: TranspiledAsBinaryExpression, depth: number): Code {
     const { argument: arg2, callee: partialCall } = application;
     const { argument: arg1, callee: operator } = partialCall;
 
@@ -140,22 +144,38 @@ function transpileRegularCall(application: Application, depth: number): Code {
  * Returns true if application is a unary operator call, false otherwise.
  * E.g., !False, +1, -2
  */
-function isUnaryExpression(application: Application): application is UnaryOpApplication {
-    return application.applicationKind === ApplicationKind.UnaryOperator;
+function shouldTranspileAsUnary(application: Application): application is TranspiledAsUnaryExpression {
+    const callee = application.callee;
+    return callee.kind === ExpressionKind.Identifier && isUnaryOperator(callee);
 }
 
 /**
  * Returns true if application is a full application of a binary operator, false otherwise
  * E.g., 1+2, 2*3, 3-1
  */
-function isBinaryExpression(application: Application): application is BinaryExpression {
+function shouldTranspileAsBinary(application: Application): application is TranspiledAsBinaryExpression {
     const callee = application.callee;
-    return callee.kind === ExpressionKind.Application && callee.applicationKind === ApplicationKind.BinaryOperator;
+    if (callee.kind !== ExpressionKind.Application) {
+        return false;
+    }
+
+    const firstCallee = callee.callee;
+    if (firstCallee.kind !== ExpressionKind.Identifier) {
+        return false;
+    }
+
+    return isBinaryOperator(firstCallee);
 }
 
-type BinaryExpression = {
-    callee: BinaryOpApplication;
-} & Application;
+type TranspiledAsUnaryExpression = Application & {
+    callee: Identifier;
+};
+
+type TranspiledAsBinaryExpression = Application & {
+    callee:  Application & {
+        callee: Identifier;
+    };
+};
 
 export function invokeWrapped(code: Code): string {
     return code.kind === CodeKind.Clean ? code.code : `(${code.code}())`;

@@ -2,10 +2,10 @@ import assert from 'assert';
 import { parseExpression, parseModule, parseStatement } from '../../../src/parser';
 import {
     Builtin,
+    makeApplication,
     makeAssignment,
     makeBoolean,
     makeCall,
-    makeBinOpCall,
     makeConditional,
     makeFunctionDefinition,
     makeIdentifierReference,
@@ -14,7 +14,6 @@ import {
     makeNumber,
     makeString,
     parenthesize,
-    makeUnaryOpApplication,
 } from '../../../src/ast';
 
 describe('parser', function () {
@@ -57,21 +56,21 @@ describe('parser', function () {
         });
         it('should correctly parse simple literal addition', function () {
             const result= parseExpression('1+2');
-            const expected = makeBinOpCall(Builtin.Add, [makeNumber(1), makeNumber(2)]);
+            const expected = makeCall(Builtin.Add, [makeNumber(1), makeNumber(2)]);
             assert.deepStrictEqual(result, expected);
         });
         it('should parse longer literal additive expression as left-associative', function () {
             const result= parseExpression('1+2-3+4-5');
-            const expected = makeBinOpCall(
+            const expected = makeCall(
                 Builtin.Subtract,
                 [
-                    makeBinOpCall(
+                    makeCall(
                         Builtin.Add,
                         [
-                            makeBinOpCall(
+                            makeCall(
                                 Builtin.Subtract,
                                 [
-                                    makeBinOpCall(
+                                    makeCall(
                                         Builtin.Add,
                                         [
                                             makeNumber(1),
@@ -90,20 +89,20 @@ describe('parser', function () {
         });
         it('should correctly parse simple literal multiplication', function () {
             const result= parseExpression('3*4');
-            const expected = makeBinOpCall(Builtin.Multiply, [makeNumber(3), makeNumber(4)]);
+            const expected = makeCall(Builtin.Multiply, [makeNumber(3), makeNumber(4)]);
             assert.deepStrictEqual(result, expected);
         });
         it('should parse longer literal multiplicative expression as left-associative', function () {
             const result= parseExpression('1*2/3%4*5');
-            const expected = makeBinOpCall(
+            const expected = makeCall(
                 Builtin.Multiply,
-                [makeBinOpCall(
+                [makeCall(
                     Builtin.Modulus,
                     [
-                        makeBinOpCall(
+                        makeCall(
                             Builtin.Divide,
                             [
-                                makeBinOpCall(
+                                makeCall(
                                     Builtin.Multiply,
                                     [
                                         makeNumber(1),
@@ -122,14 +121,14 @@ describe('parser', function () {
         });
         it('should parse a complex literal arithmetic expression with correct operator precedence', function () {
             const result= parseExpression('1.6+2.1*3-4.98/.5');
-            const expected = makeBinOpCall(
+            const expected = makeCall(
                 Builtin.Subtract,
                 [
-                    makeBinOpCall(
+                    makeCall(
                         Builtin.Add,
                         [
                             makeNumber(1.6),
-                            makeBinOpCall(
+                            makeCall(
                                 Builtin.Multiply,
                                 [
                                     makeNumber(2.1),
@@ -138,7 +137,7 @@ describe('parser', function () {
                             ),
                         ],
                     ),
-                    makeBinOpCall(
+                    makeCall(
                         Builtin.Divide,
                         [
                             makeNumber(4.98),
@@ -151,20 +150,20 @@ describe('parser', function () {
         });
         it('should parse a literal arithmetic expression containing parentheses with correct operator precedence', function () {
             const result= parseExpression('(0.01+.2)*((3-4)/5)');
-            const expected = makeBinOpCall(
+            const expected = makeCall(
                 Builtin.Multiply,
                 [
-                    parenthesize(makeBinOpCall(
+                    parenthesize(makeCall(
                         Builtin.Add,
                         [
                             makeNumber(0.01),
                             makeNumber(0.2),
                         ],
                     )),
-                    parenthesize(makeBinOpCall(
+                    parenthesize(makeCall(
                         Builtin.Divide,
                         [
-                            parenthesize(makeBinOpCall(
+                            parenthesize(makeCall(
                                 Builtin.Subtract,
                                 [
                                     makeNumber(3),
@@ -180,17 +179,17 @@ describe('parser', function () {
         });
         it('should correctly parse a literal arithmetic expression that even casio calculators can\'t handle', function () {
             const result = parseExpression('9/3*(1+2)');
-            const expected = makeBinOpCall(
+            const expected = makeCall(
                 Builtin.Multiply,
                 [
-                    makeBinOpCall(
+                    makeCall(
                         Builtin.Divide,
                         [
                             makeNumber(9),
                             makeNumber(3),
                         ],
                     ),
-                    parenthesize(makeBinOpCall(
+                    parenthesize(makeCall(
                         Builtin.Add,
                         [
                             makeNumber(1),
@@ -204,15 +203,15 @@ describe('parser', function () {
         });
         it('should correctly parse a complex arithmetic expression containing identifier references', function () {
             const result= parseExpression('1*x/3%ligma*mate');
-            const expected = makeBinOpCall(
+            const expected = makeCall(
                 Builtin.Multiply,
-                [makeBinOpCall(
+                [makeCall(
                     Builtin.Modulus,
                     [
-                        makeBinOpCall(
+                        makeCall(
                             Builtin.Divide,
                             [
-                                makeBinOpCall(
+                                makeCall(
                                     Builtin.Multiply,
                                     [
                                         makeNumber(1),
@@ -238,19 +237,19 @@ describe('parser', function () {
         });
         it('should correctly parse a logical not expression', function () {
             const result = parseExpression('!True');
-            const expected = makeUnaryOpApplication(Builtin.Not, makeBoolean(true));
+            const expected = makeApplication(Builtin.Not, makeBoolean(true));
             assert.deepStrictEqual(result, expected);
         });
         it('should correctly parse a logical expression with literals', function () {
             const result = parseExpression('True or !False and True');
-            const expected = makeBinOpCall(
+            const expected = makeCall(
                 Builtin.Or,
                 [
                     makeBoolean(true),
-                    makeBinOpCall(
+                    makeCall(
                         Builtin.And,
                         [
-                            makeUnaryOpApplication(
+                            makeApplication(
                                 Builtin.Not,
                                 makeBoolean(false),
                             ),
@@ -298,14 +297,14 @@ describe('parser', function () {
         });
         it('should be able to work with function calls within arithmetic expressions', function () {
             const result = parseExpression('1-(a+double(5))+square(3)(4)*area(a,5)');
-            const expected = makeBinOpCall(
+            const expected = makeCall(
                 Builtin.Add,
                 [
-                    makeBinOpCall(
+                    makeCall(
                         Builtin.Subtract,
                         [
                             parseExpression('1'),
-                            parenthesize(makeBinOpCall(
+                            parenthesize(makeCall(
                                 Builtin.Add,
                                 [
                                     parseExpression('a'),
@@ -314,7 +313,7 @@ describe('parser', function () {
                             )),
                         ],
                     ),
-                    makeBinOpCall(
+                    makeCall(
                         Builtin.Multiply,
                         [
                             parseExpression('square(3)(4)'),
@@ -332,7 +331,7 @@ describe('parser', function () {
         });
         it('should correctly parse an equality check', function () {
             const result1 = parseExpression('a+1==f(5)+3');
-            const expected = makeBinOpCall(
+            const expected = makeCall(
                 Builtin.Equal,
                 [
                     parseExpression('a+1'),
@@ -343,7 +342,7 @@ describe('parser', function () {
         });
         it('should correctly parse an inequality check', function () {
             const result1 = parseExpression('a+1!=f(5)+3');
-            const expected = makeBinOpCall(
+            const expected = makeCall(
                 Builtin.NotEqual,
                 [
                     parseExpression('a+1'),
@@ -354,7 +353,7 @@ describe('parser', function () {
         });
         it('should correctly parse a less-then check', function () {
             const result = parseExpression('a-1<5');
-            const expected = makeBinOpCall(
+            const expected = makeCall(
                 Builtin.LessThan,
                 [
                     parseExpression('a-1'),
@@ -365,7 +364,7 @@ describe('parser', function () {
         });
         it('should correctly parse a less-then-or-equal check', function () {
             const result = parseExpression('a<=5+2');
-            const expected = makeBinOpCall(
+            const expected = makeCall(
                 Builtin.LessEqualThan,
                 [
                     parseExpression('a'),
@@ -376,7 +375,7 @@ describe('parser', function () {
         });
         it('should correctly parse a greater-then check', function () {
             const result = parseExpression('a>5-1');
-            const expected = makeBinOpCall(
+            const expected = makeCall(
                 Builtin.GreaterThan,
                 [
                     parseExpression('a'),
@@ -387,7 +386,7 @@ describe('parser', function () {
         });
         it('should correctly parse a greater-then-or-equal check', function () {
             const result = parseExpression('a>=5');
-            const expected = makeBinOpCall(
+            const expected = makeCall(
                 Builtin.GreaterEqualThan,
                 [
                     parseExpression('a'),
@@ -398,7 +397,7 @@ describe('parser', function () {
         });
         it('should correctly parse a logical conjunction', function () {
             const result = parseExpression('a==1 and b<3');
-            const expected = makeBinOpCall(
+            const expected = makeCall(
                 Builtin.And,
                 [
                     parseExpression('a==1'),
@@ -409,13 +408,13 @@ describe('parser', function () {
         });
         it('should correctly parse a longer logical conjunction', function () {
             const result = parseExpression('a==1 and b<3 and f(5) and g(4+3)-1');
-            const expected = makeBinOpCall(
+            const expected = makeCall(
                 Builtin.And,
                 [
-                    makeBinOpCall(
+                    makeCall(
                         Builtin.And,
                         [
-                            makeBinOpCall(
+                            makeCall(
                                 Builtin.And,
                                 [
                                     parseExpression('a==1'),
@@ -432,7 +431,7 @@ describe('parser', function () {
         });
         it('should correctly parse a simple logical disjunction', function () {
             const result = parseExpression('a==1 and 3*2==6 or b+3==1 and 4==5');
-            const expected = makeBinOpCall(
+            const expected = makeCall(
                 Builtin.Or,
                 [
                     parseExpression('a==1 and 3*2==6'),
@@ -443,13 +442,13 @@ describe('parser', function () {
         });
         it('should correctly parse a longer logical disjunction', function () {
             const result = parseExpression('(a==1 or 3) and 3*2==6 or b+3==1 and 4==5 and 4*2==1');
-            const expected = makeBinOpCall(
+            const expected = makeCall(
                 Builtin.Or,
                 [
-                    makeBinOpCall(
+                    makeCall(
                         Builtin.And,
                         [
-                            parenthesize(makeBinOpCall(
+                            parenthesize(makeCall(
                                 Builtin.Or,
                                 [
                                     parseExpression('a==1'),
@@ -523,7 +522,7 @@ describe('parser', function () {
             const result = parseExpression('1+(3 if a==3 else b) if c<4 else f(2 if b==1+2 and 4 else 4)');
             const expected = makeConditional(
                 parseExpression('c<4'),
-                makeBinOpCall(
+                makeCall(
                     Builtin.Add,
                     [
                         parseExpression('1'),

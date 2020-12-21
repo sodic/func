@@ -1,14 +1,12 @@
 import assert from 'assert';
 import {
-    Builtin,
+    Builtin, makeApplication,
     makeAssignment,
-    makeBinOpCall,
     makeBoolean,
     makeCall,
     makeIdentifierReference,
     makeLet,
     makeNumber,
-    makeUnaryOpApplication,
 } from '../../../src/ast';
 import { BuiltinName } from '../../../src/builtins';
 import { transpileExpression } from '../../../src/generator/transpile/expressions';
@@ -16,10 +14,10 @@ import { transpileExpression } from '../../../src/generator/transpile/expression
 describe('transpile', function () {
     describe('#transpileExpression', function () {
         it('should correctly transpile a sum', function () {
-            const expression = makeBinOpCall(
+            const expression = makeCall(
                 makeIdentifierReference(BuiltinName.Add),
                 [
-                    makeBinOpCall(
+                    makeCall(
                         makeIdentifierReference(BuiltinName.Subtract),
                         [
                             makeNumber(1),
@@ -34,16 +32,16 @@ describe('transpile', function () {
             assert.deepStrictEqual(code, expected);
         });
         it('should correctly transpile a complex arithmetic expression', function () {
-            const expression = makeBinOpCall(
+            const expression = makeCall(
                 Builtin.Add,
                 [
-                    makeBinOpCall(
+                    makeCall(
                         Builtin.Subtract,
                         [
                             makeCall(
                                 makeIdentifierReference('f'),
                                 [
-                                    makeBinOpCall(
+                                    makeCall(
                                         Builtin.GreaterEqualThan,
                                         [
                                             makeIdentifierReference('a'),
@@ -74,7 +72,7 @@ describe('transpile', function () {
             // let x = 6 in x * x
             const expression = makeLet(
                 makeAssignment('x', makeNumber(6)),
-                makeBinOpCall(
+                makeCall(
                     Builtin.Multiply,
                     [
                         makeIdentifierReference('x'),
@@ -87,15 +85,15 @@ describe('transpile', function () {
             assert.deepStrictEqual(eval(code), expected);
         });
         it('should correctly transpile a logical expression', function () {
-            const expression = makeBinOpCall(
+            const expression = makeCall(
                 Builtin.Or,
                 [
                     makeBoolean(true),
-                    makeBinOpCall(
+                    makeCall(
                         Builtin.And,
                         [
                             makeBoolean(false),
-                            makeUnaryOpApplication(
+                            makeApplication(
                                 Builtin.Not,
                                 makeBoolean(false),
                             ),

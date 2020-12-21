@@ -72,7 +72,7 @@ BitwiseOr =
 // todo find a way to do a == b == c with intuitive semantics
 Equality =
     left:Comparison _ op:EqualityOperator _ right:Comparison {
-        return makeBinOpCall(op, [left, right]);
+        return makeCall(op, [left, right]);
     }
     / Comparison
 
@@ -83,7 +83,7 @@ EqualityOperator =
 
 Comparison =
     left:Shift _ op:ComparisonOperator _ right:Shift {
-        return makeBinOpCall(op, [left, right]);
+        return makeCall(op, [left, right]);
     }
     / Shift
 
@@ -118,7 +118,7 @@ UnaryExpression =
     PostfixExpression
     / operator:UnaryOperator argument:UnaryExpression {
         const operatorExpression = makeIdentifierReference(operator);
-        return makeUnaryOpApplication(operatorExpression, argument);
+        return makeApplication(operatorExpression, argument);
     }
 
 UnaryOperator =

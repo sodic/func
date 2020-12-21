@@ -13,10 +13,21 @@ export function difference<T>(s1: Set<T>, s2: Set<T>): Set<T> {
     return new Set([...s1].filter(el => !s2.has(el)));
 }
 
+/**
+ * Used purely to help compiler check for exhaustiveness in switch statements,
+ * will never execute. See https://stackoverflow.com/a/39419171.
+ */
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 export function assertUnreachable(x: never): never {
     throw Error('This code should be unreachable');
 }
+
+/**
+ * Property keys of an object of type TObject with values of type TType
+ */
+export type PropsOfType<TObject, TType> = {
+    [K in keyof TObject]: TObject[K] extends TType ? K : never;
+}[keyof TObject];
 
 /**
  * Similar semantics as in Rust and Swift.

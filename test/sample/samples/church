@@ -16,5 +16,5 @@ movie4 = pair("Fast", 5)
 
 twelve = first(movie1)
 hours = second(movie2)
-trueVal = first(movie3)
+_true = first(movie3)
 five = second(movie4)

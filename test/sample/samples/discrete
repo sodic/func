@@ -1,0 +1,38 @@
+func fact(n) =
+    1 if n <= 0 else
+    n * fact(n - 1)
+
+func combinations(n, k) =
+    fact(n) / (fact(n - k) * fact(k))
+
+func gcd(x, y) =
+    x if y == 0 else
+    gcd(y, x % y)
+
+func lcd(x, y) = x * y / gcd(x, y)
+
+func divisibleBy(n, k) = n % k == 0
+
+func isLeapYear(year) =
+    divisibleBy(year, 400)
+    or divisibleBy(year, 4) and !divisibleBy(year, 25)
+
+_1c0 = combinations(1, 0)
+_5c3 = combinations(5, 3)
+_12c4 = combinations(12, 4)
+
+gcd_5_7 = gcd(5, 7)
+gcd_18_12 = gcd(18, 12)
+gcd_63_78 = gcd(63, 78)
+gcd_14288_21432 = gcd(14288, 21432)
+
+lcd_17_11 = lcd(17, 11)
+lcd_12_18 = lcd(12, 18)
+lcd_63_78 = lcd(63, 78)
+lcd_14288_21432 = lcd(14288, 21432)
+
+leap_1700 = isLeapYear(1700)
+leap_2000 = isLeapYear(2000)
+leap_2012 = isLeapYear(2012)
+leap_2016 = isLeapYear(2016)
+leap_2017 = isLeapYear(2017)

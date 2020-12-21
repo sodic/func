@@ -7,6 +7,9 @@ import {
     makeCall,
     makeIdentifierReference,
     makeNumber,
+    PipelineElement,
+    makeLambda,
+    buildPipeline,
 } from '../../../../src/ast';
 import { BuiltinName } from '../../../../src/builtins';
 
@@ -48,6 +51,43 @@ describe('helpers', function () {
                         ],
                     ),
                     tail[2][3],
+                ],
+            );
+            assert.deepStrictEqual(result, expected);
+        });
+    });
+    describe('#buildPipeline', function () {
+        it('should correctly build a pipeline', function () {
+            const head = makeIdentifierReference('a');
+            const tail: PipelineElement[] = [
+                [null, '|>', null, makeIdentifierReference('f')],
+                [null, '|>', null, makeLambda('x', makeCall(Builtin.Add, [makeIdentifierReference('x'), makeNumber(1)]))],
+                [null, '|>', null, Builtin.Multiply],
+            ];
+            const result = buildPipeline(head, tail);
+            const expected = makeCall(
+                Builtin.Multiply,
+                [
+                    makeCall(
+                        makeLambda(
+                            'x',
+                            makeCall(
+                                Builtin.Add,
+                                [
+                                    makeIdentifierReference('x'),
+                                    makeNumber(1),
+                                ],
+                            ),
+                        ),
+                        [
+                            makeCall(
+                                makeIdentifierReference('f'),
+                                [
+                                    makeIdentifierReference('a'),
+                                ],
+                            ),
+                        ],
+                    ),
                 ],
             );
             assert.deepStrictEqual(result, expected);

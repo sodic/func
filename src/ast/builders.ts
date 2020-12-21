@@ -130,12 +130,16 @@ export function makeCall(callee: Expression, args: Expression[]): Application {
     return curryApplication(callee, args);
 }
 
+type CallChainElement = [unknown, Expression[]];
+
 export function buildCallChain(head: Application, tail: CallChainElement[]): Expression {
     return tail.reduce(
         (acc: Application, element: CallChainElement): Application => curryApplication(acc, element[1]),
         head,
     );
 }
+
+export type BinaryChainElement = [unknown, string, unknown, Expression];
 
 export function buildBinaryExpressionChain(head: Expression, tail: BinaryChainElement[]): Expression {
     return tail.reduce(
@@ -147,9 +151,17 @@ export function buildBinaryExpressionChain(head: Expression, tail: BinaryChainEl
     );
 }
 
-export type BinaryChainElement = [unknown, string, unknown, Expression];
+export type PipelineElement = [unknown, string, unknown, Expression];
 
-type CallChainElement = [unknown, Expression[]];
+export function buildPipeline(head: Expression, tail: PipelineElement[]): Expression {
+    return tail.reduce(
+        (pipeline: Expression, element: PipelineElement) => makeApplication(
+            element[3],
+            pipeline,
+        ),
+        head,
+    );
+}
 
 /**
  * Transforms a function taking multiple arguments into a sequence of functions that

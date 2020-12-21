@@ -230,7 +230,7 @@ describe('parser', function () {
 
         });
         it('should be whitespace insensitive when parsing arithmetic expressions', function () {
-            const result1 = parseExpression('1 +   x      /3 - 4%y    *6');
+            const result1 = parseExpression('1 \n+ \r  x \n   \r  /3 \n- 4%y \n   *6');
             const result2 = parseExpression('1+x/3-4%y*6');
             assert.deepStrictEqual(result1, result2);
 
@@ -239,6 +239,11 @@ describe('parser', function () {
             const result = parseExpression('!True');
             const expected = makeApplication(Builtin.Not, makeBoolean(true));
             assert.deepStrictEqual(result, expected);
+        });
+        it('should be whitespace insensitive when parsing logical not', function () {
+            const result1 = parseExpression('!  \nx');
+            const result2 = parseExpression('!x');
+            assert.deepStrictEqual(result1, result2);
         });
         it('should correctly parse a logical expression with literals', function () {
             const result = parseExpression('True or !False and True');
@@ -291,8 +296,18 @@ describe('parser', function () {
             assert.deepStrictEqual(result, expected);
         });
         it('should curry a function application (i.e., parse a multi-argument function as a call chain)', function () {
-            const result1 = parseExpression('f(x,y,g(y),1+2)');
-            const result2 = parseExpression('f(x)(y)(g(y))(1+2)');
+            const result1 = parseExpression('f(x,y,g(y),3,1+2,z)');
+            const result2 = parseExpression('f(x)(y)(g(y),3)(1+2,z)');
+            assert.deepStrictEqual(result1, result2);
+        });
+        it('should correctly desugar a pipeline', function () {
+            const result = parseExpression('x+3|>f(1)|>y|>g(3)');
+            const expected = parseExpression('g(3)(y(f(1)(x+3)))');
+            assert.deepStrictEqual(result, expected);
+        });
+        it('should be space insensitive when parsing pipelines', function () {
+            const result1 = parseExpression('x+3|>square(1)|>double|>add(3)');
+            const result2 = parseExpression('x+3    \n |> \r square(1)\n   |>  \r double \n  |>     \r  add(3)');
             assert.deepStrictEqual(result1, result2);
         });
         it('should be able to work with function calls within arithmetic expressions', function () {
@@ -325,7 +340,7 @@ describe('parser', function () {
             assert.deepStrictEqual(result, expected);
         });
         it('should be whitespace insensitive when parsing function calls in expressions', function () {
-            const result1 = parseExpression('x    + a (  1,    2 )-3  + 5*f   (1 ,2) ( 4)   (1)-1');
+            const result1 = parseExpression('x    \n+ a ( \n 1,\r\n    2 )-3  + 5\n*f\n\r   (1 ,2) ( 4\n)  \n\r (1)-1');
             const result2 = parseExpression('x+a(1,2)-3+5*f(1,2)(4)(1)-1');
             assert.deepStrictEqual(result1, result2);
         });
@@ -441,20 +456,25 @@ describe('parser', function () {
             assert.deepStrictEqual(result, expected);
         });
         it('should correctly parse a longer logical disjunction', function () {
-            const result = parseExpression('(a==1 or 3) and 3*2==6 or b+3==1 and 4==5 and 4*2==1');
+            const result = parseExpression('!(a==1 or 3) and 3*2==6 or b+3==1 and 4==5 and 4*2==1');
             const expected = makeCall(
                 Builtin.Or,
                 [
                     makeCall(
                         Builtin.And,
                         [
-                            parenthesize(makeCall(
-                                Builtin.Or,
+                            makeCall(
+                                Builtin.Not,
                                 [
-                                    parseExpression('a==1'),
-                                    parseExpression('3'),
+                                    parenthesize(makeCall(
+                                        Builtin.Or,
+                                        [
+                                            parseExpression('a==1'),
+                                            parseExpression('3'),
+                                        ],
+                                    )),
                                 ],
-                            )),
+                            ),
                             parseExpression('3*2==6'),
                         ] ,
                     ),
@@ -464,8 +484,8 @@ describe('parser', function () {
             assert.deepStrictEqual(result, expected);
         });
         it('should be space insensitive when parsing long logical expressions', function() {
-            const result1 = parseExpression('a==1 or 3 and 3*2==6 or b+3==1 and 4==5 and 4*2==1');
-            const result2 = parseExpression('a    ==  1   or    3   and   3   *2  == 6     or   b +  3    ==  1  and  4 ==    5  and  4 * 2== 1');
+            const result1 = parseExpression('!(a==1) or 3 and 3*2==6 or b+3==1 and 4==5 and 4*2==1');
+            const result2 = parseExpression('!  \n( a  \r  \n==  1\n)   or  \t  3  \n and   \n3 \n  *2  == \r6 \n    or \n\r  b +  \n3 \n   \n==  \r\n1 \n and \n 4 == \r   5  and  \n4 * 2== 1');
             assert.deepStrictEqual(result1, result2);
         });
         it('should correctly parse a simple conditional expression 1', function () {
@@ -514,7 +534,7 @@ describe('parser', function () {
             assert.deepStrictEqual(result, expected);
         });
         it('should be space insensitive when parsing conditional expressions', function () {
-            const result1 = parseExpression('4    +   5 if a  !=  3   else    3    if a   >= 5    else  a   > 5');
+            const result1 = parseExpression('4  \n\r  + \t \n 5 if \na \n !=  \n3  \r else \n   3 \r\n   if \ta  \n >= 5 \t\n\t   else \n a \t  > 5');
             const result2 = parseExpression('4+5 if a!=3 else 3 if a>=5 else a>5');
             assert.deepStrictEqual(result1, result2);
         });
@@ -571,7 +591,7 @@ describe('parser', function () {
             assert.deepStrictEqual(result, expected);
         });
         it('should be whitespace insensitive in assignment statements', function () {
-            const result1 = parseStatement('x1    =   9* (4 +3     ) %4  +   (1-    2)');
+            const result1 = parseStatement('x1  \n  \n= \r  \n  9*\r (4 +3     \t) %4\n  + \n  (\n1-   \n 2)');
             const result2 = parseStatement('x1=9*(4+3)%4+(1-2)');
             assert.deepStrictEqual(result1, result2);
         });
@@ -590,7 +610,7 @@ describe('parser', function () {
             assert.deepStrictEqual(result, expected);
         });
         it('should be whitespace insensitive when parsing function definitions', function () {
-            const result1 = parseStatement('func some12Func       (   x      ,   y  )    =   x   *  f(y + 3  )');
+            const result1 = parseStatement('func\n \r some12Func       \n (\r   x  \n    , \n  y  )\n    = \n  x  \n *  f(y + 3  )');
             const result2 = parseStatement('func some12Func(x,y)=x*f(y+3)');
             assert.deepStrictEqual(result1, result2);
         });
@@ -676,12 +696,16 @@ result=square(start) * 3 - larger(a,b)`);
         it('should be space insensitive when parsing modules', function() {
             const result = parseModule( `        
               
-func            square(x)=x                    *x
+func
+            square(x)=x                    *x
         
             
            
-func        add(  x, y)    =x  +y    
-func larger             ( a, b )=    a if    a>= b else b  
+func        add(  x, y)    =x  +
+y    
+func 
+    larger             ( a, b )=    a if    
+    a>= b else b  
         
         
 start     =      5
@@ -690,10 +714,17 @@ start     =      5
 
 a=2  
 
-b=  8 if  a>  2  and start ==   5 else  9
+b=  8 if 
+ a>  2  and start 
+ ==  
+  5 
+  else  9
 
      
-result       = square(    start  ) * 3 - larger(   a, b)        
+result       
+        = square(    start  )
+    * 3 - larger
+    (   a, b)        
      
         `);
             const expected = makeModule(

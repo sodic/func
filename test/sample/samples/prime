@@ -9,14 +9,14 @@ func add(x, y) = x + y
 func lessThan(x, y) = x < y
 func divisibleBy(n, k) = n % k == 0
 
-func testIntRange(test, start, end, step) =
+func anyInRange(test, start, end, step) =
     testSequence(test, lessThan(end), add(step), start)
 
 func isPrime(n) =
     False if n == 1 else
     True if n == 2 else
     False if n % 2 == 0 else
-    !testIntRange(divisibleBy(n), 3, sqrt(n), 2)
+    !anyInRange(divisibleBy(n), 3, sqrt(n), 2)
 
 is1Prime = isPrime(1)
 is2Prime = isPrime(2)

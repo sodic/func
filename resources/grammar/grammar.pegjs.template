@@ -1,9 +1,9 @@
 Module =
-    EmptyLine* head:Statement tail:(EmptyLine+ Statement)* MultilineWhitespace {
+    EmptyLine* head:Statement tail:(EmptyLine+ Statement)* _m_ {
         const statements = tail.reduce((statements, current) => [...statements, current[1]], [head]);
         return makeModule(statements);
     }
-    / MultilineWhitespace {
+    / _m_ {
         return makeModule([]);
     }
 
@@ -15,22 +15,19 @@ StatementNewline =
     Statement LineEnd
 
 Assignment =
-    name:Identifier _ "=" _ expression:Expression {
+    name:Identifier _m_ "=" _m_ expression:Expression {
         return makeAssignment(name, expression);
     }
 
 FunctionDefinition =
-    FuncToken Space name:Identifier _ "(" _ params:ParameterList _ ")" _ "=" MultilineWhitespace body:Expression {
+    FuncToken OneOrMoreSpace name:Identifier _m_ "(" _m_ params:ParameterList _m_ ")" _m_ "=" _m_ body:Expression {
         return makeFunctionDefinition(name, params, body);
     }
 
 ParameterList =
-    head:Identifier tail:(_ "," _ Identifier _)* {
+    head:Identifier tail:(_m_ "," _m_ Identifier _m_)* {
         return tail.reduce((list, curr) => [...list, curr[3]], [head]);
     }
-
-StatementSeparator =
-    LineEnd MultilineWhitespace LineEnd
 
 Expression =
     letExpression:LetExpression {
@@ -39,7 +36,7 @@ Expression =
     / cond:Conditional {
         return cond;
     }
-    / Disjunction
+    / Pipeline
 
 // todo see what happens on multilevel let expressions
 LetExpression =
@@ -55,14 +52,20 @@ Conditional =
         return makeConditional(test, consequent, alternate);
     }
 
+Pipeline =
+    head:Disjunction tail:(_m_ "|>" _m_ callee:UnaryExpression)* {
+        // todo after adding type classes, callee might change to something more general
+        return buildPipeline(head, tail);
+    }
+
 // todo find a way to do a < b < c with intuitive semantics
 Disjunction =
-    head:Conjunction tail:(_ "or" _ Conjunction)* {
+    head:Conjunction tail:(_m_ "or" _m_ Conjunction)* {
         return buildBinaryExpressionChain(head, tail);
     }
 
 Conjunction =
-    head:BitwiseOr tail:(_ "and" _ BitwiseOr)* {
+    head:BitwiseOr tail:(_m_ "and" _m_ BitwiseOr)* {
         return buildBinaryExpressionChain(head, tail);
     }
 
@@ -71,7 +74,7 @@ BitwiseOr =
 
 // todo find a way to do a == b == c with intuitive semantics
 Equality =
-    left:Comparison _ op:EqualityOperator _ right:Comparison {
+    left:Comparison _m_ op:EqualityOperator _m_ right:Comparison {
         return makeCall(op, [left, right]);
     }
     / Comparison
@@ -82,7 +85,7 @@ EqualityOperator =
     }
 
 Comparison =
-    left:Shift _ op:ComparisonOperator _ right:Shift {
+    left:Shift _m_ op:ComparisonOperator _m_ right:Shift {
         return makeCall(op, [left, right]);
     }
     / Shift
@@ -96,7 +99,7 @@ Shift =
     Sum
 
 Sum =
-    head:Product tail:(_ AdditiveOperator _ Product)* {
+    head:Product tail:(_m_ AdditiveOperator _m_ Product)* {
         return buildBinaryExpressionChain(head, tail);
     }
 
@@ -105,7 +108,7 @@ AdditiveOperator =
     / "-"
 
 Product =
-    head:UnaryExpression tail:(_ MultiplicativeOperator _ UnaryExpression)* {
+    head:UnaryExpression tail:(_m_ MultiplicativeOperator _m_ UnaryExpression)* {
         return buildBinaryExpressionChain(head, tail);
     }
 
@@ -116,7 +119,7 @@ MultiplicativeOperator =
 
 UnaryExpression =
     PostfixExpression
-    / operator:UnaryOperator argument:UnaryExpression {
+    / operator:UnaryOperator _m_ argument:UnaryExpression {
         const operatorExpression = makeIdentifierReference(operator);
         return makeApplication(operatorExpression, argument);
     }
@@ -132,7 +135,7 @@ LeftHandSideExpression =
     / MemberExpression
 
 CallExpression =
-    callee:SingleCallExpression tail:(_ Arguments)* {
+    callee:SingleCallExpression tail:(_m_ Arguments)* {
         return buildCallChain(callee, tail);
     }
 
@@ -150,22 +153,22 @@ Literal =
     / StringLiteral
 
 ParenthesizedExpression =
-    "(" _ expression:Expression _ ")" {
+    "(" _m_ expression:Expression _m_ ")" {
         return parenthesize(expression);
     }
 
 SingleCallExpression =
-    callee:MemberExpression _ args:Arguments {
+    callee:MemberExpression _m_ args:Arguments {
         return makeCall(callee, args);
     }
 
 Arguments =
-    "(" _ args:ArgumentList _ ")" {
+    "(" _m_ args:ArgumentList _m_ ")" {
         return args;
     }
 
 ArgumentList =
-    head:Expression tail:(_ "," _ Expression _)* {
+    head:Expression tail:(_m_ "," _m_ Expression _m_)* {
         return tail.reduce((list, curr) => [...list, curr[3]], [head]);
     }
 
@@ -277,7 +280,11 @@ SingleLineComment =
 Character "source character" =
     .
 
-_ "Ignored" = (Whitespace / Comment)*
+_i_ "ignored inline whitespace" = (Whitespace / Comment)*
+
+// whitespace spanning may lines, not necessarily ending with a newline character
+_m_ "ignored multiline whitespace" = (Whitespace / Comment / LineEnd)*
+
 Space "whitespace" = [ \t]+ // significant inline whitespace
 
 Whitespace "whitespace" =
@@ -298,12 +305,8 @@ LineEnd "end of line"
   / "\u2028"
   / "\u2029"
 
-// whitespace spanning may lines, not necessarily ending with a newline character
-MultilineWhitespace =
-    (Whitespace / Comment / LineEnd)*
-
 OneOrMoreSpace =
-    (Whitespace / LineEnd) MultilineWhitespace
+    (Whitespace / LineEnd) _m_
 
 // a full line containing nothing but whitespace
 EmptyLine =

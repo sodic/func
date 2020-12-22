@@ -2,6 +2,7 @@ import assert from 'assert';
 import { parseExpression, parseModule, parseStatement } from '../../../src/parser';
 import {
     Builtin,
+    COMPOSITION_ARG,
     makeApplication,
     makeAssignment,
     makeBoolean,
@@ -9,6 +10,7 @@ import {
     makeConditional,
     makeFunctionDefinition,
     makeIdentifierReference,
+    makeLambda,
     makeLet,
     makeModule,
     makeNumber,
@@ -308,6 +310,31 @@ describe('parser', function () {
         it('should be space insensitive when parsing pipelines', function () {
             const result1 = parseExpression('x+3|>square(1)|>double|>add(3)');
             const result2 = parseExpression('x+3    \n |> \r square(1)\n   |>  \r double \n  |>     \r  add(3)');
+            assert.deepStrictEqual(result1, result2);
+        });
+        it('should correctly desugar a composition', function () {
+            const result = parseExpression('x.(m if p > 2 else n).z(4).g');
+            const expected = makeLambda(
+                COMPOSITION_ARG,
+                makeApplication(
+                    parseExpression('x'),
+                    makeApplication(
+                        parseExpression('(m if p > 2 else n)'),
+                        makeApplication(
+                            parseExpression('z(4)'),
+                            makeApplication(
+                                parseExpression('g'),
+                                makeIdentifierReference(COMPOSITION_ARG),
+                            ),
+                        ),
+                    ),
+                ),
+            );
+            assert.deepStrictEqual(result, expected);
+        });
+        it('should be space insensitive when parsing compositions', function () {
+            const result1 = parseExpression('f.g.h(x,y).(a if x else b).z(1)');
+            const result2 = parseExpression('f \t. \ng. \th(x, y) \t. \n  \t( a \n  if \tx \nelse \nb) \n.\nz \t(1)');
             assert.deepStrictEqual(result1, result2);
         });
         it('should be able to work with function calls within arithmetic expressions', function () {

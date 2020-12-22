@@ -108,7 +108,7 @@ AdditiveOperator =
     / "-"
 
 Product =
-    head:UnaryExpression tail:(_m_ MultiplicativeOperator _m_ UnaryExpression)* {
+    head:Composition tail:(_m_ MultiplicativeOperator _m_ Composition)* {
         return buildBinaryExpressionChain(head, tail);
     }
 
@@ -116,6 +116,14 @@ MultiplicativeOperator =
     "*"
     / "/"
     / "%"
+
+Composition =
+    head:UnaryExpression tail:(_m_ CompositionOperator _m_ UnaryExpression)* {
+        return buildComposition(head, tail);
+    }
+
+CompositionOperator =
+    "."
 
 UnaryExpression =
     PostfixExpression

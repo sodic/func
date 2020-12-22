@@ -1,15 +1,16 @@
 import assert from 'assert';
 import {
     Builtin,
-    BinaryChainElement,
+    ChainElement,
     buildBinaryExpressionChain,
     makeApplication,
     makeCall,
     makeIdentifierReference,
     makeNumber,
-    PipelineElement,
     makeLambda,
     buildPipeline,
+    buildComposition,
+    COMPOSITION_ARG,
 } from '../../../../src/ast';
 import { BuiltinName } from '../../../../src/builtins';
 
@@ -21,14 +22,14 @@ describe('helpers', function () {
         });
         it('should correctly build a binary expression chain when the operator is used once', function () {
             const head = makeIdentifierReference('a');
-            const other: BinaryChainElement = [null, BuiltinName.Add, null, makeIdentifierReference('b')];
+            const other: ChainElement = [null, BuiltinName.Add, null, makeIdentifierReference('b')];
             const result = buildBinaryExpressionChain(head, [other]);
             const expected = makeCall(Builtin.Add, [head, other[3]]);
             assert.deepStrictEqual(result, expected);
         });
         it('should correctly build a chained binary expression', function () {
             const head = makeIdentifierReference('a');
-            const tail: BinaryChainElement[] = [
+            const tail: ChainElement[] = [
                 [null, BuiltinName.Multiply, null, makeIdentifierReference('b')],
                 [null, BuiltinName.Modulus, null, makeIdentifierReference('c')],
                 [null, BuiltinName.Divide, null, makeIdentifierReference('d')],
@@ -59,7 +60,7 @@ describe('helpers', function () {
     describe('#buildPipeline', function () {
         it('should correctly build a pipeline', function () {
             const head = makeIdentifierReference('a');
-            const tail: PipelineElement[] = [
+            const tail: ChainElement[] = [
                 [null, '|>', null, makeIdentifierReference('f')],
                 [null, '|>', null, makeLambda('x', makeCall(Builtin.Add, [makeIdentifierReference('x'), makeNumber(1)]))],
                 [null, '|>', null, Builtin.Multiply],
@@ -89,6 +90,34 @@ describe('helpers', function () {
                         ],
                     ),
                 ],
+            );
+            assert.deepStrictEqual(result, expected);
+        });
+    });
+    describe('#buildComposition', function () {
+        it('should correctly build a composition', function () {
+            const head = makeIdentifierReference('f');
+            const tail: ChainElement[] = [
+                [null, '.', null, makeIdentifierReference('g')],
+                [null, '.', null, Builtin.ToString],
+                [null, '.', null, Builtin.Multiply],
+            ];
+            const result = buildComposition(head, tail);
+            const expected = makeLambda(
+                COMPOSITION_ARG,
+                makeApplication(
+                    makeIdentifierReference('f'),
+                    makeApplication(
+                        makeIdentifierReference('g'),
+                        makeApplication(
+                            Builtin.ToString,
+                            makeApplication(
+                                Builtin.Multiply,
+                                makeIdentifierReference(COMPOSITION_ARG),
+                            ),
+                        ),
+                    ),
+                ),
             );
             assert.deepStrictEqual(result, expected);
         });

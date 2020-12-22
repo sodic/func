@@ -139,9 +139,9 @@ export function buildCallChain(head: Application, tail: CallChainElement[]): Exp
     );
 }
 
-export type BinaryChainElement = [unknown, string, unknown, Expression];
+export type ChainElement = [unknown, string, unknown, Expression];
 
-export function buildBinaryExpressionChain(head: Expression, tail: BinaryChainElement[]): Expression {
+export function buildBinaryExpressionChain(head: Expression, tail: ChainElement[]): Expression {
     return tail.reduce(
         (acc: Expression, element): Expression => makeApplication(
             makeApplication(makeIdentifierReference(element[1]), acc),
@@ -151,16 +151,29 @@ export function buildBinaryExpressionChain(head: Expression, tail: BinaryChainEl
     );
 }
 
-export type PipelineElement = [unknown, string, unknown, Expression];
 
-export function buildPipeline(head: Expression, tail: PipelineElement[]): Expression {
+export function buildPipeline(head: Expression, tail: ChainElement[]): Expression {
     return tail.reduce(
-        (pipeline: Expression, element: PipelineElement) => makeApplication(
+        (pipeline: Expression, element: ChainElement) => makeApplication(
             element[3],
             pipeline,
         ),
         head,
     );
+}
+
+export const COMPOSITION_ARG = '$0';
+
+export function buildComposition(head: Expression, tail: ChainElement[]): Expression {
+    if (!tail.length) {
+        return head;
+    }
+
+    const argRef = makeIdentifierReference(COMPOSITION_ARG);
+    const applicationChain = [...tail].reverse();
+    const pipeline = makeApplication(head, buildPipeline(argRef, applicationChain));
+
+    return makeLambda(COMPOSITION_ARG, pipeline);
 }
 
 /**

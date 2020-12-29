@@ -14,6 +14,7 @@ export enum BuiltinName {
     And = 'and',
     Or = 'or',
     Not = '!',
+    Tuple = ',',
 
     // functions
     Constant= 'const',

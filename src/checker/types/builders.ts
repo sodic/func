@@ -1,4 +1,4 @@
-import { TArray, TFunction, TVariable, Type, TypeKind } from './type';
+import { TFunction, TPolymorphic, TVariable, Type, TypeKind } from './type';
 import { union } from '../../util';
 import { Scheme } from './scheme';
 
@@ -25,10 +25,11 @@ export function curriedFunctionType(type1: Type, type2: Type, ...types: Type[]):
     );
 }
 
-export function arrayType(type: Type): TArray {
+export function polymorphicType(constructor: string, parameters: Type[]): TPolymorphic {
     return {
-        kind: TypeKind.Array,
-        boxed: type,
+        kind: TypeKind.Polymorphic,
+        constructor,
+        parameters,
     };
 }
 

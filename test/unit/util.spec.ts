@@ -1,5 +1,5 @@
 import assert from 'assert';
-import { difference, mapObjectValues, union } from '../../src/util';
+import { difference, mapObjectValues, union, zip } from '../../src/util';
 
 describe('set operations', function () {
     describe('#union', function () {
@@ -68,6 +68,36 @@ describe('object operations', function () {
             };
             const mapped = mapObjectValues(o, value => value * value);
             assert.deepStrictEqual(mapped, o2);
+        });
+    });
+});
+
+describe('array operations', function () {
+    describe('#zip', function () {
+        it('should correctly zip two arrays when the first array is shorter', function () {
+            const a = [1, 2, 3];
+            const b = ['one', 'two', 'three', 'four', 'five'];
+            assert.deepStrictEqual(zip(a, b), [[1, 'one'], [2, 'two'], [3, 'three']]);
+        });
+        it('should correctly zip two arrays when the second array is shorter', function () {
+            const a = [1, 2, 3, 4, 5];
+            const b = ['one', 'two', 'three'];
+            assert.deepStrictEqual(zip(a, b), [[1, 'one'], [2, 'two'], [3, 'three']]);
+        });
+        it('should correctly zip two arrays when the first array is empty', function () {
+            const a: number[] = [];
+            const b = ['one', 'two', 'three'];
+            assert.deepStrictEqual(zip(a, b), []);
+        });
+        it('should correctly zip two arrays when the second array is empty', function () {
+            const a = [1, 2, 3, 4, 5];
+            const b: string[] = [];
+            assert.deepStrictEqual(zip(a, b), []);
+        });
+        it('should correctly zip two arrays when both arrays are empty', function () {
+            const a: number[] = [];
+            const b: string[] = [];
+            assert.deepStrictEqual(zip(a, b), []);
         });
     });
 });

@@ -1,7 +1,7 @@
 import { TVariable, Type } from '../types/type';
 import { difference } from '../../util';
 import { curriedFunctionType, freeTypeVars, typeVar } from '../types/builders';
-import { substituteInType } from '../substitution';
+import { EMPTY_SUBSTITUTION, substituteInType } from '../substitution';
 import { Scheme } from '../types/scheme';
 import { freeTypeVarsContext } from '../types/helpers';
 import { Context } from '../types/context';
@@ -18,7 +18,7 @@ export function typeVarGenerator(): () => TVariable {
 export function instantiate(scheme: Scheme, uniqueTypeVar: () => TVariable = typeVarGenerator()): Type {
     const sub = [...scheme.bound].reduce(
         (sub, oldName) => ({ ...sub, [oldName]: uniqueTypeVar() }),
-        {},
+        EMPTY_SUBSTITUTION,
     );
     return substituteInType(sub, scheme.type);
 }
@@ -45,7 +45,7 @@ function humanFriendlyScheme(scheme: Scheme): Scheme {
 
     const renamingSubstitution: TVarSubstitution = [...scheme.bound].reduce(
         (acc, varName) => ({ ...acc, [varName]: newTypeVar() }),
-        {},
+        EMPTY_SUBSTITUTION as TVarSubstitution,
     );
     const renamedBoundVariables = new Set(
         [...scheme.bound].map(varName => renamingSubstitution[varName].name),

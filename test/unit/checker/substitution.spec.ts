@@ -1,23 +1,23 @@
 import assert from 'assert';
 import { composeSubstitutions, substituteInType, Substitution } from '../../../src/checker/substitution';
-import { BIGINT_TYPE, BOOL_TYPE, NUMBER_TYPE } from '../../../src/checker/types/common';
-import { functionType, typeVar } from '../../../src/checker/types/builders';
+import { BIGINT_TYPE, BOOL_TYPE, NUMBER_TYPE, STRING_TYPE } from '../../../src/checker/types/common';
+import { curriedFunctionType, functionType, polymorphicType, typeVar } from '../../../src/checker/types/builders';
 
 describe('substitution', function () {
     describe('#substituteInType', function () {
-        it('should substitute a type variable to a number correctly', function () {
+        it('should correctly substitute a type variable to a number', function () {
             const result = substituteInType({ 'u0': NUMBER_TYPE }, typeVar('u0'));
             assert.deepStrictEqual(result, NUMBER_TYPE);
         });
-        it('should substitute a type variable to a bigint correctly', function () {
+        it('should correctly substitute a type variable to a bigint', function () {
             const result = substituteInType({ 'u0': BIGINT_TYPE }, typeVar('u0'));
             assert.deepStrictEqual(result, BIGINT_TYPE);
         });
-        it('should substitute a type variable to a boolean correctly', function () {
+        it('should correctly substitute a type variable to a boolean', function () {
             const result = substituteInType({ 'u0': BOOL_TYPE }, typeVar('u0'));
             assert.deepStrictEqual(result, BOOL_TYPE);
         });
-        it('should substitute in function type correctly', function () {
+        it('should correctly substitute in a function type', function () {
             const funType = functionType(typeVar('u0'), typeVar('u1'));
             const substitution: Substitution = {
                 'u0': BIGINT_TYPE,
@@ -25,6 +25,24 @@ describe('substitution', function () {
             };
             const result = substituteInType(substitution, funType);
             const expected = functionType(BIGINT_TYPE, NUMBER_TYPE);
+            assert.deepStrictEqual(result, expected);
+        });
+        it('should correctly substitute in a general polymorphic type', function () {
+            const t = polymorphicType('Constructor', [
+                NUMBER_TYPE,
+                typeVar('u1'),
+                functionType(typeVar('u1'), typeVar('u2')),
+            ]);
+            const substitution: Substitution = {
+                'u1': BIGINT_TYPE,
+                'u2': functionType(STRING_TYPE, NUMBER_TYPE),
+            };
+            const result = substituteInType(substitution, t);
+            const expected = polymorphicType('Constructor', [
+                NUMBER_TYPE,
+                BIGINT_TYPE,
+                curriedFunctionType(BIGINT_TYPE, STRING_TYPE, NUMBER_TYPE),
+            ]);
             assert.deepStrictEqual(result, expected);
         });
     });

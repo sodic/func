@@ -2,28 +2,32 @@ import { OccursError, UnificationError, unify } from '../../../src/checker/unifi
 import assert from 'assert';
 import {
     TFunction,
-
 } from '../../../src/checker/types/type';
-import { BIGINT_TYPE, BOOL_TYPE, NUMBER_TYPE } from '../../../src/checker/types/common';
-import { curriedFunctionType, functionType, typeVar } from '../../../src/checker/types/builders';
+import { BIGINT_TYPE, BOOL_TYPE, NUMBER_TYPE, STRING_TYPE } from '../../../src/checker/types/common';
+import { curriedFunctionType, functionType, polymorphicType, typeVar } from '../../../src/checker/types/builders';
+import { EMPTY_SUBSTITUTION, Substitution } from '../../../src/checker/substitution';
 
 describe('unification', function () {
     describe('#unify', function () {
         it('should return an empty substitution when unifying 2 number types', function () {
             const result = unify(NUMBER_TYPE, NUMBER_TYPE);
-            assert.deepStrictEqual(result, {});
+            assert.deepStrictEqual(result, EMPTY_SUBSTITUTION);
         });
         it('should return an empty substitution type when unifying 2 bool types', function () {
             const result = unify(BOOL_TYPE, BOOL_TYPE);
-            assert.deepStrictEqual(result, {});
+            assert.deepStrictEqual(result, EMPTY_SUBSTITUTION);
         });
         it('should return an empty substitution when unifying 2 bigint types', function () {
             const result = unify(BIGINT_TYPE, BIGINT_TYPE);
-            assert.deepStrictEqual(result, {});
+            assert.deepStrictEqual(result, EMPTY_SUBSTITUTION);
+        });
+        it('should return an empty substitution when unifying 2 string types', function () {
+            const result = unify(STRING_TYPE, STRING_TYPE);
+            assert.deepStrictEqual(result, EMPTY_SUBSTITUTION);
         });
         it('should return an empty substitution type when unifying type variables of same name', function () {
             const result = unify(typeVar('u1'), typeVar('u1'));
-            assert.deepStrictEqual(result, {});
+            assert.deepStrictEqual(result, EMPTY_SUBSTITUTION);
         });
         it('should substitute a type variable with an int literal when unifying an int type with a type variable', function () {
             const result1 = unify(NUMBER_TYPE, typeVar('u1'));
@@ -91,6 +95,30 @@ describe('unification', function () {
             };
             assert.deepStrictEqual(result, expected);
 
+        });
+        it('should correctly unify two polymorphic types', function () {
+            const t1 = polymorphicType('Constructor', [
+                NUMBER_TYPE,
+                typeVar('u1'),
+                functionType(typeVar('u1'), typeVar('u2')),
+                typeVar('u4'),
+                BIGINT_TYPE,
+            ]);
+            const t2 = polymorphicType('Constructor', [
+                typeVar('u1'),
+                typeVar('u1'),
+                functionType(typeVar('u1'), STRING_TYPE),
+                typeVar('u3'),
+                typeVar('u4'),
+            ]);
+            const result = unify(t1, t2);
+            const expected: Substitution = {
+                'u1': NUMBER_TYPE,
+                'u2': STRING_TYPE,
+                'u3': BIGINT_TYPE,
+                'u4': BIGINT_TYPE,
+            };
+            assert.deepStrictEqual(result, expected);
         });
         it('should correctly unify two type variables', function () {
             const result = unify(typeVar('u1'), typeVar('u2'));

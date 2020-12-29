@@ -17,6 +17,11 @@ ${indent(1)}};
     [BuiltinName.SquareRoot]: `function ${mapBuiltinName(BuiltinName.SquareRoot)}(n) {
 ${indent(1)}return Math.sqrt(n);
 }`,
+    [BuiltinName.Tuple]: `function ${mapBuiltinName(BuiltinName.Tuple)}(x) {
+${indent(1)}return function(y) {
+${indent(2)}return [x, y];
+${indent(1)}}
+}`,
 };
 
 export const builtinDefinitions = Object.values(builtinDefinitionMap).join('\n\n');

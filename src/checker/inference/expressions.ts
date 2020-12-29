@@ -18,7 +18,7 @@ import {
 } from '../types/type';
 import { BIGINT_TYPE, BOOL_TYPE, NUMBER_TYPE, STRING_TYPE } from '../types/common';
 import { functionType, unboundScheme } from '../types/builders';
-import { composeSubstitutions, substituteInContext, substituteInType } from '../substitution';
+import { composeSubstitutions, EMPTY_SUBSTITUTION, substituteInContext, substituteInType } from '../substitution';
 import { unify } from '../unification';
 import { assertUnreachable } from '../../util';
 import { instantiate, typeVarGenerator } from './helpers';
@@ -68,7 +68,7 @@ export function getExpressionInferer(uniqueTypeVar: () => TVariable = typeVarGen
             [LiteralKind.BigInt]: BIGINT_TYPE,
         };
         return {
-            substitution: {},
+            substitution: EMPTY_SUBSTITUTION,
             type: typeForKind[literal.value.kind],
         };
     }
@@ -79,7 +79,7 @@ export function getExpressionInferer(uniqueTypeVar: () => TVariable = typeVarGen
             throw Error(`Unbound variable ${variable.name}`);
         }
         return {
-            substitution: {},
+            substitution: EMPTY_SUBSTITUTION,
             type: instantiate(scheme, uniqueTypeVar),
         };
     }

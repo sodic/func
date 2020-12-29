@@ -5,6 +5,12 @@ export function mapObjectValues<T, U>(object: {[key: string]: T}, map: (value: T
     );
 }
 
+// todo figure out how to make this more clever (variadic arrays with correct types)
+export function zip<T, U>(xs: T[], ys: U[]): [T, U][] {
+    const limit = Math.min(xs.length, ys.length);
+    return xs.slice(0, limit).map((x, i) => [x, ys[i]]);
+}
+
 export function union<T>(s1: Set<T>, s2: Set<T>): Set<T> {
     return new Set([...s1, ...s2]);
 }

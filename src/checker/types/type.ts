@@ -4,7 +4,7 @@ import { assertUnreachable } from '../../util';
 export type Type = TLiteral
     | TVariable
     | TFunction
-    | TArray;
+    | TPolymorphic;
 
 export enum TypeKind {
     Variable = 'Variable',
@@ -13,7 +13,11 @@ export enum TypeKind {
     BigInt = 'BigInt',
     String = 'String',
     Function = 'Function',
-    Array = 'Array',
+    Polymorphic = 'Polymorphic',
+}
+
+export enum BuiltinPolymorphicTypeConstructors {
+    Tuple = 'Tuple',
 }
 
 // α (type variable)
@@ -29,9 +33,10 @@ export interface TFunction {
     output: Type;
 }
 
-export interface TArray {
-   kind: TypeKind.Array;
-   boxed: Type;
+export interface TPolymorphic {
+   kind: TypeKind.Polymorphic;
+   constructor: string;
+   parameters: Type[];
 }
 
 // ι (literal)
@@ -70,8 +75,8 @@ export function showType(type: Type): string {
         return showFunction(type);
     case TypeKind.Variable:
         return type.name;
-    case TypeKind.Array:
-        return `${showType(type.boxed)}[]`;
+    case TypeKind.Polymorphic:
+        return `${type.constructor} ${type.parameters.map(showType).join(' ')}`;
     default:
         assertUnreachable(type);
     }

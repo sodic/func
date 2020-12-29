@@ -22,6 +22,7 @@ const builtinTranspileConfig = {
     [BuiltinName.And]: binaryExpression('&&'),
     [BuiltinName.Or]: binaryExpression('||'),
     [BuiltinName.Not]: unaryExpression('!'),
+    [BuiltinName.Tuple]: functionCall('makeTuple'),
     [BuiltinName.Identity]: functionCall('id'),
     [BuiltinName.Constant]: functionCall('constant'),
     [BuiltinName.ToString]: functionCall('toString'),

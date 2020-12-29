@@ -26,6 +26,7 @@ import { functionScheme } from '../../../src/checker/inference/helpers';
 import { UnificationError } from '../../../src/checker/unification';
 import { Context } from '../../../src/checker/types/context';
 import { builtins } from '../../../src/checker/inference/builtins';
+import { EMPTY_SUBSTITUTION } from '../../../src/checker/substitution';
 
 describe('inference', function () {
     describe('#infer', function () {
@@ -37,21 +38,21 @@ describe('inference', function () {
             const expr: Expression = { kind: ExpressionKind.Literal, value: { kind: LiteralKind.BigInt, value: 4n } };
             const context = {};
             const { substitution, type } = infer(context, expr);
-            assert.deepStrictEqual(substitution, {});
+            assert.deepStrictEqual(substitution, EMPTY_SUBSTITUTION);
             assert.deepStrictEqual(type, { kind: TypeKind.BigInt });
         });
         it('should correctly infer the type of a literal number expression', function () {
             const expr: Expression = { kind: ExpressionKind.Literal, value: { kind: LiteralKind.Number, value: 4 } };
             const context = {};
             const { substitution, type } = infer(context, expr);
-            assert.deepStrictEqual(substitution, {});
+            assert.deepStrictEqual(substitution, EMPTY_SUBSTITUTION);
             assert.deepStrictEqual(type, { kind: TypeKind.Number });
         });
         it('should correctly infer the type of a literal boolean expression', function () {
             const expr: Expression = { kind: ExpressionKind.Literal, value: { kind: LiteralKind.Boolean, value: true } };
             const context = {};
             const { substitution, type } = infer(context, expr);
-            assert.deepStrictEqual(substitution, {});
+            assert.deepStrictEqual(substitution, EMPTY_SUBSTITUTION);
             assert.deepStrictEqual(type, { kind: TypeKind.Boolean });
 
         });
@@ -124,7 +125,7 @@ describe('inference', function () {
                 },
             };
             const { substitution, type } = infer({}, constFunction);
-            assert.deepStrictEqual(substitution, {});
+            assert.deepStrictEqual(substitution, EMPTY_SUBSTITUTION);
             const expected = functionType(typeVar('t1'), functionType(typeVar('t2'), typeVar('t1')));
             assert.deepStrictEqual(type, expected);
         });
@@ -187,7 +188,7 @@ describe('inference', function () {
         });
         it('should correctly infer the type of the identity function', function () {
             const { substitution, type } = infer({}, ID_FUNCTION);
-            assert.deepStrictEqual(substitution, {});
+            assert.deepStrictEqual(substitution, EMPTY_SUBSTITUTION);
             const expected = functionType(typeVar('t1'), typeVar('t1'));
             assert.deepStrictEqual(type, expected);
         });
@@ -280,7 +281,7 @@ describe('inference', function () {
             };
             assert.throws(() => infer(context, conditional), UnificationError);
         });
-        it('should correctly infer type instantiation on parital applications', function () {
+        it('should correctly infer type instantiation on partial applications', function () {
             const expression = makeApplication(makeIdentifierReference('f'), makeNumber(5));
             const context = {
                 f: functionScheme(typeVar('u1'), typeVar('u1'), typeVar('u2')),

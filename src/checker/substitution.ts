@@ -1,10 +1,14 @@
 import { Type, TypeKind } from './types/type';
 import { assertUnreachable, mapObjectValues } from '../util';
-import { arrayType, functionType } from './types/builders';
+import { functionType, polymorphicType } from './types/builders';
 import { Scheme } from './types/scheme';
 import { Context } from './types/context';
 
-export type Substitution = { [variableName: string]: Type };
+export type Substitution = {
+    [variableName: string]: Type;
+};
+
+export const EMPTY_SUBSTITUTION: Substitution = {};
 
 export function substituteInType(sub: Substitution, type: Type): Type {
     switch (type.kind) {
@@ -23,8 +27,8 @@ export function substituteInType(sub: Substitution, type: Type): Type {
         return type;
     case TypeKind.String:
         return type;
-    case TypeKind.Array:
-        return arrayType(substituteInType(sub, type.boxed));
+    case TypeKind.Polymorphic:
+        return polymorphicType(type.constructor, type.parameters.map(type => substituteInType(sub, type)));
     default:
         assertUnreachable(type);
     }
@@ -41,7 +45,7 @@ export function composeSubstitutions(...subs: Substitution[]): Substitution {
             ...mapObjectValues(composition, type => substituteInType(sub, type)),
             ...sub,
         }),
-        {},
+        EMPTY_SUBSTITUTION,
     );
 }
 
@@ -53,7 +57,7 @@ export function substituteInScheme(sub: Substitution, scheme: Scheme): Scheme {
                 ...clean,
                 [currentKey]: sub[currentKey],
             }),
-            {},
+            EMPTY_SUBSTITUTION,
         );
     return {
         bound: scheme.bound,

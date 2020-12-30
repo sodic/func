@@ -1,6 +1,6 @@
 import { TVariable, Type } from '../types/type';
 import { difference } from '../../util';
-import { curriedFunctionType, freeTypeVars, typeVar } from '../types/builders';
+import { curriedFunctionType, freeTypeVars, polymorphicType, typeVar } from '../types/builders';
 import { EMPTY_SUBSTITUTION, substituteInType } from '../substitution';
 import { Scheme } from '../types/scheme';
 import { freeTypeVarsContext } from '../types/helpers';
@@ -25,6 +25,10 @@ export function instantiate(scheme: Scheme, uniqueTypeVar: () => TVariable = typ
 
 export function functionScheme(type1: Type, type2: Type, ...types: Type[]): Scheme {
     return generalize({}, curriedFunctionType(type1, type2, ...types));
+}
+
+export function polymorphicScheme(constructor: string, parameters: Type[]): Scheme {
+    return generalize({}, polymorphicType(constructor, parameters));
 }
 
 export function generalize(context: Context, type: Type): Scheme {

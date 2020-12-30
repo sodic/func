@@ -11,6 +11,14 @@ export function zip<T, U>(xs: T[], ys: U[]): [T, U][] {
     return xs.slice(0, limit).map((x, i) => [x, ys[i]]);
 }
 
+export function range(start: number, end: number): number[] {
+    if (end <= start) {
+        return [];
+    } else {
+        return [...Array(end - start).keys()].map(index => index + start);
+    }
+}
+
 export function union<T>(s1: Set<T>, s2: Set<T>): Set<T> {
     return new Set([...s1, ...s2]);
 }

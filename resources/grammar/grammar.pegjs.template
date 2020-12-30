@@ -227,8 +227,10 @@ StringLiteral "string" =
     }
 
 TupleLiteral "tuple literal" =
-    "(" _m_ first:Expression _m_ "," _m_ second:Expression _m_ ")" {
-        return makePolymorphicTypeLiteral(",", [first, second]);
+    "(" _m_ head:Expression tail:(_m_ "," _m_ second:Expression _m_)+ ")" {
+        const operator = ",".repeat(tail.length);
+        const members = [head, ...tail.map(el => el[3])];
+        return makePolymorphicTypeLiteral(operator, members);
     }
 
 StringCharacter =

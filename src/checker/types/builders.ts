@@ -1,5 +1,5 @@
 import { TFunction, TPolymorphic, TVariable, Type, TypeKind } from './type';
-import { union } from '../../util';
+import { assertUnreachable, union } from '../../util';
 import { Scheme } from './scheme';
 
 export function typeVar(name: string): TVariable {
@@ -46,11 +46,21 @@ export function makeScheme(bound: string[], type: Type): Scheme {
 
 export function freeTypeVars(type: Type): Set<string> {
     switch (type.kind) {
+    case TypeKind.Boolean:
+    case TypeKind.String:
+    case TypeKind.Number:
+    case TypeKind.BigInt:
+        return new Set();
     case TypeKind.Variable:
         return new Set([type.name]);
     case TypeKind.Function:
         return union(freeTypeVars(type.input), freeTypeVars(type.output));
+    case TypeKind.Polymorphic:
+        return type.parameters.reduce(
+            (acc, param) => union(acc, freeTypeVars(param)),
+            new Set<string>(),
+        );
     default:
-        return new Set();
+        return assertUnreachable(type);
     }
 }

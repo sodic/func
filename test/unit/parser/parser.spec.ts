@@ -503,7 +503,7 @@ describe('parser', function () {
                                 ],
                             ),
                             parseExpression('3*2==6'),
-                        ] ,
+                        ],
                     ),
                     parseExpression('b+3==1 and 4==5 and 4*2==1'),
                 ],
@@ -605,14 +605,28 @@ describe('parser', function () {
             );
             assert.deepStrictEqual(result, expected);
         });
-        it('should correctly parse a tuple literal', function () {
+        it('should correctly parse a tuple literal of size 2', function () {
             const result = parseExpression('(x+3,f(1)>4)');
             const expected = makeApplication(
                 makeApplication(
-                    Builtin.Tuple,
+                    Builtin.Tuple2,
                     parseExpression('x+3'),
                 ),
                 parseExpression('f(1)>4'),
+            );
+            assert.deepStrictEqual(result, expected);
+        });
+        it('should correctly parse a tuple literal of size 3', function () {
+            const result = parseExpression('(x+3,f(1)>4, a or x>3 and b)');
+            const expected = makeApplication(
+                makeApplication(
+                    makeApplication(
+                        Builtin.Tuple3,
+                        parseExpression('x+3'),
+                    ),
+                    parseExpression('f(1)>4'),
+                ),
+                parseExpression('a or x>3 and b'),
             );
             assert.deepStrictEqual(result, expected);
         });

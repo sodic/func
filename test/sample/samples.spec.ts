@@ -2,7 +2,7 @@ import { promises as fs } from 'fs';
 import assert from 'assert';
 import { compileVerbose } from '../../src';
 import { isFailure } from '../../src/util';
-import { functionScheme } from '../../src/checker/inference/helpers';
+import { functionScheme, polymorphicScheme } from '../../src/checker/inference/helpers';
 import {
     BOOL_SCHEME,
     BOOL_TYPE,
@@ -12,8 +12,9 @@ import {
     STRING_TYPE,
 } from '../../src/checker/types/common';
 import { Scheme, showScheme } from '../../src/checker/types/scheme';
-import { curriedFunctionType, functionType, typeVar } from '../../src/checker/types/builders';
+import { curriedFunctionType, functionType, polymorphicType, typeVar } from '../../src/checker/types/builders';
 import { evaluateAndRead } from '../helpers';
+import { TupleConstructor } from '../../src/checker/types/type';
 
 const specification: TestDefinition[] = [
     {
@@ -139,14 +140,14 @@ const specification: TestDefinition[] = [
                 curriedFunctionType(typeVar('u1'), typeVar('u2'), typeVar('u3')),
                 typeVar('u3'),
             ),
-            first: functionScheme(
+            _first: functionScheme(
                 functionType(
                     curriedFunctionType(typeVar('u1'), typeVar('u2'), typeVar('u1')),
                     typeVar('u3'),
                 ),
                 typeVar('u3'),
             ),
-            second: functionScheme(
+            _second: functionScheme(
                 functionType(
                     curriedFunctionType(typeVar('u1'), typeVar('u2'), typeVar('u2')),
                     typeVar('u3'),
@@ -222,6 +223,25 @@ const specification: TestDefinition[] = [
             is97Prime: true,
             is117Prime: false,
             is269Prime: true,
+        },
+    },
+    {
+        file: 'tuples',
+        expectedTypes: {
+            luka: polymorphicScheme(TupleConstructor[2], [STRING_TYPE, NUMBER_TYPE]),
+            marko: polymorphicScheme(TupleConstructor[2], [STRING_TYPE, NUMBER_TYPE]),
+            isAdult: functionScheme(
+                polymorphicType(TupleConstructor[2], [typeVar('u1'), NUMBER_TYPE]),
+                BOOL_TYPE,
+            ),
+            lukaReport: STRING_SCHEME,
+            totalAge: NUMBER_SCHEME,
+        },
+        expectedValues: {
+            luka: ['Luka', 23],
+            marko: ['Marko', 25],
+            lukaReport: 'Luka is old enough to drive',
+            totalAge: 23 + 25,
         },
     },
 ];

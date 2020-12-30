@@ -1,16 +1,16 @@
 import assert from 'assert';
-import { difference, mapObjectValues, union, zip } from '../../src/util';
+import { difference, mapObjectValues, range, union, zip } from '../../src/util';
 
 describe('set operations', function () {
     describe('#union', function () {
         it('should correctly calculate the union of two non-empty sets', function () {
-            const s1 = new Set([1,2,3]);
-            const s2 = new Set([3,4,5]);
-            assert.deepStrictEqual(union(s1, s2), new Set([1,2,3,4,5]));
+            const s1 = new Set([1, 2, 3]);
+            const s2 = new Set([3, 4, 5]);
+            assert.deepStrictEqual(union(s1, s2), new Set([1, 2, 3, 4, 5]));
         });
         it('should have the commutative property', function () {
-            const s1 = new Set([1,2,3,4,5,3]);
-            const s2 = new Set([2,5,6,2,1,4]);
+            const s1 = new Set([1, 2, 3, 4, 5, 3]);
+            const s2 = new Set([2, 5, 6, 2, 1, 4]);
             assert.deepStrictEqual(union(s1, s2), union(s2, s1));
         });
         it('should correctly calculate the union of two empty sets', function () {
@@ -19,7 +19,7 @@ describe('set operations', function () {
             assert.deepStrictEqual(union(s1, s2), new Set());
         });
         it('should treat an empty set as a neutral element', function () {
-            const s1 = new Set([1,2,3,4,5]);
+            const s1 = new Set([1, 2, 3, 4, 5]);
             const s2 = new Set();
             const s3 = new Set(['a', 'b', 'c']);
             assert.deepStrictEqual(union(s1, new Set()), s1);
@@ -29,14 +29,14 @@ describe('set operations', function () {
     });
     describe('#difference', function () {
         it('should correctly calculate the difference of two overlapping sets', function () {
-            const s1 = new Set([1,2,3]);
-            const s2 = new Set([3,4,5]);
-            assert.deepStrictEqual(difference(s1, s2), new Set([1,2]));
-            assert.deepStrictEqual(difference(s2, s1), new Set([4,5]));
+            const s1 = new Set([1, 2, 3]);
+            const s2 = new Set([3, 4, 5]);
+            assert.deepStrictEqual(difference(s1, s2), new Set([1, 2]));
+            assert.deepStrictEqual(difference(s2, s1), new Set([4, 5]));
         });
         it('should not generally have the commutative property', function () {
-            const s1 = new Set([1,2,3,4,5,3]);
-            const s2 = new Set([2,5,6,2,1,4]);
+            const s1 = new Set([1, 2, 3, 4, 5, 3]);
+            const s2 = new Set([2, 5, 6, 2, 1, 4]);
             assert.notDeepStrictEqual(difference(s1, s2), difference(s2, s1));
         });
         it('should correctly calculate the difference of two empty sets', function () {
@@ -45,8 +45,8 @@ describe('set operations', function () {
             assert.deepStrictEqual(difference(s1, s2), new Set());
         });
         it('should calculate the difference of two non-overlapping sets', function () {
-            const s1 = new Set([1,2,3,4,5]);
-            const s2 = new Set([6,7,8,9,10]);
+            const s1 = new Set([1, 2, 3, 4, 5]);
+            const s2 = new Set([6, 7, 8, 9, 10]);
             assert.deepStrictEqual(difference(s1, s2), s1);
             assert.deepStrictEqual(difference(s2, s1), s2);
         });
@@ -98,6 +98,20 @@ describe('array operations', function () {
             const a: number[] = [];
             const b: string[] = [];
             assert.deepStrictEqual(zip(a, b), []);
+        });
+    });
+    describe('#range', function () {
+        it('should correctly create a non-empty range', function () {
+            assert.deepStrictEqual(range(2, 7), [2, 3, 4, 5, 6]);
+        });
+        it('should correctly create a one-element range', function () {
+            assert.deepStrictEqual(range(1, 2), [1]);
+        });
+        it('should correctly create an empty range', function () {
+            assert.deepStrictEqual(range(2, 2), []);
+        });
+        it('should create an empty range when given illegal boundaries', function () {
+            assert.deepStrictEqual(range(5, 2), []);
         });
     });
 });

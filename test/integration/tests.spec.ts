@@ -3,12 +3,13 @@ import { inferExpression } from '../../src/checker/inference/expressions';
 import { parseExpression, parseModule, parseStatement } from '../../src/parser';
 import { builtins } from '../../src/checker/inference/builtins';
 import { inferStatement } from '../../src/checker/inference/statements';
-import { BOOL_TYPE, NUMBER_TYPE } from '../../src/checker/types/common';
-import { functionType, typeVar, unboundScheme } from '../../src/checker/types/builders';
+import { BOOL_TYPE, NUMBER_TYPE, STRING_TYPE } from '../../src/checker/types/common';
+import { functionType, polymorphicType, typeVar, unboundScheme } from '../../src/checker/types/builders';
 import { inferModule } from '../../src/checker/inference/module';
 import { functionScheme } from '../../src/checker/inference/helpers';
 import { Context } from '../../src/checker/types/context';
 import { BuiltinName } from '../../src/builtins';
+import { TupleConstructor } from '../../src/checker/types/type';
 
 describe('source type inference', function () {
     describe('expression inference', function () {
@@ -32,6 +33,11 @@ describe('source type inference', function () {
             };
             const { type } = inferExpressionSource('c+a+b', context);
             assert.deepStrictEqual(type, NUMBER_TYPE);
+        });
+        it('should correctly infer the type of a builtin tuple', function () {
+            const { type }  = inferExpressionSource('(12 + 3, toString(True), False)');
+            const expected = polymorphicType(TupleConstructor[3], [NUMBER_TYPE, STRING_TYPE, BOOL_TYPE]);
+            assert.deepStrictEqual(type, expected);
         });
     });
     describe('statement inference', function () {
@@ -61,6 +67,15 @@ describe('source type inference', function () {
                 typeVar('u1'),
             );
             assert.deepStrictEqual(context['applyNTimes'], expected);
+        });
+        it('should correctly infer the type of a function operating on tuples', function () {
+            const context = inferStatementSource('func isAdult(person) = second(person) > 18');
+            const expected = functionScheme(
+                polymorphicType(TupleConstructor[2], [typeVar('u1'), NUMBER_TYPE]),
+                BOOL_TYPE,
+            );
+            assert.deepStrictEqual(context['isAdult'], expected);
+
         });
         it('should correctly detect a type mismatch in recursive functions 1', function () {
             assert.throws(() => inferStatementSource('func f(x) = f(x, 1)'), Error);

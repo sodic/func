@@ -36,6 +36,10 @@
                 "maxEOF": 1
             }
         ],
+        "comma-spacing": [
+            "error",
+            { "before": false, "after": true }
+        ],
         "comma-dangle": [
             "error",
             "always-multiline"

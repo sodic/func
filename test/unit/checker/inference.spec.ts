@@ -14,11 +14,13 @@ import {
     makeIdentifierReference,
     makeLambda,
     makeNumber,
-    makeBigInt, makeString,
+    makeBigInt,
+    makeString,
+    makeBoolean,
 } from '../../../src/ast';
 import { getExpressionInferer, ExpressionInferrer } from '../../../src/checker/inference/expressions';
 import {
-    BuiltinPolymorphicTypeConstructors,
+    TupleConstructor,
     TypeKind,
 } from '../../../src/checker/types/type';
 import { BIGINT_TYPE, BOOL_TYPE, NUMBER_TYPE, STRING_TYPE } from '../../../src/checker/types/common';
@@ -320,16 +322,32 @@ describe('inference', function () {
             assert.deepStrictEqual(type, expected);
 
         });
-        it('should correctly infer the type of a builtin tuple', function () {
+        it('should correctly infer the type of a builtin tuple of size 2', function () {
             const expression = makeApplication(
                 makeApplication(
-                    Builtin.Tuple,
+                    Builtin.Tuple2,
                     makeString('Marko'),
                 ),
                 makeNumber(5),
             );
             const { type } = infer(builtins, expression);
-            const expected = polymorphicType(BuiltinPolymorphicTypeConstructors.Tuple, [STRING_TYPE, NUMBER_TYPE]);
+            const expected = polymorphicType(TupleConstructor[2], [STRING_TYPE, NUMBER_TYPE]);
+            assert.deepStrictEqual(type, expected);
+        });
+        it('should correctly infer the type of a builtin tuple of size 3', function () {
+            const expression =
+                makeApplication(
+                    makeApplication(
+                        makeApplication(
+                            Builtin.Tuple3,
+                            makeString('Marko'),
+                        ),
+                        makeNumber(5),
+                    ),
+                    makeBoolean(true),
+                );
+            const { type } = infer(builtins, expression);
+            const expected = polymorphicType(TupleConstructor[3], [STRING_TYPE, NUMBER_TYPE, BOOL_TYPE]);
             assert.deepStrictEqual(type, expected);
         });
         it('should correctly infer the type of a function creating a builtin tuple', function () {
@@ -340,7 +358,7 @@ describe('inference', function () {
                     'y',
                     makeApplication(
                         makeApplication(
-                            Builtin.Tuple,
+                            Builtin.Tuple2,
                             makeApplication(
                                 makeApplication(
                                     Builtin.Add,
@@ -365,9 +383,33 @@ describe('inference', function () {
             const expected = curriedFunctionType(
                 NUMBER_TYPE,
                 NUMBER_TYPE,
-                polymorphicType(BuiltinPolymorphicTypeConstructors.Tuple, [NUMBER_TYPE, STRING_TYPE]),
+                polymorphicType(TupleConstructor[2], [NUMBER_TYPE, STRING_TYPE]),
             );
             const { type } = infer(builtins, expression);
+            assert.deepStrictEqual(type, expected);
+
+        });
+        it('should correctly infer the type of a function operating on tuples', function () {
+            const expression = makeLambda(
+                'tuple',
+                makeCall(
+                    Builtin.GreaterThan,
+                    [
+                        makeCall(
+                            makeIdentifierReference('second'),
+                            [
+                                makeIdentifierReference('tuple'),
+                            ],
+                        ),
+                        makeNumber(18),
+                    ],
+                ),
+            );
+            const { type } = infer(builtins, expression);
+            const expected = functionType(
+                polymorphicType(TupleConstructor[2], [typeVar('t2'), NUMBER_TYPE]),
+                BOOL_TYPE,
+            );
             assert.deepStrictEqual(type, expected);
 
         });

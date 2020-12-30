@@ -1,4 +1,4 @@
-// Implementation of Church numerals (booleans in lambda calculus)
+// Implementation of Church booleans (booleans in lambda calculus)
 // https://en.wikipedia.org/wiki/Church_encoding#Church_Booleans
 func true(x, y) = x
 func false(x, y) = y
@@ -6,15 +6,17 @@ func false(x, y) = y
 // Implementation of Church pairs (tuples in lambda calculus)
 // https://en.wikipedia.org/wiki/Church_encoding#Church_pairs
 func pair(x, y, z) = z(x, y)
-func first(p) = p(true)
-func second(p) = p(false)
+
+// underscore to avoid clashes with builtin functions "first" and "second"
+func _first(p) = p(true)
+func _second(p) = p(false)
 
 movie1 = pair(12, "Monkeys") // creates pair (12, "Monkeys")
 movie2 = pair(96, "Hours")
 movie3 = pair(True, "Grit")
 movie4 = pair("Fast", 5)
 
-twelve = first(movie1)
-hours = second(movie2)
-_true = first(movie3)
-five = second(movie4)
+twelve = _first(movie1)
+hours = _second(movie2)
+_true = _first(movie3)
+five = _second(movie4)

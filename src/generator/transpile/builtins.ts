@@ -22,11 +22,16 @@ const builtinTranspileConfig = {
     [BuiltinName.And]: binaryExpression('&&'),
     [BuiltinName.Or]: binaryExpression('||'),
     [BuiltinName.Not]: unaryExpression('!'),
-    [BuiltinName.Tuple]: functionCall('makeTuple'),
+    [BuiltinName.Tuple2]: functionCall('makeTuple2'),
+    [BuiltinName.Tuple3]: functionCall('makeTuple3'),
+    [BuiltinName.Tuple4]: functionCall('makeTuple4'),
+    [BuiltinName.Tuple5]: functionCall('makeTuple5'),
     [BuiltinName.Identity]: functionCall('id'),
     [BuiltinName.Constant]: functionCall('constant'),
     [BuiltinName.ToString]: functionCall('toString'),
     [BuiltinName.SquareRoot]: functionCall('sqrt'),
+    [BuiltinName.First]: functionCall('first'),
+    [BuiltinName.Second]: functionCall('second'),
 };
 
 export type BuiltinsTranspiledAsFunctions = PropsOfType<typeof builtinTranspileConfig, TranspileAsFunction>;

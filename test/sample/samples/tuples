@@ -1,0 +1,13 @@
+luka = ("Luka", 23)
+marko = ("Marko", 25)
+
+func isAdult(person) = second(person) > 18
+
+func flip(pair) = (second(pair), first(pair))
+
+lukaReport =
+    "Luka is old enough to drive"
+        if isAdult(luka) else
+    "Luka is not old enough to drive"
+
+totalAge = first(flip(luka)) + second(marko)

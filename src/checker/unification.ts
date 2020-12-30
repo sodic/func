@@ -18,25 +18,33 @@ export class OccursError extends Error {
 export function unify(t1: Type, t2: Type): Substitution {
     if (t1.kind === TypeKind.Number && t2.kind === TypeKind.Number) {
         return EMPTY_SUBSTITUTION;
+
     } else if (t1.kind === TypeKind.Boolean && t2.kind === TypeKind.Boolean) {
         return EMPTY_SUBSTITUTION;
+
     } else if (t1.kind === TypeKind.BigInt && t2.kind === TypeKind.BigInt) {
         return EMPTY_SUBSTITUTION;
+
     } else if (t1.kind === TypeKind.String && t2.kind === TypeKind.String) {
         return EMPTY_SUBSTITUTION;
+
     } else if (t1.kind === TypeKind.Variable) {
         return bindToVar(t1.name, t2);
+
     } else if (t2.kind === TypeKind.Variable) {
         return bindToVar(t2.name, t1);
+
     } else if (t1.kind === TypeKind.Function && t2.kind === TypeKind.Function) {
         const s1 = unify(t1.input, t2.input);
         const s2 = unify(substituteInType(s1, t1.output), substituteInType(s1, t2.output));
         return composeSubstitutions(s1, s2);
+
     } else if (
         t1.kind === TypeKind.Polymorphic && t2.kind === TypeKind.Polymorphic
         && t1.constructor === t2.constructor
     ) {
         return reduceUnify(t1.parameters, t2.parameters);
+
     } else {
         throw new UnificationError(`Cannot unify types "${showType(t1)}" and "${showType(t2)}"`);
     }
@@ -59,6 +67,6 @@ function reduceUnify(types1: Type[], types2: Type[]): Substitution {
             acc,
             unify(substituteInType(acc, type1), substituteInType(acc, type2)),
         ),
-        {},
+        EMPTY_SUBSTITUTION,
     );
 }

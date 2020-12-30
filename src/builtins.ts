@@ -14,13 +14,18 @@ export enum BuiltinName {
     And = 'and',
     Or = 'or',
     Not = '!',
-    Tuple = ',',
+    Tuple2 = ',',
+    Tuple3 = ',,',
+    Tuple4 = ',,,',
+    Tuple5 = ',,,,',
 
     // functions
     Constant= 'const',
     Identity = 'id',
     ToString = 'toString',
     SquareRoot = 'sqrt',
+    First = 'first',
+    Second = 'second',
 }
 
 export function isBuiltinName(name: string | BuiltinName): name is BuiltinName {

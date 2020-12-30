@@ -28,6 +28,8 @@ export function assertUnreachable(x: never): never {
     throw Error('This code should be unreachable');
 }
 
+export type NonEmpty<TArray extends unknown[]> = TArray extends Array<infer TEntry> ? [TEntry, ...TArray] : never;
+
 /**
  * Property keys of an object of type TObject with values of type TType
  */

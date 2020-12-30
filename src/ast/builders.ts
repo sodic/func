@@ -14,6 +14,7 @@ import {
 } from './expressions';
 import { Assignment, FunctionDefinition, Statement, StatementKind } from './statements';
 import { Module } from './module';
+import { NonEmpty } from '../util';
 
 export function makeNumber(value: number): Literal {
     return {
@@ -54,6 +55,10 @@ export function makeBigInt(value: bigint): Literal {
             value,
         },
     };
+}
+
+export function makePolymorphicTypeLiteral(constructor: string, parameters: NonEmpty<Expression[]>): Application {
+    return makeCall(makeIdentifierReference(constructor), parameters);
 }
 
 export function makeIdentifierReference(name: string): Identifier {
@@ -126,7 +131,7 @@ export function makeApplication(callee: Expression, argument: Expression): Appli
     };
 }
 
-export function makeCall(callee: Expression, args: Expression[]): Application {
+export function makeCall(callee: Expression, args: NonEmpty<Expression[]>): Application {
     return curryApplication(callee, args);
 }
 

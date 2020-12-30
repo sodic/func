@@ -76,9 +76,18 @@ export function showType(type: Type): string {
     case TypeKind.Variable:
         return type.name;
     case TypeKind.Polymorphic:
-        return `${type.constructor} ${type.parameters.map(showType).join(' ')}`;
+        return showPolymorphicType(type);
     default:
         assertUnreachable(type);
+    }
+}
+
+function showPolymorphicType(type: TPolymorphic) {
+    if (type.constructor === BuiltinPolymorphicTypeConstructors.Tuple) {
+        const [x, y] = type.parameters;
+        return `(${x}, ${y})`;
+    } else {
+        return `${type.constructor} ${type.parameters.map(showType).join(' ')}`;
     }
 }
 

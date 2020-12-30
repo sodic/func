@@ -14,14 +14,21 @@ import {
     makeIdentifierReference,
     makeLambda,
     makeNumber,
-    makeBigInt,
+    makeBigInt, makeString,
 } from '../../../src/ast';
 import { getExpressionInferer, ExpressionInferrer } from '../../../src/checker/inference/expressions';
 import {
+    BuiltinPolymorphicTypeConstructors,
     TypeKind,
 } from '../../../src/checker/types/type';
-import { BIGINT_TYPE, BOOL_TYPE, NUMBER_TYPE } from '../../../src/checker/types/common';
-import { curriedFunctionType, functionType, typeVar, unboundScheme } from '../../../src/checker/types/builders';
+import { BIGINT_TYPE, BOOL_TYPE, NUMBER_TYPE, STRING_TYPE } from '../../../src/checker/types/common';
+import {
+    curriedFunctionType,
+    functionType,
+    polymorphicType,
+    typeVar,
+    unboundScheme,
+} from '../../../src/checker/types/builders';
 import { functionScheme } from '../../../src/checker/inference/helpers';
 import { UnificationError } from '../../../src/checker/unification';
 import { Context } from '../../../src/checker/types/context';
@@ -289,6 +296,80 @@ describe('inference', function () {
             const expected = functionType(NUMBER_TYPE, typeVar('t2'));
             const { type } = infer(context, expression);
             assert.deepStrictEqual(type, expected);
+        });
+        it('should correctly infer polymorphic types', function () {
+            const CONSTRUCTOR_NAME = 'SomeConstructor';
+            const expression = makeCall(
+                makeIdentifierReference('f'),
+                [makeNumber(7), makeIdentifierReference('s')],
+            );
+            const context: Context = {
+                s: functionScheme(BIGINT_TYPE, typeVar('u3')),
+                f: functionScheme(
+                    typeVar('u1'),
+                    typeVar('u2'),
+                    polymorphicType(CONSTRUCTOR_NAME, [typeVar('u1'), typeVar('u2')]),
+                ),
+            };
+
+            const expected = polymorphicType(
+                CONSTRUCTOR_NAME,
+                [NUMBER_TYPE, functionType(BIGINT_TYPE, typeVar('t4'))],
+            );
+            const { type } = infer(context, expression);
+            assert.deepStrictEqual(type, expected);
+
+        });
+        it('should correctly infer the type of a builtin tuple', function () {
+            const expression = makeApplication(
+                makeApplication(
+                    Builtin.Tuple,
+                    makeString('Marko'),
+                ),
+                makeNumber(5),
+            );
+            const { type } = infer(builtins, expression);
+            const expected = polymorphicType(BuiltinPolymorphicTypeConstructors.Tuple, [STRING_TYPE, NUMBER_TYPE]);
+            assert.deepStrictEqual(type, expected);
+        });
+        it('should correctly infer the type of a function creating a builtin tuple', function () {
+            // \x y -> (x + y, toString(x - y))
+            const expression = makeLambda(
+                'x',
+                makeLambda(
+                    'y',
+                    makeApplication(
+                        makeApplication(
+                            Builtin.Tuple,
+                            makeApplication(
+                                makeApplication(
+                                    Builtin.Add,
+                                    makeIdentifierReference('x'),
+                                ),
+                                makeIdentifierReference('y'),
+                            ),
+                        ),
+                        makeApplication(
+                            Builtin.ToString,
+                            makeApplication(
+                                makeApplication(
+                                    Builtin.Subtract,
+                                    makeIdentifierReference('x'),
+                                ),
+                                makeIdentifierReference('y'),
+                            ),
+                        ),
+                    ),
+                ),
+            );
+            const expected = curriedFunctionType(
+                NUMBER_TYPE,
+                NUMBER_TYPE,
+                polymorphicType(BuiltinPolymorphicTypeConstructors.Tuple, [NUMBER_TYPE, STRING_TYPE]),
+            );
+            const { type } = infer(builtins, expression);
+            assert.deepStrictEqual(type, expected);
+
         });
         it('should fail when let would normally generalize', function () {
             // todo

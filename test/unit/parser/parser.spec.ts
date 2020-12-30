@@ -605,7 +605,24 @@ describe('parser', function () {
             );
             assert.deepStrictEqual(result, expected);
         });
+        it('should correctly parse a tuple literal', function () {
+            const result = parseExpression('(x+3,f(1)>4)');
+            const expected = makeApplication(
+                makeApplication(
+                    Builtin.Tuple,
+                    parseExpression('x+3'),
+                ),
+                parseExpression('f(1)>4'),
+            );
+            assert.deepStrictEqual(result, expected);
+        });
+        it('should be space insensitive when parsing tuple literals', function () {
+            const result1 = parseExpression('(x+3,f(1)>4)');
+            const result2 = parseExpression('(  \n \t x \n +\t3 \t \n, \n \t f \t( 1 \t) \t > \n4 \n \t)');
+            assert.deepStrictEqual(result1, result2);
+        });
     });
+
     describe('#parseStatement', function () {
         it('should parse a simple assignment correctly', function () {
             const result = parseStatement('some123Var=1');

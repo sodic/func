@@ -11,9 +11,9 @@ export function typeVar(name: string): TVariable {
 
 export function functionType(input: Type, output: Type): TFunction {
     return {
+        kind: TypeKind.Function,
         input,
         output,
-        kind: TypeKind.Function,
     };
 }
 

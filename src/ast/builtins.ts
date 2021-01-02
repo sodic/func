@@ -12,3 +12,21 @@ export const Builtin = Object.entries(BuiltinName).reduce(
     }),
     {},
 ) as Record<keyof typeof BuiltinName, Identifier>;
+
+// todo make a for loop after separating operators from functions
+// todo add missing because of parsing problems (tuples, and, or)
+export const bindableBinaryOperators = [
+    Builtin.Add,
+    Builtin.Subtract,
+    Builtin.Multiply,
+    Builtin.Divide,
+    Builtin.Modulus,
+    Builtin.LessThan,
+    Builtin.LessEqualThan,
+    Builtin.GreaterThan,
+    Builtin.GreaterEqualThan,
+    Builtin.Equal,
+    Builtin.NotEqual,
+    Builtin.Compose,
+    Builtin.Pipe,
+];

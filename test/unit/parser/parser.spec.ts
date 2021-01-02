@@ -1,8 +1,9 @@
 import assert from 'assert';
 import { parseExpression, parseModule, parseStatement } from '../../../src/parser';
 import {
+    COMPOSITION_PARAM,
+    bindableBinaryOperators,
     Builtin,
-    COMPOSITION_ARG,
     makeApplication,
     makeArray,
     makeAssignment,
@@ -17,6 +18,9 @@ import {
     makeNumber,
     makeString,
     parenthesize,
+    makeOperatorBindingBare,
+    makeOperatorBindingLeft,
+    makeOperatorBindingRight,
 } from '../../../src/ast';
 
 describe('parser', function () {
@@ -316,7 +320,7 @@ describe('parser', function () {
         it('should correctly desugar a composition', function () {
             const result = parseExpression('x.(m if p > 2 else n).z(4).g');
             const expected = makeLambda(
-                COMPOSITION_ARG,
+                COMPOSITION_PARAM,
                 makeApplication(
                     parseExpression('x'),
                     makeApplication(
@@ -325,7 +329,7 @@ describe('parser', function () {
                             parseExpression('z(4)'),
                             makeApplication(
                                 parseExpression('g'),
-                                makeIdentifierReference(COMPOSITION_ARG),
+                                makeIdentifierReference(COMPOSITION_PARAM),
                             ),
                         ),
                     ),
@@ -634,6 +638,24 @@ describe('parser', function () {
             const result = parseExpression('let \n \t x=2;\n \ty=x*x \n \t ;\t  \n z=y+y\n ; \t \n \t in\t \n  z-2');
             const expected = parseExpression('let x=2;y=x*x;z=y+y; in z-2');
             assert.deepStrictEqual(result, expected);
+        });
+        it('should correctly parse a bare binary operator binding', function () {
+            bindableBinaryOperators.forEach(operator => {
+                const result = parseExpression(`\`${operator.name}\``);
+                assert.deepStrictEqual(result, makeOperatorBindingBare(operator));
+            });
+        });
+        it('should correctly parse a left binary operator binding', function () {
+            bindableBinaryOperators.forEach(operator => {
+                const result = parseExpression(`\`x${operator.name}\``);
+                assert.deepStrictEqual(result, makeOperatorBindingLeft(operator, makeIdentifierReference('x')));
+            });
+        });
+        it('should correctly parse a right binary operator binding', function () {
+            bindableBinaryOperators.forEach(operator => {
+                const result = parseExpression(`\`${operator.name}x\``);
+                assert.deepStrictEqual(result, makeOperatorBindingRight(operator, makeIdentifierReference('x')));
+            });
         });
         it('should correctly parse a tuple literal of size 2', function () {
             const result = parseExpression('(x+3,f(1)>4)');

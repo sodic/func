@@ -26,6 +26,12 @@ export const builtins: Record<BuiltinName, Scheme> = {
     [BuiltinName.Tuple3]: tupleConstructorScheme(3),
     [BuiltinName.Tuple4]: tupleConstructorScheme(4),
     [BuiltinName.Tuple5]: tupleConstructorScheme(5),
+    [BuiltinName.Compose]: functionScheme(
+        functionType(typeVar('u2'), typeVar('u3')),
+        functionType(typeVar('u1'), typeVar('u2')),
+        functionType(typeVar('u1'), typeVar('u3')),
+    ),
+    [BuiltinName.Pipe]: functionScheme(typeVar('u1'), functionType(typeVar('u1'), typeVar('u2'))),
     [BuiltinName.Identity]: functionScheme(typeVar('u1'), typeVar('u1')),
     [BuiltinName.Constant]: functionScheme(typeVar('u1'), typeVar('u2'), typeVar('u1')),
     [BuiltinName.ToString]: functionScheme(typeVar('u1'), STRING_TYPE),

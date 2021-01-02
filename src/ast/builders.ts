@@ -149,6 +149,54 @@ export function makeCall(callee: Expression, args: NonEmpty<Expression[]>): Appl
     return curryApplication(callee, args);
 }
 
+export function makeOperatorBindingBare(operator: Identifier): Lambda {
+    return makeLambda(
+        OPERATOR_BINDING_PARAM_1,
+        makeLambda(
+            OPERATOR_BINDING_PARAM_2,
+            makeCall(
+                operator,
+                [
+                    makeIdentifierReference(OPERATOR_BINDING_PARAM_1),
+                    makeIdentifierReference(OPERATOR_BINDING_PARAM_2),
+                ],
+            ),
+        ),
+    );
+}
+
+export function makeOperatorBindingLeft(operator: Identifier, leftArg: Expression): Lambda {
+    return makeLambda(
+        OPERATOR_BINDING_PARAM,
+        makeCall(
+            operator,
+            [
+                leftArg,
+                makeIdentifierReference(OPERATOR_BINDING_PARAM),
+            ],
+        ),
+    );
+}
+
+export const OPERATOR_BINDING_PARAM = '$op';
+
+export const OPERATOR_BINDING_PARAM_1 = `${OPERATOR_BINDING_PARAM}1`;
+
+export const OPERATOR_BINDING_PARAM_2 = `${OPERATOR_BINDING_PARAM}2`;
+
+export function makeOperatorBindingRight(operator: Identifier, rightArg: Expression): Lambda {
+    return makeLambda(
+        OPERATOR_BINDING_PARAM,
+        makeCall(
+            operator,
+            [
+                makeIdentifierReference(OPERATOR_BINDING_PARAM),
+                rightArg,
+            ],
+        ),
+    );
+}
+
 type CallChainElement = [unknown, Expression[]];
 
 export function buildCallChain(head: Application, tail: CallChainElement[]): Expression {
@@ -158,12 +206,12 @@ export function buildCallChain(head: Application, tail: CallChainElement[]): Exp
     );
 }
 
-export type ChainElement = [unknown, string, unknown, Expression];
+export type ChainElement = [unknown, Identifier, unknown, Expression];
 
 export function buildBinaryExpressionChain(head: Expression, tail: ChainElement[]): Expression {
     return tail.reduce(
         (acc: Expression, element): Expression => makeApplication(
-            makeApplication(makeIdentifierReference(element[1]), acc),
+            makeApplication(element[1], acc),
             element[3],
         ),
         head,
@@ -180,18 +228,18 @@ export function buildPipeline(head: Expression, tail: ChainElement[]): Expressio
     );
 }
 
-export const COMPOSITION_ARG = '$0';
+export const COMPOSITION_PARAM = '$comp';
 
 export function buildComposition(head: Expression, tail: ChainElement[]): Expression {
     if (!tail.length) {
         return head;
     }
 
-    const argRef = makeIdentifierReference(COMPOSITION_ARG);
+    const argRef = makeIdentifierReference(COMPOSITION_PARAM);
     const applicationChain = [...tail].reverse();
     const pipeline = makeApplication(head, buildPipeline(argRef, applicationChain));
 
-    return makeLambda(COMPOSITION_ARG, pipeline);
+    return makeLambda(COMPOSITION_PARAM, pipeline);
 }
 
 function makeArrayLiteral(expressions: Expression[]): Literal {

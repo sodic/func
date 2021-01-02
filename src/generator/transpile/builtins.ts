@@ -1,6 +1,5 @@
 import { BuiltinName } from '../../builtins';
 import { PropsOfType } from '../../util';
-import { Identifier } from '../../ast';
 
 /*
 I can't type this as 'Record<BuiltinName, TranspileOption>' because the more general
@@ -26,6 +25,8 @@ const builtinTranspileConfig = {
     [BuiltinName.Tuple3]: functionCall('makeTuple3'),
     [BuiltinName.Tuple4]: functionCall('makeTuple4'),
     [BuiltinName.Tuple5]: functionCall('makeTuple5'),
+    [BuiltinName.Compose]: functionCall('compose'),
+    [BuiltinName.Pipe]: functionCall('pipe'),
     [BuiltinName.Identity]: functionCall('id'),
     [BuiltinName.Constant]: functionCall('constant'),
     [BuiltinName.ToString]: functionCall('toString'),
@@ -51,12 +52,12 @@ export function mapBuiltinName(name: BuiltinName): string {
     return builtinTranspileConfig[name].name;
 }
 
-export function isUnaryOperator(identifier: Identifier): boolean {
-    return unaryNames.has(identifier.name);
+export function isUnaryOperator(identifier: string): boolean {
+    return unaryNames.has(identifier);
 }
 
-export function isBinaryOperator(identifier: Identifier): boolean {
-    return binaryNames.has(identifier.name);
+export function isBinaryOperator(identifier: string): boolean {
+    return binaryNames.has(identifier);
 }
 
 function getNames<T1 extends TranspileOption>(transpileOption: T1) {

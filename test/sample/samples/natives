@@ -17,26 +17,27 @@ func myReduce(f, acc, array) =
     acc if isEmpty(array) else
     myReduce(f, f(acc, head(array)), tail(array))
 
-numbers = [1.2, 2.5, 3.4, 4.3, 2.1, 1.8, 4.7]
+func myReduce0(f, array) =
+    myReduce(f, head(array), tail(array))
 
-// reducers and mappers
-// todo remove after supporting lambdas and/or direct operator referencing
-func add(x, y) = x + y
-func mul(x, y) = x * y
 func step(thresh, x) = 0 if x < thresh else 1
-func less(x, y) = x < y
+func min(x, y) = x if x < y else y
+
+numbers = [1.2, 2.5, 3.4, 4.3, 2.1, 1.8, 4.7]
 
 // comparing builtins to user-defined alternatives
 
-sum = reduce(add, 0, numbers)
-mySum = myReduce(add, 0, numbers)
+sum = reduce(`+`, 0, numbers)
+mySum = myReduce(`+`, 0, numbers)
 isSumOk = mySum == sum
 
-product = reduce(mul, 1, numbers)
-myProduct = myReduce(mul, 1, numbers)
+product = reduce0(`*`, numbers)
+myProduct = myReduce0(`*`, numbers)
 isProductOk = product == myProduct
 
-greaterThan3 = myFilter(less(3), numbers)
+lowestGreaterThan3 = numbers
+    |> myFilter(`> 3`)
+    |> myReduce0(min)
 
 // should be "0111001"
 digitalSignal = numbers

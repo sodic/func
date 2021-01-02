@@ -19,6 +19,10 @@ export enum BuiltinName {
     Tuple4 = ',,,',
     Tuple5 = ',,,,',
 
+    // compiled away to function calls when used normally, preserved only in operators binding
+    Compose = '.',
+    Pipe = '|>',
+
     // functions
     Constant= 'const',
     Identity = 'id',

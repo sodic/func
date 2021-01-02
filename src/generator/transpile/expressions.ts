@@ -148,7 +148,7 @@ function transpileRegularCall(application: Application, depth: number): Code {
  */
 function shouldTranspileAsUnary(application: Application): application is TranspiledAsUnaryExpression {
     const callee = application.callee;
-    return callee.kind === ExpressionKind.Identifier && isUnaryOperator(callee);
+    return callee.kind === ExpressionKind.Identifier && isUnaryOperator(callee.name);
 }
 
 /**
@@ -166,7 +166,7 @@ function shouldTranspileAsBinary(application: Application): application is Trans
         return false;
     }
 
-    return isBinaryOperator(firstCallee);
+    return isBinaryOperator(firstCallee.name);
 }
 
 type TranspiledAsUnaryExpression = Application & {

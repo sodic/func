@@ -52,20 +52,35 @@ Conditional =
     }
 
 Pipeline =
-    head:Disjunction tail:(_m_ "|>" _m_ callee:UnaryExpression)* {
+    head:Disjunction tail:(_m_ PipeOperator _m_ callee:UnaryExpression)* {
         // todo after adding type classes, callee might change to something more general
         return buildPipeline(head, tail);
     }
 
+PipeOperator =
+    op:"|>" {
+        return makeIdentifierReference(op);
+    }
+
 // todo find a way to do a < b < c with intuitive semantics
 Disjunction =
-    head:Conjunction tail:(Space "or" Space Conjunction)* {
+    head:Conjunction tail:(Space DisjunctionOperator Space Conjunction)* {
         return buildBinaryExpressionChain(head, tail);
     }
 
+DisjunctionOperator =
+    op:"or" {
+        return makeIdentifierReference(op);
+    }
+
 Conjunction =
-    head:BitwiseOr tail:(Space "and" Space BitwiseOr)* {
+    head:BitwiseOr tail:(Space ConjunctionOperator Space BitwiseOr)* {
         return buildBinaryExpressionChain(head, tail);
+    }
+
+ConjunctionOperator =
+    op:"and" {
+        return makeIdentifierReference(op);
     }
 
 BitwiseOr =
@@ -103,8 +118,9 @@ Sum =
     }
 
 AdditiveOperator =
-    "+"
-    / "-"
+    op:("+" / "-") {
+        return makeIdentifierReference(op);
+    }
 
 Product =
     head:Composition tail:(_m_ MultiplicativeOperator _m_ Composition)* {
@@ -112,9 +128,9 @@ Product =
     }
 
 MultiplicativeOperator =
-    "*"
-    / "/"
-    / "%"
+    op:("*" / "/" / "%") {
+        return makeIdentifierReference(op);
+    }
 
 Composition =
     head:UnaryExpression tail:(_m_ CompositionOperator _m_ UnaryExpression)* {
@@ -122,7 +138,9 @@ Composition =
     }
 
 CompositionOperator =
-    "."
+    op:"." {
+       return makeIdentifierReference(op);
+    }
 
 UnaryExpression =
     PostfixExpression
@@ -153,6 +171,7 @@ PrimaryExpression =
     Literal
     / IdentifierReference
     / ParenthesizedExpression
+    / OperatorBinding
 
 Literal =
     NumberLiteral
@@ -160,6 +179,28 @@ Literal =
     / StringLiteral
     / TupleLiteral
     / ArrayLiteral
+
+OperatorBinding "operator binding" =
+    "`" _m_ leftArg:Expression _m_ op:BinaryOperator _m_ "`" {
+        return makeOperatorBindingLeft(op, leftArg);
+    }
+    / "`" _m_ op:BinaryOperator _m_ rightArg:Expression _m_ "`" {
+        return makeOperatorBindingRight(op, rightArg);
+    }
+    / "`" _m_ op:BinaryOperator _m_ "`" {
+        return makeOperatorBindingBare(op);
+    }
+
+BinaryOperator =
+    AdditiveOperator
+    / MultiplicativeOperator
+    / EqualityOperator
+    / ComparisonOperator
+    / CompositionOperator
+    / PipeOperator
+// todo handle these as well
+//    / DisjunctionOperator
+//    / ConjunctionOperator
 
 ParenthesizedExpression =
     "(" _m_ expression:Expression _m_ ")" {

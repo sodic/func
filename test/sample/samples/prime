@@ -1,27 +1,24 @@
-// make something like this a builtin
-func testSequence(test, isLast, next, curr) =
+// todo make something like this a builtin
+func testSequence(test, isDone, next, curr) =
     True if test(curr) else
-    False if isLast(curr) else
-        testSequence(test, isLast, next, next(curr))
-
-// will become redundant once operator passing gets implemented
-func add(x, y) = x + y
-func lessThan(x, y) = x < y
-func divisibleBy(n, k) = n % k == 0
+    False if isDone(curr) else
+        testSequence(test, isDone, next, next(curr))
 
 func anyInRange(test, start, end, step) =
-    testSequence(test, lessThan(end), add(step), start)
+    testSequence(test, `> end`, `+ step`, start)
 
 func isPrime(n) =
     False if n == 1 else
     True if n == 2 else
     False if n % 2 == 0 else
-    !anyInRange(divisibleBy(n), 3, sqrt(n), 2)
+    let func dividesN(k) = n % k == 0
+    in !anyInRange(dividesN, 3, sqrt(n), 2)
 
 is1Prime = isPrime(1)
 is2Prime = isPrime(2)
 is4Prime = isPrime(4)
 is7Prime = isPrime(7)
+is16Prime = isPrime(16)
 is27Prime = isPrime(27)
 is63Prime = isPrime(63)
 is97Prime = isPrime(97)

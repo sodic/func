@@ -3,13 +3,19 @@ import { composeSubstitutions, EMPTY_SUBSTITUTION, substituteInType, Substitutio
 import { freeTypeVars } from './types/builders';
 import { zip } from '../util';
 
-export class UnificationError extends Error {
+class TypeError extends Error {
+    constructor(message: string) {
+        super(`Type Error: ${message}`);
+    }
+}
+
+export class UnificationError extends TypeError {
     constructor(message: string) {
         super(message);
     }
 }
 
-export class OccursError extends Error {
+export class OccursError extends TypeError {
     constructor(message: string) {
         super(message);
     }
@@ -54,7 +60,7 @@ function bindToVar(typeVarName: string, type: Type): Substitution {
     if (type.kind === TypeKind.Variable && typeVarName === type.name) {
         return EMPTY_SUBSTITUTION;
     } else if (freeTypeVars(type).has(typeVarName)) {
-        throw new OccursError(`Occurs check failed: ${typeVarName} appears in ${showType(type)}`);
+        throw new OccursError(`Occurs check failed, "${typeVarName}" appears in "${showType(type)}"`);
     } else {
         return { [typeVarName]: type };
     }

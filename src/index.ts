@@ -12,19 +12,19 @@ export interface CompilerOutput {
 export function compileVerbose(source: string): Result<CompilerOutput, string> {
     const parserResult = parse(source);
     if (isFailure(parserResult)) {
-        return failure(`Syntax error: ${parserResult.error}`);
+        return failure(parserResult.error);
     }
 
     const ast = parserResult.value;
 
     const types = check(ast);
     if (isFailure(types)) {
-        return failure(`TypeError: ${types.error}`);
+        return failure(types.error);
     }
 
     const code = generateJs(ast);
     if (isFailure(code)) {
-        return failure(`Unexpected error: ${code.error}`);
+        return failure(`Code Generation Error: ${code.error}`);
     }
 
     return success({

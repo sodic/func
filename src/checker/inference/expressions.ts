@@ -16,7 +16,7 @@ import { functionType, polymorphicType, unboundScheme } from '../types/builders'
 import { composeSubstitutions, EMPTY_SUBSTITUTION, substituteInContext, substituteInType } from '../substitution';
 import { unify } from '../unification';
 import { assertUnreachable } from '../../util';
-import { instantiate, typeVarGenerator } from './helpers';
+import { instantiate, NameError, typeVarGenerator } from './helpers';
 import { Context } from '../types/context';
 
 export type ExpressionInferrer = (ctx: Context, expr: Expression) => TypeInfo;
@@ -90,7 +90,7 @@ export function getExpressionInferer(uniqueTypeVar: () => TVariable = typeVarGen
     function inferVariable(context: Context, variable: Identifier): TypeInfo {
         const scheme = context[variable.name];
         if (!scheme) {
-            throw Error(`Unbound variable ${variable.name}`);
+            throw new NameError(`Unbound variable "${variable.name}"`);
         }
         return {
             substitution: EMPTY_SUBSTITUTION,

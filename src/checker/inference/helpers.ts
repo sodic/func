@@ -6,6 +6,12 @@ import { Scheme } from '../types/scheme';
 import { freeTypeVarsContext } from '../types/helpers';
 import { Context } from '../types/context';
 
+export class NameError extends Error {
+    constructor(message: string) {
+        super(`Name Error: ${message}`);
+    }
+}
+
 export function typeVarGenerator(): () => TVariable {
     let current = 0;
 
@@ -42,7 +48,9 @@ export function generalize(context: Context, type: Type): Scheme {
 /**
  * Renames the scheme's type variables to be more human friendly
  */
-type TVarSubstitution = { [name: string]: TVariable };
+type TVarSubstitution = {
+    [name: string]: TVariable;
+};
 
 function humanFriendlyScheme(scheme: Scheme): Scheme {
     const newTypeVar = typeVarGenerator();

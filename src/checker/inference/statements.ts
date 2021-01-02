@@ -4,14 +4,14 @@ import { substituteInContext, substituteInType } from '../substitution';
 import { unify } from '../unification';
 import { inferExpression } from './expressions';
 import { typeVar, unboundScheme } from '../types/builders';
-import { generalize, instantiate } from './helpers';
+import { generalize, instantiate, NameError } from './helpers';
 import { Context } from '../types/context';
 
 export function inferStatement(context: Context, statement: Statement): Context {
     const { kind, name, expression } = statement;
 
     if (name in context) {
-        throw new NameError(`${name} was declared twice`);
+        throw new NameError(`"${name}" was declared twice`);
     }
 
     try {
@@ -54,8 +54,3 @@ function inferFunctionDefinition(context: Context, name: string, body: Expressio
     };
 }
 
-class NameError extends Error {
-    constructor(message: string) {
-        super(message);
-    }
-}

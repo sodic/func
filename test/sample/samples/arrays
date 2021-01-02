@@ -1,13 +1,36 @@
 evens = [2,4,6]
 odds = [1,3,5]
 spread = [0, *evens, 0, *odds, 0]
-
 numbers = [1, 3, 12, 4, 2, 11, 31, 7, 8]
 
 func square(x) = x * x
 func even(x) = x % 2 == 0
 func max(x, y) = x if x > y else y
 
+func reverse(array) =
+    [] if isEmpty(array) else
+    let current = head(array);
+        rest = tail(array);
+    in [*reverse(rest), current]
+
+// see https://www.joelonsoftware.com/2005/12/29/test-yourself/
+func accumulate(combiner, nullValue, l) =
+    nullValue if isEmpty(l) else
+    combiner(head(l), accumulate(combiner, nullValue, tail(l)))
+
+func getSumOfSquares(l) =
+    let func addSquare(x, y) = square(x) + y
+    in accumulate(addSquare, 0, l)
+
+// not ready yet
+//func quicksort(array) =
+//    let pivot, *rest = array
+//        half1 = rest |> filter(`<pivot`)
+//        half2 = rest |> filter(`>=pivot`)
+//    in [*half1, pivot, *half2]
+
+reversed = reverse(numbers)
+sumOfSquares = getSumOfSquares(numbers)
 largestEvenSquare = numbers
     |> filter(even)
     |> map(square)

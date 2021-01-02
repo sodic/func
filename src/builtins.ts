@@ -35,7 +35,8 @@ export enum BuiltinName {
     Filter = 'filter',
     Reduce = 'reduce',
     Reduce0 = 'reduce0',
-    Join = 'join'
+    Join = 'join',
+    Length = 'length',
 }
 
 export function isBuiltinName(name: string | BuiltinName): name is BuiltinName {

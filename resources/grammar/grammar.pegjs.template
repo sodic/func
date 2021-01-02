@@ -20,7 +20,7 @@ Assignment =
     }
 
 FunctionDefinition =
-    FuncToken OneOrMoreSpace name:Identifier _m_ "(" _m_ params:ParameterList _m_ ")" _m_ "=" _m_ body:Expression {
+    FuncToken Space name:Identifier _m_ "(" _m_ params:ParameterList _m_ ")" _m_ "=" _m_ body:Expression {
         return makeFunctionDefinition(name, params, body);
     }
 
@@ -38,17 +38,16 @@ Expression =
     }
     / Pipeline
 
-// todo see what happens on multilevel let expressions
 LetExpression =
-    LetToken OneOrMoreSpace statement:Statement OneOrMoreSpace InToken OneOrMoreSpace expression:Expression {
-        return makeLet(statement, expression);
+    LetToken Space head:Statement tail:(_m_ ";" _m_ Statement)* (_m_ ";")? Space InToken Space expression:Expression {
+        return buildLetChain([head, ...tail.map(el => el[3])], expression);
     }
 
 // keep JSs precedence and associativity
 
 // todo, check multi-level conditionals
 Conditional =
-    consequent:Disjunction OneOrMoreSpace IfToken OneOrMoreSpace test:Expression OneOrMoreSpace ElseToken OneOrMoreSpace alternate:Expression {
+    consequent:Disjunction Space IfToken Space test:Expression Space ElseToken Space alternate:Expression {
         return makeConditional(test, consequent, alternate);
     }
 
@@ -60,12 +59,12 @@ Pipeline =
 
 // todo find a way to do a < b < c with intuitive semantics
 Disjunction =
-    head:Conjunction tail:(_m_ "or" _m_ Conjunction)* {
+    head:Conjunction tail:(Space "or" Space Conjunction)* {
         return buildBinaryExpressionChain(head, tail);
     }
 
 Conjunction =
-    head:BitwiseOr tail:(_m_ "and" _m_ BitwiseOr)* {
+    head:BitwiseOr tail:(Space "and" Space BitwiseOr)* {
         return buildBinaryExpressionChain(head, tail);
     }
 
@@ -316,7 +315,7 @@ _i_ "ignored inline whitespace" = (Whitespace / Comment)*
 // whitespace spanning may lines, not necessarily ending with a newline character
 _m_ "ignored multiline whitespace" = (Whitespace / Comment / LineEnd)*
 
-Space "whitespace" = [ \t]+ // significant inline whitespace
+InlineSpace "whitespace" = [ \t]+ // significant inline whitespace
 
 Whitespace "whitespace" =
     "\t"
@@ -336,7 +335,7 @@ LineEnd "end of line"
   / "\u2028"
   / "\u2029"
 
-OneOrMoreSpace =
+Space =
     (Whitespace / LineEnd) _m_
 
 // a full line containing nothing but whitespace

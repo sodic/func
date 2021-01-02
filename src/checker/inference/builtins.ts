@@ -86,6 +86,10 @@ export const builtins: Record<BuiltinName, Scheme> = {
         polymorphicType(Constructor.Array, [typeVar('u1')]),
         STRING_TYPE,
     ),
+    [BuiltinName.Length]: functionScheme(
+        polymorphicType(Constructor.Array, [typeVar('u1')]),
+        NUMBER_TYPE,
+    ),
 
 };
 

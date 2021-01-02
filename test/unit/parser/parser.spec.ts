@@ -233,9 +233,9 @@ describe('parser', function () {
 
         });
         it('should be whitespace insensitive when parsing arithmetic expressions', function () {
-            const result1 = parseExpression('1 \n+ \r  x \n   \r  /3 \n- 4%y \n   *6');
-            const result2 = parseExpression('1+x/3-4%y*6');
-            assert.deepStrictEqual(result1, result2);
+            const result = parseExpression('1 \n+ \r  x \n   \r  /3 \n- 4%y \n   *6');
+            const expected = parseExpression('1+x/3-4%y*6');
+            assert.deepStrictEqual(result, expected);
 
         });
         it('should correctly parse a logical not expression', function () {
@@ -244,9 +244,9 @@ describe('parser', function () {
             assert.deepStrictEqual(result, expected);
         });
         it('should be whitespace insensitive when parsing logical not', function () {
-            const result1 = parseExpression('!  \nx');
-            const result2 = parseExpression('!x');
-            assert.deepStrictEqual(result1, result2);
+            const result = parseExpression('!  \nx');
+            const expected = parseExpression('!x');
+            assert.deepStrictEqual(result, expected);
         });
         it('should correctly parse a logical expression with literals', function () {
             const result = parseExpression('True or !False and True');
@@ -299,9 +299,9 @@ describe('parser', function () {
             assert.deepStrictEqual(result, expected);
         });
         it('should curry a function application (i.e., parse a multi-argument function as a call chain)', function () {
-            const result1 = parseExpression('f(x,y,g(y),3,1+2,z)');
-            const result2 = parseExpression('f(x)(y)(g(y),3)(1+2,z)');
-            assert.deepStrictEqual(result1, result2);
+            const result = parseExpression('f(x,y,g(y),3,1+2,z)');
+            const expected = parseExpression('f(x)(y)(g(y),3)(1+2,z)');
+            assert.deepStrictEqual(result, expected);
         });
         it('should correctly desugar a pipeline', function () {
             const result = parseExpression('x+3|>f(1)|>y|>g(3)');
@@ -309,9 +309,9 @@ describe('parser', function () {
             assert.deepStrictEqual(result, expected);
         });
         it('should be space insensitive when parsing pipelines', function () {
-            const result1 = parseExpression('x+3|>square(1)|>double|>add(3)');
-            const result2 = parseExpression('x+3    \n |> \r square(1)\n   |>  \r double \n  |>     \r  add(3)');
-            assert.deepStrictEqual(result1, result2);
+            const result = parseExpression('x+3    \n |> \r square(1)\n   |>  \r double \n  |>     \r  add(3)');
+            const expected = parseExpression('x+3|>square(1)|>double|>add(3)');
+            assert.deepStrictEqual(result, expected);
         });
         it('should correctly desugar a composition', function () {
             const result = parseExpression('x.(m if p > 2 else n).z(4).g');
@@ -334,9 +334,9 @@ describe('parser', function () {
             assert.deepStrictEqual(result, expected);
         });
         it('should be space insensitive when parsing compositions', function () {
-            const result1 = parseExpression('f.g.h(x,y).(a if x else b).z(1)');
-            const result2 = parseExpression('f \t. \ng. \th(x, y) \t. \n  \t( a \n  if \tx \nelse \nb) \n.\nz \t(1)');
-            assert.deepStrictEqual(result1, result2);
+            const result = parseExpression('f \t. \ng. \th(x, y) \t. \n  \t( a \n  if \tx \nelse \nb) \n.\nz \t(1)');
+            const expected = parseExpression('f.g.h(x,y).(a if x else b).z(1)');
+            assert.deepStrictEqual(result, expected);
         });
         it('should be able to work with function calls within arithmetic expressions', function () {
             const result = parseExpression('1-(a+double(5))+square(3)(4)*area(a,5)');
@@ -368,12 +368,12 @@ describe('parser', function () {
             assert.deepStrictEqual(result, expected);
         });
         it('should be whitespace insensitive when parsing function calls in expressions', function () {
-            const result1 = parseExpression('x    \n+ a ( \n 1,\r\n    2 )-3  + 5\n*f\n\r   (1 ,2) ( 4\n)  \n\r (1)-1');
-            const result2 = parseExpression('x+a(1,2)-3+5*f(1,2)(4)(1)-1');
-            assert.deepStrictEqual(result1, result2);
+            const result = parseExpression('x    \n+ a ( \n 1,\r\n    2 )-3  + 5\n*f\n\r   (1 ,2) ( 4\n)  \n\r (1)-1');
+            const expected = parseExpression('x+a(1,2)-3+5*f(1,2)(4)(1)-1');
+            assert.deepStrictEqual(result, expected);
         });
         it('should correctly parse an equality check', function () {
-            const result1 = parseExpression('a+1==f(5)+3');
+            const result = parseExpression('a+1==f(5)+3');
             const expected = makeCall(
                 Builtin.Equal,
                 [
@@ -381,10 +381,10 @@ describe('parser', function () {
                     parseExpression('f(5)+3'),
                 ],
             );
-            assert.deepStrictEqual(result1, expected);
+            assert.deepStrictEqual(result, expected);
         });
         it('should correctly parse an inequality check', function () {
-            const result1 = parseExpression('a+1!=f(5)+3');
+            const result = parseExpression('a+1!=f(5)+3');
             const expected = makeCall(
                 Builtin.NotEqual,
                 [
@@ -392,7 +392,7 @@ describe('parser', function () {
                     parseExpression('f(5)+3'),
                 ],
             );
-            assert.deepStrictEqual(result1, expected);
+            assert.deepStrictEqual(result, expected);
         });
         it('should correctly parse a less-then check', function () {
             const result = parseExpression('a-1<5');
@@ -512,9 +512,9 @@ describe('parser', function () {
             assert.deepStrictEqual(result, expected);
         });
         it('should be space insensitive when parsing long logical expressions', function () {
-            const result1 = parseExpression('!(a==1) or 3 and 3*2==6 or b+3==1 and 4==5 and 4*2==1');
-            const result2 = parseExpression('!  \n( a  \r  \n==  1\n)   or  \t  3  \n and   \n3 \n  *2  == \r6 \n    or \n\r  b +  \n3 \n   \n==  \r\n1 \n and \n 4 == \r   5  and  \n4 * 2== 1');
-            assert.deepStrictEqual(result1, result2);
+            const result = parseExpression('!  \n( a  \r  \n==  1\n)   or  \t  3  \n and   \n3 \n  *2  == \r6 \n    or \n\r  b +  \n3 \n   \n==  \r\n1 \n and \n 4 == \r   5  and  \n4 * 2== 1');
+            const expected = parseExpression('!(a==1) or 3 and 3*2==6 or b+3==1 and 4==5 and 4*2==1');
+            assert.deepStrictEqual(result, expected);
         });
         it('should correctly parse a simple conditional expression 1', function () {
             const result = parseExpression('"Mlad" if age<15 else "Star"');
@@ -562,9 +562,9 @@ describe('parser', function () {
             assert.deepStrictEqual(result, expected);
         });
         it('should be space insensitive when parsing conditional expressions', function () {
-            const result1 = parseExpression('4  \n\r  + \t \n 5 if \na \n !=  \n3  \r else \n   3 \r\n   if \ta  \n >= 5 \t\n\t   else \n a \t  > 5');
-            const result2 = parseExpression('4+5 if a!=3 else 3 if a>=5 else a>5');
-            assert.deepStrictEqual(result1, result2);
+            const result = parseExpression('4  \n\r  + \t \n 5 if \na \n !=  \n3  \r else \n   3 \r\n   if \ta  \n >= 5 \t\n\t   else \n a \t  > 5');
+            const expected = parseExpression('4+5 if a!=3 else 3 if a>=5 else a>5');
+            assert.deepStrictEqual(result, expected);
         });
         it('should be able to work with if statements inside arithmetic expressions', function () {
             const result = parseExpression('1+(3 if a==3 else b) if c<4 else f(2 if b==1+2 and 4 else 4)');
@@ -606,6 +606,35 @@ describe('parser', function () {
             );
             assert.deepStrictEqual(result, expected);
         });
+        it('should correctly parse a multi-level let expression', function () {
+            const result = parseExpression('let x=2 in let y=x*x in let z=y+y in z-2');
+            const expected = makeLet(
+                parseStatement('x=2'),
+                makeLet(
+                    parseStatement('y=x*x'),
+                    makeLet(
+                        parseStatement('z=y+y'),
+                        parseExpression('z-2'),
+                    ),
+                ),
+            );
+            assert.deepStrictEqual(result, expected);
+        });
+        it('should correctly desugar a multi-statement let expression', function () {
+            const result = parseExpression('let x=2;y=x*x;z=y+y in z-2');
+            const expected = parseExpression('let x=2 in let y=x*x in let z=y+y in z-2');
+            assert.deepStrictEqual(result, expected);
+        });
+        it('should be insensitive to trailing the comma in multi-statement let expressions', function () {
+            const result = parseExpression('let x=2;y=x*x;z=y+y; in z-2');
+            const expected = parseExpression('let x=2;y=x*x;z=y+y in z-2');
+            assert.deepStrictEqual(result, expected);
+        });
+        it('should be space insensitive when parsing multi-statement let expressions', function () {
+            const result = parseExpression('let \n \t x=2;\n \ty=x*x \n \t ;\t  \n z=y+y\n ; \t \n \t in\t \n  z-2');
+            const expected = parseExpression('let x=2;y=x*x;z=y+y; in z-2');
+            assert.deepStrictEqual(result, expected);
+        });
         it('should correctly parse a tuple literal of size 2', function () {
             const result = parseExpression('(x+3,f(1)>4)');
             const expected = makeApplication(
@@ -632,9 +661,9 @@ describe('parser', function () {
             assert.deepStrictEqual(result, expected);
         });
         it('should be space insensitive when parsing tuple literals', function () {
-            const result1 = parseExpression('(x+3,f(1)>4)');
-            const result2 = parseExpression('(  \n \t x \n +\t3 \t \n, \n \t f \t( 1 \t) \t > \n4 \n \t)');
-            assert.deepStrictEqual(result1, result2);
+            const result = parseExpression('(  \n \t x \n +\t3 \t \n, \n \t f \t( 1 \t) \t > \n4 \n \t)');
+            const expected = parseExpression('(x+3,f(1)>4)');
+            assert.deepStrictEqual(result, expected);
         });
         it('should correctly parse an empty array literal', function () {
             assert.deepStrictEqual(parseExpression('[]'), makeArray());
@@ -651,19 +680,19 @@ describe('parser', function () {
             assert.deepStrictEqual(result, expected);
         });
         it('should be space insensitive when parsing regular array literals', function () {
-            const result1 = parseExpression('[1,a+2,f(3),f(4) if c>1 else f(5)]');
-            const result2 = parseExpression('[\t \n 1 \n, \t \n a+2 \n, \t  \nf(3), \n f(4) \n \t if  \t c>1 \t \n else \n \t f(5) \t]');
-            assert.deepStrictEqual(result1, result2);
+            const result = parseExpression('[\t \n 1 \n, \t \n a+2 \n, \t  \nf(3), \n f(4) \n \t if  \t c>1 \t \n else \n \t f(5) \t]');
+            const expected = parseExpression('[1,a+2,f(3),f(4) if c>1 else f(5)]');
+            assert.deepStrictEqual(result, expected);
         });
         it('should be insensitive to a trailing comma in regular array literals', function () {
-            const result1 = parseExpression('[1,2,3]');
-            const result2 = parseExpression('[1,2,3,]');
-            assert.deepStrictEqual(result1, result2);
+            const result = parseExpression('[1,2,3,]');
+            const expected = parseExpression('[1,2,3]');
+            assert.deepStrictEqual(result, expected);
         });
         it('should be insensitive to spaces around the trailing comma in regular array literals', function () {
-            const result1 = parseExpression('[1,2,3,]');
-            const result2 = parseExpression('[1,2,3  \n \t, \n \t ]');
-            assert.deepStrictEqual(result1, result2);
+            const result = parseExpression('[1,2,3  \n \t, \n \t ]');
+            const expected = parseExpression('[1,2,3,]');
+            assert.deepStrictEqual(result, expected);
         });
         it('should correctly parse an array spread literal', function () {
             const result = parseExpression('[1,*a,2,3,*[9,0],4]');
@@ -695,19 +724,19 @@ describe('parser', function () {
             assert.deepStrictEqual(result, expected);
         });
         it('should be space insensitive when parsing array spread literals', function () {
-            const result1 = parseExpression('[1,*a,2,3,*[9,0],4]');
-            const result2 = parseExpression('[1 \n \t, \n* \t\n a,\n \t2,  \t3, \n* \t[ \n9  , \t0]\t,\n4\t]');
-            assert.deepStrictEqual(result1, result2);
+            const result = parseExpression('[1 \n \t, \n* \t\n a,\n \t2,  \t3, \n* \t[ \n9  , \t0]\t,\n4\t]');
+            const expected = parseExpression('[1,*a,2,3,*[9,0],4]');
+            assert.deepStrictEqual(result, expected);
         });
         it('should be insensitive to a trailing comma when parsing array spread literals', function () {
-            const result1 = parseExpression('[1,*a,2,3,*[9,0],4]');
-            const result2 = parseExpression('[1,*a,2,3,*[9,0],4,]');
-            assert.deepStrictEqual(result1, result2);
+            const result = parseExpression('[1,*a,2,3,*[9,0],4,]');
+            const expected = parseExpression('[1,*a,2,3,*[9,0],4]');
+            assert.deepStrictEqual(result, expected);
         });
         it('should be insensitive to spaces around the  trailing comma in array spread literals', function () {
-            const result1 = parseExpression('[1,*a,2,3,*[9,0],4]');
-            const result2 = parseExpression('[1,*a,2,3,*[9,0],4\t \n,\t \n ]');
-            assert.deepStrictEqual(result1, result2);
+            const result = parseExpression('[1,*a,2,3,*[9,0],4\t \n,\t \n ]');
+            const expected = parseExpression('[1,*a,2,3,*[9,0],4]');
+            assert.deepStrictEqual(result, expected);
         });
     });
 
@@ -723,9 +752,9 @@ describe('parser', function () {
             assert.deepStrictEqual(result, expected);
         });
         it('should be whitespace insensitive in assignment statements', function () {
-            const result1 = parseStatement('x1  \n  \n= \r  \n  9*\r (4 +3     \t) %4\n  + \n  (\n1-   \n 2)');
-            const result2 = parseStatement('x1=9*(4+3)%4+(1-2)');
-            assert.deepStrictEqual(result1, result2);
+            const result = parseStatement('x1  \n  \n= \r  \n  9*\r (4 +3     \t) %4\n  + \n  (\n1-   \n 2)');
+            const expected = parseStatement('x1=9*(4+3)%4+(1-2)');
+            assert.deepStrictEqual(result, expected);
         });
         it('should correctly parse a unary function definition', function () {
             const result = parseStatement('func square(x)=x*x');
@@ -742,9 +771,9 @@ describe('parser', function () {
             assert.deepStrictEqual(result, expected);
         });
         it('should be whitespace insensitive when parsing function definitions', function () {
-            const result1 = parseStatement('func\n \r some12Func       \n (\r   x  \n    , \n  y  )\n    = \n  x  \n *  f(y + 3  )');
-            const result2 = parseStatement('func some12Func(x,y)=x*f(y+3)');
-            assert.deepStrictEqual(result1, result2);
+            const result = parseStatement('func\n \r some12Func       \n (\r   x  \n    , \n  y  )\n    = \n  x  \n *  f(y + 3  )');
+            const expected = parseStatement('func some12Func(x,y)=x*f(y+3)');
+            assert.deepStrictEqual(result, expected);
         });
     });
 
@@ -803,14 +832,7 @@ result=square(start) * 3 - larger(a,b)`);
             assert.deepStrictEqual(result, expected);
         });
         it('should ignore comments when parsing', function () {
-            const result1 = parseModule( `func square(x)=x*x
-func add(x,y)=x+y
-func larger(a,b)=a if a>=b else b
-start=5
-a=2
-b=8 if a>2 and start==5 else 9
-result=square(start) * 3 - larger(a,b)`);
-            const result2 = parseModule( `func square(x)=x*x
+            const result = parseModule( `func square(x)=x*x
 // this is a function for adding stuff            
 func add(x,y)=x+y
    // this is a function for finding a larger number
@@ -823,7 +845,14 @@ b=8 if a>2 and start==5 else 9
 
 // this is the final operation result   
 result=square(start) * 3 - larger(a,b)`);
-            assert.deepStrictEqual(result1, result2);
+            const expected = parseModule( `func square(x)=x*x
+func add(x,y)=x+y
+func larger(a,b)=a if a>=b else b
+start=5
+a=2
+b=8 if a>2 and start==5 else 9
+result=square(start) * 3 - larger(a,b)`);
+            assert.deepStrictEqual(result, expected);
         });
         it('should be space insensitive when parsing modules', function () {
             const result = parseModule( `        

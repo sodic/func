@@ -118,6 +118,9 @@ ${indent(1)}return function (array) {
 ${indent(2)}return array.join(separator);
 ${indent(1)}};
 }`,
+    [BuiltinName.Length]: `function ${mapBuiltinName(BuiltinName.Length)}(array) {
+${indent(1)}return array.length;
+}`,
 };
 
 export const builtinDefinitions = Object.values(builtinDefinitionMap).join('\n\n');

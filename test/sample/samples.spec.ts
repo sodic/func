@@ -72,18 +72,60 @@ const specification: TestDefinition[] = [
         },
     },
     {
-        file: 'circle',
+        file: 'geometry',
         expectedTypes: {
             pi: NUMBER_SCHEME,
             calcArea: functionScheme(NUMBER_TYPE, NUMBER_TYPE),
             calcCircumference: functionScheme(NUMBER_TYPE, NUMBER_TYPE),
             area: NUMBER_SCHEME,
             circumference: NUMBER_SCHEME,
+            triangleA: polymorphicScheme(Constructor.Array, [
+                polymorphicType(Constructor.Tuple[2], [NUMBER_TYPE, NUMBER_TYPE]),
+            ]),
+            triangleB: polymorphicScheme(Constructor.Array, [
+                polymorphicType(Constructor.Tuple[2], [NUMBER_TYPE, NUMBER_TYPE]),
+            ]),
+            euclidDistance: functionScheme(
+                polymorphicType(Constructor.Tuple[2], [NUMBER_TYPE, NUMBER_TYPE]),
+                polymorphicType(Constructor.Tuple[2], [NUMBER_TYPE, NUMBER_TYPE]),
+                NUMBER_TYPE,
+            ),
+            furthestFrom: functionScheme(
+                polymorphicType(Constructor.Tuple[2], [NUMBER_TYPE, NUMBER_TYPE]),
+                polymorphicType(Constructor.Array, [
+                    polymorphicType(Constructor.Tuple[2], [NUMBER_TYPE, NUMBER_TYPE]),
+                ]),
+                polymorphicType(Constructor.Tuple[2], [NUMBER_TYPE, NUMBER_TYPE]),
+            ),
+            addPoints: functionScheme(
+                polymorphicType(Constructor.Tuple[2], [NUMBER_TYPE, NUMBER_TYPE]),
+                polymorphicType(Constructor.Tuple[2], [NUMBER_TYPE, NUMBER_TYPE]),
+                polymorphicType(Constructor.Tuple[2], [NUMBER_TYPE, NUMBER_TYPE]),
+            ),
+            mapPair: functionScheme(
+                functionType(typeVar('u1'), typeVar('u2')),
+                polymorphicType(Constructor.Tuple[2], [typeVar('u1'), typeVar('u1')]),
+                polymorphicType(Constructor.Tuple[2], [typeVar('u2'), typeVar('u2')]),
+            ),
+            centroidOf: functionScheme(
+                polymorphicType(Constructor.Array, [
+                    polymorphicType(Constructor.Tuple[2], [NUMBER_TYPE, NUMBER_TYPE]),
+                ]),
+                polymorphicType(Constructor.Tuple[2], [NUMBER_TYPE, NUMBER_TYPE]),
+            ),
+            centroidA: polymorphicScheme(Constructor.Tuple[2], [NUMBER_TYPE, NUMBER_TYPE]),
+            centroidB: polymorphicScheme(Constructor.Tuple[2], [NUMBER_TYPE, NUMBER_TYPE]),
+            furthestFromCenter: polymorphicScheme(Constructor.Tuple[2], [NUMBER_TYPE, NUMBER_TYPE]),
         },
         expectedValues: {
             pi: 3.14159265359,
             area: 4,
             circumference: 5,
+            triangleA: [[0, 3], [7, 4], [4, 0]],
+            triangleB: [[1, 1], [3, 1], [2, 3]],
+            centroidA: [(7 + 4)/3, (3 + 4)/3],
+            centroidB: [(1 + 3 + 2)/3, (1 + 1 + 3)/3],
+            furthestFromCenter: [7, 4],
         },
     },
     {
@@ -277,16 +319,23 @@ const specification: TestDefinition[] = [
                 polymorphicType(Constructor.Array, [typeVar('u2')]),
                 typeVar('u1'),
             ),
+            myFilter: functionScheme(
+                curriedFunctionType(typeVar('u1'), BOOL_TYPE),
+                polymorphicType(Constructor.Array, [typeVar('u1')]),
+                polymorphicType(Constructor.Array, [typeVar('u1')]),
+            ),
             numbers: polymorphicScheme(Constructor.Array, [NUMBER_TYPE]),
             add: functionScheme(NUMBER_TYPE, NUMBER_TYPE, NUMBER_TYPE),
             mul: functionScheme(NUMBER_TYPE, NUMBER_TYPE, NUMBER_TYPE),
             step: functionScheme(NUMBER_TYPE, NUMBER_TYPE, NUMBER_TYPE),
+            less: functionScheme(NUMBER_TYPE, NUMBER_TYPE, BOOL_TYPE),
             sum: NUMBER_SCHEME,
             mySum: NUMBER_SCHEME,
             isSumOk: BOOL_SCHEME,
             product: NUMBER_SCHEME,
             myProduct: NUMBER_SCHEME,
             isProductOk: BOOL_SCHEME,
+            greaterThan3: polymorphicScheme(Constructor.Array, [NUMBER_TYPE]),
             digitalSignal: STRING_SCHEME,
         },
         expectedValues: {
@@ -297,6 +346,7 @@ const specification: TestDefinition[] = [
             product: 779.21676,
             myProduct: 779.21676,
             isProductOk: true,
+            greaterThan3: [3.4, 4.3, 4.7],
             digitalSignal: '0111001',
         },
     },

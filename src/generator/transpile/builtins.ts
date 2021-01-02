@@ -42,6 +42,7 @@ const builtinTranspileConfig = {
     [BuiltinName.Reduce]: functionCall('reduce'),
     [BuiltinName.Reduce0]: functionCall('reduce0'),
     [BuiltinName.Join]: functionCall('join'),
+    [BuiltinName.Length]: functionCall('length'),
 };
 
 export type BuiltinsTranspiledAsFunctions = PropsOfType<typeof builtinTranspileConfig, TranspileAsFunction>;

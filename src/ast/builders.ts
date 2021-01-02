@@ -127,6 +127,16 @@ export function makeLet(statement: Statement, expression: Expression): Let {
     };
 }
 
+export function buildLetChain(statements: Statement[], expression: Expression): Expression {
+    return statements.reduceRight(
+        (acc, statement) => makeLet(
+            statement,
+            acc,
+        ),
+        expression,
+    );
+}
+
 export function makeApplication(callee: Expression, argument: Expression): Application {
     return {
         kind: ExpressionKind.Application,

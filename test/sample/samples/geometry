@@ -1,0 +1,55 @@
+pi = 3.14159265359
+
+func calcArea(r) = let r2 = r * r in
+    r2 * pi
+
+func calcCircumference(r) =
+    2 * r * pi
+
+area = calcArea(2 / sqrt(pi))                     // should be 4
+circumference = calcCircumference(1 / (0.4 * pi)) // should be 5
+
+triangleA = [
+    (0, 3),
+    (7, 4),
+    (4, 0),
+]
+
+triangleB = [
+    (1, 1),
+    (3, 1),
+    (2, 3),
+]
+
+func euclidDistance(p1, p2) =
+    let x1 = first(p1);
+        y1 = second(p1);
+        x2 = first(p2);
+        y2 = second(p2);
+        func square(x) = x * x;
+    in sqrt(square(x1 - x2) + square(y1 - y2))
+
+func furthestFrom(point, points) =
+    let distanceOf = euclidDistance(point);
+        func maxByDistance(a, b) = a if distanceOf(a) > distanceOf(b) else b;
+    in points |> reduce0(maxByDistance)
+
+func addPoints(p1, p2) =
+    let a = first(p1) + first(p2);
+        b = second(p1) + second(p2);
+    in (a, b)
+
+func mapPair(f, pair) =
+    let a = (f . first)(pair);
+        b = (f . second)(pair);
+    in (a, b)
+
+func centroidOf(points) =
+    let func middle(x) = x / length(points)
+    in points |> reduce0(addPoints) |> mapPair(middle)
+
+centroidA = centroidOf(triangleA)
+centroidB = centroidOf(triangleB)
+
+// the furthest point from center in both triangles
+furthestFromCenter = [*triangleA, *triangleB] |> furthestFrom((0, 0))

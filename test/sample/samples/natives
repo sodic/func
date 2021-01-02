@@ -1,11 +1,17 @@
 // alternative implementations of map, filter, and reduce
-// underscores prevent clashes with builtin functions
 
 func myMap(f, array) =
     [] if isEmpty(array) else
-    [array |> head |> f, *(array |> tail |> myMap(f))]
+    let first = head(array) |> f;
+        rest = tail(array) |> myMap(f);
+    in [first, *rest]
 
-// todo implement filter after supporting multi-statement let
+func myFilter(p, array) =
+    [] if isEmpty(array) else
+    let current = head(array);
+        others = tail(array) |> myFilter(p);
+    in [current, *others] if p(current) else
+        others
 
 func myReduce(f, acc, array) =
     acc if isEmpty(array) else
@@ -18,6 +24,7 @@ numbers = [1.2, 2.5, 3.4, 4.3, 2.1, 1.8, 4.7]
 func add(x, y) = x + y
 func mul(x, y) = x * y
 func step(thresh, x) = 0 if x < thresh else 1
+func less(x, y) = x < y
 
 // comparing builtins to user-defined alternatives
 
@@ -28,6 +35,8 @@ isSumOk = mySum == sum
 product = reduce(mul, 1, numbers)
 myProduct = myReduce(mul, 1, numbers)
 isProductOk = product == myProduct
+
+greaterThan3 = myFilter(less(3), numbers)
 
 // should be "0111001"
 digitalSignal = numbers

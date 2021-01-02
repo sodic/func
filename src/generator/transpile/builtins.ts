@@ -32,6 +32,16 @@ const builtinTranspileConfig = {
     [BuiltinName.SquareRoot]: functionCall('sqrt'),
     [BuiltinName.First]: functionCall('first'),
     [BuiltinName.Second]: functionCall('second'),
+    [BuiltinName.ExtendArray]: functionCall('extend'),
+    [BuiltinName.Head]: functionCall('head'),
+    [BuiltinName.Tail]: functionCall('tail'),
+    [BuiltinName.IsEmpty]: functionCall('isEmpty'),
+    [BuiltinName.Concat]: functionCall('concat'),
+    [BuiltinName.Map]: functionCall('map'),
+    [BuiltinName.Filter]: functionCall('filter'),
+    [BuiltinName.Reduce]: functionCall('reduce'),
+    [BuiltinName.Reduce0]: functionCall('reduce0'),
+    [BuiltinName.Join]: functionCall('join'),
 };
 
 export type BuiltinsTranspiledAsFunctions = PropsOfType<typeof builtinTranspileConfig, TranspileAsFunction>;
@@ -58,8 +68,8 @@ function getNames<T1 extends TranspileOption>(transpileOption: T1) {
 
 export function functionCall(name: string): TranspileAsFunction {
     return {
-        name,
         transpileAs: TranspileOption.FunctionCall,
+        name,
     };
 }
 
@@ -80,22 +90,22 @@ interface TranspileAsUnaryExpression {
     transpileAs: TranspileOption.UnaryExpression;
 }
 
-interface TranpsileAsBinaryExpression {
+interface TranspileAsBinaryExpression {
     name: string;
     transpileAs: TranspileOption.BinaryExpression;
 }
 
 function unaryExpression(name: string): TranspileAsUnaryExpression {
     return {
-        name,
         transpileAs: TranspileOption.UnaryExpression,
+        name,
     };
 }
 
-function binaryExpression(name: string): TranpsileAsBinaryExpression {
+function binaryExpression(name: string): TranspileAsBinaryExpression {
     return {
-        name,
         transpileAs: TranspileOption.BinaryExpression,
+        name,
     };
 }
 

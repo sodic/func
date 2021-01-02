@@ -1,16 +1,20 @@
 import assert from 'assert';
 import {
+    buildBinaryExpressionChain,
+    buildComposition,
+    buildPipeline,
     Builtin,
     ChainElement,
-    buildBinaryExpressionChain,
+    COMPOSITION_ARG, Expression,
+    ExpressionKind,
+    Literal,
+    LiteralKind,
     makeApplication,
+    makeArray,
     makeCall,
     makeIdentifierReference,
-    makeNumber,
     makeLambda,
-    buildPipeline,
-    buildComposition,
-    COMPOSITION_ARG,
+    makeNumber,
 } from '../../../../src/ast';
 import { BuiltinName } from '../../../../src/builtins';
 
@@ -136,6 +140,75 @@ describe('helpers', function () {
                     makeNumber(1),
                 ),
                 makeNumber(2),
+            );
+            assert.deepStrictEqual(result, expected);
+        });
+    });
+
+    describe('#makeArray', function () {
+        it('should correctly build a regular array literal', function () {
+            const result = makeArray(
+                makeNumber(1),
+                makeNumber(2),
+                makeNumber(3),
+                makeCall(Builtin.Add, [makeNumber(1), makeNumber(2)]),
+            );
+            const expected: Literal = {
+                kind: ExpressionKind.Literal,
+                value: {
+                    kind: LiteralKind.Array,
+                    contents: [
+                        makeNumber(1),
+                        makeNumber(2),
+                        makeNumber(3),
+                        makeCall(Builtin.Add, [makeNumber(1), makeNumber(2)]),
+                    ],
+                },
+            };
+            assert.deepStrictEqual(result, expected);
+        });
+        it('should correctly build an array literal with spreads', function () {
+            const result = makeArray(
+                makeNumber(1),
+                makeNumber(2),
+                makeNumber(3),
+                ['*', makeArray(makeNumber(-1), makeNumber(-2))],
+                makeNumber(4),
+                ['*', makeApplication(makeIdentifierReference('f'), makeNumber(2))],
+                makeNumber(5),
+                makeNumber(6),
+            );
+            const expected: Expression = makeCall(
+                Builtin.Concat,
+                [
+                    makeArray(
+                        makeNumber(1),
+                        makeNumber(2),
+                        makeNumber(3),
+                    ),
+                    makeCall(
+                        Builtin.Concat,
+                        [
+                            makeArray(makeNumber(-1), makeNumber(-2)),
+                            makeCall(
+                                Builtin.Concat,
+                                [
+                                    makeArray(makeNumber(4)),
+                                    makeCall(
+                                        Builtin.Concat,
+                                        [
+                                            makeApplication(makeIdentifierReference('f'), makeNumber(2)),
+                                            makeArray(
+                                                makeNumber(5),
+                                                makeNumber(6),
+                                            ),
+                                        ],
+                                    ),
+                                ],
+                            ),
+                        ],
+                    ),
+                ],
             );
             assert.deepStrictEqual(result, expected);
         });

@@ -16,12 +16,15 @@ export enum TypeKind {
     Polymorphic = 'Polymorphic',
 }
 
-export const TupleConstructor = {
-    2: '2-tuple',
-    3: '3-tuple',
-    4: '4-tuple',
-    5: '5-tuple',
-    6: '6-tuple',
+export const Constructor = {
+    Tuple: {
+        2: '2-tuple',
+        3: '3-tuple',
+        4: '4-tuple',
+        5: '5-tuple',
+        6: '6-tuple',
+    },
+    Array: 'Array',
 };
 
 // α (type variable)
@@ -87,13 +90,15 @@ export function showType(type: Type): string {
 }
 
 function isTuple(type: TPolymorphic): boolean {
-    return Object.values(TupleConstructor).includes(type.constructor);
+    return Object.values(Constructor.Tuple).includes(type.constructor);
 }
 
 function showPolymorphicType(type: TPolymorphic) {
     const paramTypes = type.parameters.map(showType);
     if (isTuple(type)) {
         return `(${paramTypes.join(', ')})`;
+    } else if (type.constructor == Constructor.Array) {
+        return `[${showType(type.parameters[0])}]`;
     } else {
         return `${type.constructor} ${paramTypes.join(', ')})`;
     }

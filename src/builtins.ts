@@ -26,6 +26,16 @@ export enum BuiltinName {
     SquareRoot = 'sqrt',
     First = 'first',
     Second = 'second',
+    ExtendArray = 'extend',
+    Head = 'head',
+    Tail = 'tail',
+    IsEmpty = 'isEmpty',
+    Concat = 'concat',
+    Map = 'map',
+    Filter = 'filter',
+    Reduce = 'reduce',
+    Reduce0 = 'reduce0',
+    Join = 'join'
 }
 
 export function isBuiltinName(name: string | BuiltinName): name is BuiltinName {

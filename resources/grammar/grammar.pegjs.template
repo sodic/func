@@ -160,6 +160,7 @@ Literal =
     / BooleanLiteral
     / StringLiteral
     / TupleLiteral
+    / ArrayLiteral
 
 ParenthesizedExpression =
     "(" _m_ expression:Expression _m_ ")" {
@@ -227,10 +228,24 @@ StringLiteral "string" =
     }
 
 TupleLiteral "tuple literal" =
-    "(" _m_ head:Expression tail:(_m_ "," _m_ second:Expression _m_)+ ")" {
+    "(" _m_ head:Expression tail:(_m_ "," _m_ Expression)+ _m_ ")" {
         const operator = ",".repeat(tail.length);
         const members = [head, ...tail.map(el => el[3])];
         return makePolymorphicTypeLiteral(operator, members);
+    }
+
+ArrayLiteral "array literal" =
+    "[" _m_ "]" {
+        return makeArray();
+    }
+    / "[" _m_ head:ArrayPart tail:(_m_ "," _m_ ArrayPart)* _m_ ("," _m_)? "]" {
+        return makeArray(head, ...tail.map(el => el[3]));
+    }
+
+ArrayPart "array member" =
+    Expression
+    / "*" _m_ e:Expression {
+        return ["*", e];
     }
 
 StringCharacter =

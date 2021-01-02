@@ -14,7 +14,7 @@ import {
 import { Scheme, showScheme } from '../../src/checker/types/scheme';
 import { curriedFunctionType, functionType, polymorphicType, typeVar } from '../../src/checker/types/builders';
 import { evaluateAndRead } from '../helpers';
-import { TupleConstructor } from '../../src/checker/types/type';
+import { Constructor } from '../../src/checker/types/type';
 
 const specification: TestDefinition[] = [
     {
@@ -228,10 +228,10 @@ const specification: TestDefinition[] = [
     {
         file: 'tuples',
         expectedTypes: {
-            luka: polymorphicScheme(TupleConstructor[2], [STRING_TYPE, NUMBER_TYPE]),
-            marko: polymorphicScheme(TupleConstructor[2], [STRING_TYPE, NUMBER_TYPE]),
+            luka: polymorphicScheme(Constructor.Tuple[2], [STRING_TYPE, NUMBER_TYPE]),
+            marko: polymorphicScheme(Constructor.Tuple[2], [STRING_TYPE, NUMBER_TYPE]),
             isAdult: functionScheme(
-                polymorphicType(TupleConstructor[2], [typeVar('u1'), NUMBER_TYPE]),
+                polymorphicType(Constructor.Tuple[2], [typeVar('u1'), NUMBER_TYPE]),
                 BOOL_TYPE,
             ),
             lukaReport: STRING_SCHEME,
@@ -242,6 +242,62 @@ const specification: TestDefinition[] = [
             marko: ['Marko', 25],
             lukaReport: 'Luka is old enough to drive',
             totalAge: 23 + 25,
+        },
+    },
+    {
+        file: 'arrays',
+        expectedTypes: {
+            evens: polymorphicScheme(Constructor.Array, [NUMBER_TYPE]),
+            odds: polymorphicScheme(Constructor.Array, [NUMBER_TYPE]),
+            spread: polymorphicScheme(Constructor.Array, [NUMBER_TYPE]),
+            numbers: polymorphicScheme(Constructor.Array, [NUMBER_TYPE]),
+            square: functionScheme(NUMBER_TYPE, NUMBER_TYPE),
+            even: functionScheme(NUMBER_TYPE, BOOL_TYPE),
+            max: functionScheme(NUMBER_TYPE, NUMBER_TYPE, NUMBER_TYPE),
+            largestEvenSquare: NUMBER_SCHEME,
+        },
+        expectedValues: {
+            evens: [2, 4, 6],
+            odds: [1, 3, 5],
+            spread: [0, 2, 4, 6, 0, 1, 3, 5, 0],
+            largestEvenSquare: 12 * 12,
+        },
+    },
+    {
+        file: 'natives',
+        expectedTypes: {
+            myMap: functionScheme(
+                functionType(typeVar('u1'), typeVar('u2')),
+                polymorphicType(Constructor.Array, [typeVar('u1')]),
+                polymorphicType(Constructor.Array, [typeVar('u2')]),
+            ),
+            myReduce: functionScheme(
+                curriedFunctionType(typeVar('u1'), typeVar('u2'), typeVar('u1')),
+                typeVar('u1'),
+                polymorphicType(Constructor.Array, [typeVar('u2')]),
+                typeVar('u1'),
+            ),
+            numbers: polymorphicScheme(Constructor.Array, [NUMBER_TYPE]),
+            add: functionScheme(NUMBER_TYPE, NUMBER_TYPE, NUMBER_TYPE),
+            mul: functionScheme(NUMBER_TYPE, NUMBER_TYPE, NUMBER_TYPE),
+            step: functionScheme(NUMBER_TYPE, NUMBER_TYPE, NUMBER_TYPE),
+            sum: NUMBER_SCHEME,
+            mySum: NUMBER_SCHEME,
+            isSumOk: BOOL_SCHEME,
+            product: NUMBER_SCHEME,
+            myProduct: NUMBER_SCHEME,
+            isProductOk: BOOL_SCHEME,
+            digitalSignal: STRING_SCHEME,
+        },
+        expectedValues: {
+            numbers: [1.2, 2.5, 3.4, 4.3, 2.1, 1.8, 4.7],
+            sum: 20,
+            mySum: 20,
+            isSumOk: true,
+            product: 779.21676,
+            myProduct: 779.21676,
+            isProductOk: true,
+            digitalSignal: '0111001',
         },
     },
 ];

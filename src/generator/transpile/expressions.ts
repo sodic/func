@@ -52,6 +52,8 @@ function transpileLiteral(literal: Literal): Code {
             return String(value.value);
         case LiteralKind.String:
             return `'${value.value}'`;
+        case LiteralKind.Array:
+            return `[${value.contents.map(transpileExpression).join(', ')}]`;
         default:
             assertUnreachable(value);
         }
@@ -82,7 +84,7 @@ function transpileLet(letExpression: Let, depth: number): Code {
     const initCode = transpileExpression(initializer, depth+1);
     const bodyCode = transpileExpression(body, depth + 1);
 
-    return wrappedLines('function() {',
+    return wrappedLines('function () {',
         `${indent(depth + 1)}const ${validJsName(variable)} = ${initCode};`,
         `${indent(depth + 1)}return ${bodyCode};`,
         `${indent(depth)}}`,
@@ -94,7 +96,7 @@ function transpileLambda(lambda: Lambda, depth: number): Code {
     const bodyCode = transpileExpression(body, depth + 1);
 
     return cleanLines(
-        `function(${validJsName(head)}) {`,
+        `function (${validJsName(head)}) {`,
         `${indent(depth + 1)}return ${bodyCode};`,
         `${indent(depth)}}`,
     );

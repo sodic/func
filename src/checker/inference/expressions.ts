@@ -8,16 +8,11 @@ import {
     Let,
     Literal,
     LiteralKind,
+    ArrayLiteral,
 } from '../../ast';
-import {
-    TFunction,
-    TLiteral,
-    TVariable,
-    Type,
-
-} from '../types/type';
+import { Constructor, TFunction, TVariable, Type } from '../types/type';
 import { BIGINT_TYPE, BOOL_TYPE, NUMBER_TYPE, STRING_TYPE } from '../types/common';
-import { functionType, unboundScheme } from '../types/builders';
+import { functionType, polymorphicType, unboundScheme } from '../types/builders';
 import { composeSubstitutions, EMPTY_SUBSTITUTION, substituteInContext, substituteInType } from '../substitution';
 import { unify } from '../unification';
 import { assertUnreachable } from '../../util';
@@ -60,17 +55,36 @@ export function getExpressionInferer(uniqueTypeVar: () => TVariable = typeVarGen
         }
     }
 
-    function inferLiteral(context: Context, literal: Literal): TypeInfo<TLiteral> {
-        const typeForKind: Record<LiteralKind, TLiteral> = {
-            [LiteralKind.Number]: NUMBER_TYPE,
-            [LiteralKind.Boolean]: BOOL_TYPE,
-            [LiteralKind.String]: STRING_TYPE,
-            [LiteralKind.BigInt]: BIGINT_TYPE,
-        };
-        return {
-            substitution: EMPTY_SUBSTITUTION,
-            type: typeForKind[literal.value.kind],
-        };
+    function inferLiteral(context: Context, literal: Literal): TypeInfo {
+        switch (literal.value.kind) {
+        case LiteralKind.Number:
+            return { substitution: EMPTY_SUBSTITUTION, type: NUMBER_TYPE };
+        case LiteralKind.Boolean:
+            return { substitution: EMPTY_SUBSTITUTION, type: BOOL_TYPE };
+        case LiteralKind.String:
+            return { substitution: EMPTY_SUBSTITUTION, type: STRING_TYPE };
+        case LiteralKind.BigInt:
+            return { substitution: EMPTY_SUBSTITUTION, type: BIGINT_TYPE };
+        case LiteralKind.Array:
+            return inferArrayLiteral(literal.value);
+        default:
+            assertUnreachable(literal.value);
+        }
+
+        function inferArrayLiteral(literal: ArrayLiteral): TypeInfo {
+            const initialPreset = {
+                substitution: EMPTY_SUBSTITUTION,
+                type: uniqueTypeVar(),
+            };
+            const typeInfo = literal.contents.reduce(
+                (presetAcc: TypeInfo, curr) => inferUsingPreset(presetAcc, context, curr),
+                initialPreset,
+            );
+            return {
+                substitution: typeInfo.substitution,
+                type: polymorphicType(Constructor.Array, [typeInfo.type]),
+            };
+        }
     }
 
     function inferVariable(context: Context, variable: Identifier): TypeInfo {
@@ -138,19 +152,30 @@ export function getExpressionInferer(uniqueTypeVar: () => TVariable = typeVarGen
         const s2 = unify(condType, BOOL_TYPE);
         const contextAfterCond = substituteInContext(composeSubstitutions(s1, s2), context);
 
-        const { substitution: s3, type: thenType } = infer(contextAfterCond, thenBranch);
-        const contextAfterThen = substituteInContext(s3, contextAfterCond);
+        const { substitution: s3, type: branchType } = inferAndUnify(contextAfterCond, thenBranch, elseBranch);
 
-        const { substitution: s4, type: elseType } = infer(contextAfterThen, elseBranch);
+        return {
+            substitution: composeSubstitutions(s1, s2, s3),
+            type: branchType,
+        };
+    }
+
+    function inferAndUnify(context: Context, e1: Expression, e2: Expression): TypeInfo {
+        return inferUsingPreset(infer(context, e1), context, e2);
+    }
+
+    function inferUsingPreset(preset: TypeInfo, context: Context, expression: Expression) {
+        const { substitution: s1, type: t1 } = preset;
+        const { substitution: s2, type: t2 } = infer(substituteInContext(s1, context), expression);
 
         // todo check unification
         // is it supposed to return a substitution that should be applied to the first type
         // if so, there's a mistake here:
         // https://github.com/namin/spots/blob/309286c2eb63181069f2ae707e07e8a9dbff7eb3/pcf/type.sml#L119
-        const s5 = unify(elseType, substituteInType(s4, thenType));
+        const s3 = unify(t2, substituteInType(s2, t1));
         return {
-            substitution: composeSubstitutions(s1, s2, s3, s4, s5),
-            type: substituteInType(s5, elseType),
+            substitution: composeSubstitutions(s1, s2, s3),
+            type: substituteInType(s3, t2),
         };
     }
 

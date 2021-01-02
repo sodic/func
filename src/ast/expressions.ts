@@ -19,6 +19,7 @@ export const enum LiteralKind {
     Boolean = 'Boolean',
     Number = 'Number',
     String = 'String',
+    Array = 'Array',
 }
 
 export interface Literal extends PossiblyParenthesized {
@@ -26,7 +27,8 @@ export interface Literal extends PossiblyParenthesized {
     value: BooleanLiteral
         | BigintLiteral
         | NumberLiteral
-        | StringLiteral;
+        | StringLiteral
+        | ArrayLiteral;
 }
 
 export interface BigintLiteral {
@@ -47,6 +49,11 @@ export interface NumberLiteral {
 export interface StringLiteral {
     kind: LiteralKind.String;
     value: string;
+}
+
+export interface ArrayLiteral {
+    kind: LiteralKind.Array;
+    contents: Expression[];
 }
 
 export interface Identifier extends PossiblyParenthesized {

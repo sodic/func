@@ -17,13 +17,14 @@ import {
     makeBigInt,
     makeString,
     makeBoolean,
+    makeArray,
 } from '../../../src/ast';
 import { getExpressionInferer, ExpressionInferrer } from '../../../src/checker/inference/expressions';
 import {
-    TupleConstructor,
+    Constructor,
     TypeKind,
 } from '../../../src/checker/types/type';
-import { BIGINT_TYPE, BOOL_TYPE, NUMBER_TYPE, STRING_TYPE } from '../../../src/checker/types/common';
+import { BIGINT_TYPE, BOOL_TYPE, NUMBER_SCHEME, NUMBER_TYPE, STRING_TYPE } from '../../../src/checker/types/common';
 import {
     curriedFunctionType,
     functionType,
@@ -201,7 +202,7 @@ describe('inference', function () {
             const expected = functionType(typeVar('t1'), typeVar('t1'));
             assert.deepStrictEqual(type, expected);
         });
-        it('should correctly infer the type of the identity function applied to the identity function', function() {
+        it('should correctly infer the type of the identity function applied to the identity function', function () {
             const expr: Application = makeApplication(ID_FUNCTION, ID_FUNCTION);
             const { type } = infer({}, expr);
             const expected = functionType(typeVar('t2'), typeVar('t2'));
@@ -331,7 +332,7 @@ describe('inference', function () {
                 makeNumber(5),
             );
             const { type } = infer(builtins, expression);
-            const expected = polymorphicType(TupleConstructor[2], [STRING_TYPE, NUMBER_TYPE]);
+            const expected = polymorphicType(Constructor.Tuple[2], [STRING_TYPE, NUMBER_TYPE]);
             assert.deepStrictEqual(type, expected);
         });
         it('should correctly infer the type of a builtin tuple of size 3', function () {
@@ -347,7 +348,7 @@ describe('inference', function () {
                     makeBoolean(true),
                 );
             const { type } = infer(builtins, expression);
-            const expected = polymorphicType(TupleConstructor[3], [STRING_TYPE, NUMBER_TYPE, BOOL_TYPE]);
+            const expected = polymorphicType(Constructor.Tuple[3], [STRING_TYPE, NUMBER_TYPE, BOOL_TYPE]);
             assert.deepStrictEqual(type, expected);
         });
         it('should correctly infer the type of a function creating a builtin tuple', function () {
@@ -383,7 +384,7 @@ describe('inference', function () {
             const expected = curriedFunctionType(
                 NUMBER_TYPE,
                 NUMBER_TYPE,
-                polymorphicType(TupleConstructor[2], [NUMBER_TYPE, STRING_TYPE]),
+                polymorphicType(Constructor.Tuple[2], [NUMBER_TYPE, STRING_TYPE]),
             );
             const { type } = infer(builtins, expression);
             assert.deepStrictEqual(type, expected);
@@ -407,10 +408,46 @@ describe('inference', function () {
             );
             const { type } = infer(builtins, expression);
             const expected = functionType(
-                polymorphicType(TupleConstructor[2], [typeVar('t2'), NUMBER_TYPE]),
+                polymorphicType(Constructor.Tuple[2], [typeVar('t2'), NUMBER_TYPE]),
                 BOOL_TYPE,
             );
             assert.deepStrictEqual(type, expected);
+        });
+        it('should correctly infer the type of an empty array literal', function () {
+            const expression = makeArray();
+            const { type } = infer(builtins, expression);
+            const expected = polymorphicType(Constructor.Array, [typeVar('t1')]);
+            assert.deepStrictEqual(type, expected);
+        });
+        it('should correctly infer the type of a non-empty array literal 1', function () {
+            const expression = makeArray(
+                makeLambda('x', makeIdentifierReference('x')),
+                makeLambda('y', makeNumber(3)),
+            );
+            const { type } = infer(builtins, expression);
+            const expected = polymorphicType(Constructor.Array, [functionType(NUMBER_TYPE, NUMBER_TYPE)]);
+            assert.deepStrictEqual(type, expected);
+        });
+        it('should reject heterogeneous arrays', function () {
+            const expression = makeArray(
+                makeCall(Builtin.Add, [makeNumber(1), makeNumber(3)]),
+                makeConditional(
+                    makeCall(
+                        Builtin.GreaterThan,
+                        [
+                            makeIdentifierReference('u'),
+                            makeNumber(6),
+                        ],
+                    ),
+                    makeBoolean(false),
+                    makeBoolean(true),
+                ),
+            );
+            const context = {
+                ...builtins,
+                u: NUMBER_SCHEME,
+            };
+            assert.throws(() => infer(context, expression), UnificationError);
 
         });
         it('should fail when let would normally generalize', function () {

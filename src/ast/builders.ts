@@ -57,6 +57,10 @@ export function makeBigInt(value: bigint): Literal {
     };
 }
 
+export function makeArray(...parts: ArrayPart[]): Expression {
+    return isRegularArrayLiteral(parts) ? makeArrayLiteral(parts) : makeArraySpread(parts);
+}
+
 export function makePolymorphicTypeLiteral(constructor: string, parameters: NonEmpty<Expression[]>): Application {
     return makeCall(makeIdentifierReference(constructor), parameters);
 }
@@ -156,7 +160,6 @@ export function buildBinaryExpressionChain(head: Expression, tail: ChainElement[
     );
 }
 
-
 export function buildPipeline(head: Expression, tail: ChainElement[]): Expression {
     return tail.reduce(
         (pipeline: Expression, element: ChainElement) => makeApplication(
@@ -180,6 +183,63 @@ export function buildComposition(head: Expression, tail: ChainElement[]): Expres
 
     return makeLambda(COMPOSITION_ARG, pipeline);
 }
+
+function makeArrayLiteral(expressions: Expression[]): Literal {
+    return {
+        kind: ExpressionKind.Literal,
+        value: {
+            kind: LiteralKind.Array,
+            contents: expressions,
+        },
+    };
+}
+
+function makeArraySpread(parts: ArrayPart[]): Expression {
+    const [head, ...tail] = groupArray(parts).reverse();
+    return tail.reduce(
+        (acc: Expression, part) => makeCall(
+            makeIdentifierReference('concat'), // todo can't import name because of const enum
+            [part, acc],
+        ),
+        head,
+    );
+}
+
+/**
+ * Groups non-spread parts of the array under the same array literal.
+ * I.e., it turns [a, b, c*, d, *e, f, g, h, *i] into [[a, b], c, [d], e, [f, g, h], i]
+ */
+function groupArray(parts: ArrayPart[]): Expression[] {
+    const result: Expression[] = [];
+    let currentGroup: Expression[] = [];
+
+    parts.forEach(part => {
+        if (isSpreadPart(part))  {
+            result.push(makeArray(...currentGroup), toArray(part));
+            currentGroup = [];
+        } else {
+            currentGroup.push(part);
+        }
+    });
+
+    return result.concat(makeArray(...currentGroup));
+}
+
+type ArraySpreadPart = ['*', Expression];
+type ArrayPart = Expression | ArraySpreadPart;
+
+function isSpreadPart(part: ArrayPart): part is ArraySpreadPart {
+    return Array.isArray(part);
+}
+
+function isRegularArrayLiteral(parts: ArrayPart[]): parts is Expression[] {
+    return !parts.some(isSpreadPart);
+}
+
+function toArray(part: ArrayPart): Expression {
+    return isSpreadPart(part) ? part[1] : makeArrayLiteral([part]);
+}
+
 
 /**
  * Transforms a function taking multiple arguments into a sequence of functions that

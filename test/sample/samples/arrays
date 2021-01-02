@@ -1,0 +1,14 @@
+evens = [2,4,6]
+odds = [1,3,5]
+spread = [0, *evens, 0, *odds, 0]
+
+numbers = [1, 3, 12, 4, 2, 11, 31, 7, 8]
+
+func square(x) = x * x
+func even(x) = x % 2 == 0
+func max(x, y) = x if x > y else y
+
+largestEvenSquare = numbers
+    |> filter(even)
+    |> map(square)
+    |> reduce0(max)

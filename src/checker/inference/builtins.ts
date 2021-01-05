@@ -1,6 +1,6 @@
 import { BuiltinName } from '../../builtins';
 import { BOOL_TYPE, NUMBER_TYPE, STRING_TYPE } from '../types/common';
-import { curriedFunctionType, functionType, polymorphicType, typeVar } from '../types/builders';
+import { functionType, polymorphicType, typeVar } from '../types/builders';
 import { Scheme } from '../types/scheme';
 import { functionScheme } from './helpers';
 import { Constructor, TVariable } from '../types/type';
@@ -31,7 +31,11 @@ export const builtins: Record<BuiltinName, Scheme> = {
         functionType(typeVar('u1'), typeVar('u2')),
         functionType(typeVar('u1'), typeVar('u3')),
     ),
-    [BuiltinName.Pipe]: functionScheme(typeVar('u1'), functionType(typeVar('u1'), typeVar('u2'))),
+    [BuiltinName.Pipe]: functionScheme(
+        typeVar('u1'),
+        functionType(typeVar('u1'), typeVar('u2')),
+        typeVar('u2'),
+    ),
     [BuiltinName.Identity]: functionScheme(typeVar('u1'), typeVar('u1')),
     [BuiltinName.Constant]: functionScheme(typeVar('u1'), typeVar('u2'), typeVar('u1')),
     [BuiltinName.ToString]: functionScheme(typeVar('u1'), STRING_TYPE),
@@ -77,13 +81,13 @@ export const builtins: Record<BuiltinName, Scheme> = {
         polymorphicType(Constructor.Array, [typeVar('u1')]),
     ),
     [BuiltinName.Reduce]: functionScheme(
-        curriedFunctionType(typeVar('u2'), typeVar('u1'), typeVar('u2')),
+        functionType(typeVar('u2'), typeVar('u1'), typeVar('u2')),
         typeVar('u2'),
         polymorphicType(Constructor.Array, [typeVar('u1')]),
         typeVar('u2'),
     ),
     [BuiltinName.Reduce0]: functionScheme(
-        curriedFunctionType(typeVar('u1'), typeVar('u1'), typeVar('u1')),
+        functionType(typeVar('u1'), typeVar('u1'), typeVar('u1')),
         polymorphicType(Constructor.Array, [typeVar('u1')]),
         typeVar('u1'),
     ),

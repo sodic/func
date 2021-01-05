@@ -1,7 +1,7 @@
 import assert from 'assert';
 import { composeSubstitutions, substituteInType, Substitution } from '../../../src/checker/substitution';
 import { BIGINT_TYPE, BOOL_TYPE, NUMBER_TYPE, STRING_TYPE } from '../../../src/checker/types/common';
-import { curriedFunctionType, functionType, polymorphicType, typeVar } from '../../../src/checker/types/builders';
+import { functionType, polymorphicType, typeVar } from '../../../src/checker/types/builders';
 
 describe('substitution', function () {
     describe('#substituteInType', function () {
@@ -41,7 +41,7 @@ describe('substitution', function () {
             const expected = polymorphicType('Constructor', [
                 NUMBER_TYPE,
                 BIGINT_TYPE,
-                curriedFunctionType(BIGINT_TYPE, STRING_TYPE, NUMBER_TYPE),
+                functionType(BIGINT_TYPE, STRING_TYPE, NUMBER_TYPE),
             ]);
             assert.deepStrictEqual(result, expected);
         });

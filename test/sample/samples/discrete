@@ -15,7 +15,7 @@ func divisibleBy(n, k) = n % k == 0
 
 func isLeapYear(year) =
     divisibleBy(year, 400)
-    or divisibleBy(year, 4) and !divisibleBy(year, 25)
+    || divisibleBy(year, 4) && !divisibleBy(year, 25)
 
 _1c0 = combinations(1, 0)
 _5c3 = combinations(5, 3)

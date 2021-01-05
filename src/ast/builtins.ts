@@ -27,6 +27,8 @@ export const bindableBinaryOperators = [
     Builtin.GreaterEqualThan,
     Builtin.Equal,
     Builtin.NotEqual,
+    Builtin.And,
+    Builtin.Or,
     Builtin.Compose,
     Builtin.Pipe,
 ];

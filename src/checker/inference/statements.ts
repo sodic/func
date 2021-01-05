@@ -11,7 +11,7 @@ export function inferStatement(context: Context, statement: Statement): Context 
     const { kind, name, expression } = statement;
 
     if (name in context) {
-        throw new NameError(`"${name}" was declared twice`);
+        throw new NameError(`Name Error: "${name}" was declared twice`);
     }
 
     try {

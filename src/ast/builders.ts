@@ -106,7 +106,7 @@ export function makeFunctionDefinition(name: string, params: string[], body: Exp
     return {
         kind: StatementKind.FunctionDefinition,
         name,
-        expression: curryFunction(params, body),
+        expression: makeCurriedLambda(params, body),
     };
 }
 
@@ -116,6 +116,19 @@ export function makeLambda(head: string, body: Expression): Lambda {
         head,
         body,
     };
+}
+
+/**
+ * Transforms a function taking multiple arguments into a sequence of functions that
+ * each take a single argument (e.g., (a, b) -> c is transformed into a -> (b -> c))
+ *
+ * @param params The function's parameter list.
+ * @param body The function's body.
+ */
+export function makeCurriedLambda(params: string[], body: Expression): Lambda {
+    const [head, ...rest] = params;
+    const lambdaBody = rest.length ? makeCurriedLambda(rest, body) : body;
+    return makeLambda(head, lambdaBody);
 }
 
 export function makeLet(statement: Statement, expression: Expression): Let {
@@ -298,19 +311,6 @@ function toArray(part: ArrayPart): Expression {
     return isSpreadPart(part) ? part[1] : makeArrayLiteral([part]);
 }
 
-
-/**
- * Transforms a function taking multiple arguments into a sequence of functions that
- * each take a single argument (e.g., (a, b) -> c is transformed into a -> (b -> c))
- *
- * @param params The function's parameter list.
- * @param body The function's body.
- */
-function curryFunction(params: string[], body: Expression): Lambda {
-    const [head, ...rest] = params;
-    const lambdaBody = rest.length ? curryFunction(rest, body) : body;
-    return makeLambda(head, lambdaBody);
-}
 
 /**
  * Transforms an application taking many arguments into a sequence of applications each taking (binding)

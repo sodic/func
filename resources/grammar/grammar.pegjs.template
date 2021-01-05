@@ -24,19 +24,20 @@ FunctionDefinition =
         return makeFunctionDefinition(name, params, body);
     }
 
-ParameterList =
-    head:Identifier tail:(_m_ "," _m_ Identifier _m_)* {
-        return tail.reduce((list, curr) => [...list, curr[3]], [head]);
+Expression =
+    LambdaExpression
+    / LetExpression
+    / Conditional
+
+LambdaExpression "lambda expression" =
+    "(" _m_ params:ParameterList _m_ ")" _m_ "->" _m_ body:Expression {
+        return makeCurriedLambda(params, body)
     }
 
-Expression =
-    letExpression:LetExpression {
-        return letExpression;
+ParameterList =
+    head:Identifier tail:(_m_ "," _m_ Identifier)* {
+        return tail.reduce((list, curr) => [...list, curr[3]], [head]);
     }
-    / cond:Conditional {
-        return cond;
-    }
-    / Pipeline
 
 LetExpression =
     LetToken Space head:Statement tail:(_m_ ";" _m_ Statement)* (_m_ ";")? Space InToken Space expression:Expression {
@@ -45,14 +46,17 @@ LetExpression =
 
 // keep JSs precedence and associativity
 
-// todo, check multi-level conditionals
+/*
+This is written in a strange way to speed up the parser. It avoids parsing
+the consequent twice on mismatches.
+*/
 Conditional =
-    consequent:Disjunction Space IfToken Space test:Expression Space ElseToken Space alternate:Expression {
-        return makeConditional(test, consequent, alternate);
+    consequent:Pipeline tail:(Space IfToken Space test:Expression Space ElseToken Space alternate:Expression)? {
+        return tail ? makeConditional(tail[3], consequent, tail[7]) : consequent;
     }
 
 Pipeline =
-    head:Disjunction tail:(_m_ PipeOperator _m_ callee:UnaryExpression)* {
+    head:Disjunction tail:(_m_ PipeOperator _m_ callee:(LambdaExpression / UnaryExpression))* {
         // todo after adding type classes, callee might change to something more general
         return buildPipeline(head, tail);
     }
@@ -69,7 +73,7 @@ Disjunction =
     }
 
 DisjunctionOperator =
-    op:"or" {
+    op:"||" {
         return makeIdentifierReference(op);
     }
 
@@ -79,7 +83,7 @@ Conjunction =
     }
 
 ConjunctionOperator =
-    op:"and" {
+    op:"&&" {
         return makeIdentifierReference(op);
     }
 
@@ -198,9 +202,8 @@ BinaryOperator =
     / ComparisonOperator
     / CompositionOperator
     / PipeOperator
-// todo handle these as well
-//    / DisjunctionOperator
-//    / ConjunctionOperator
+    / DisjunctionOperator
+    / ConjunctionOperator
 
 ParenthesizedExpression =
     "(" _m_ expression:Expression _m_ ")" {
@@ -218,7 +221,7 @@ Arguments =
     }
 
 ArgumentList =
-    head:Expression tail:(_m_ "," _m_ Expression _m_)* {
+    head:Expression tail:(_m_ "," _m_ Expression)* {
         return tail.reduce((list, curr) => [...list, curr[3]], [head]);
     }
 

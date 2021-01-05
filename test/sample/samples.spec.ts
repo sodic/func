@@ -12,7 +12,7 @@ import {
     STRING_TYPE,
 } from '../../src/checker/types/common';
 import { Scheme, showScheme } from '../../src/checker/types/scheme';
-import { curriedFunctionType, functionType, polymorphicType, typeVar } from '../../src/checker/types/builders';
+import { functionType, polymorphicType, typeVar } from '../../src/checker/types/builders';
 import { evaluateAndRead } from '../helpers';
 import { Constructor } from '../../src/checker/types/type';
 
@@ -162,7 +162,7 @@ const specification: TestDefinition[] = [
         expectedTypes: {
             raiseToPower: functionScheme(NUMBER_TYPE, NUMBER_TYPE, NUMBER_TYPE),
             flipArgs: functionScheme(
-                curriedFunctionType(typeVar('u1'), typeVar('u2'), typeVar('u3')),
+                functionType(typeVar('u1'), typeVar('u2'), typeVar('u3')),
                 typeVar('u2'),
                 typeVar('u1'),
                 typeVar('u3'),
@@ -185,37 +185,37 @@ const specification: TestDefinition[] = [
             pair: functionScheme(
                 typeVar('u1'),
                 typeVar('u2'),
-                curriedFunctionType(typeVar('u1'), typeVar('u2'), typeVar('u3')),
+                functionType(typeVar('u1'), typeVar('u2'), typeVar('u3')),
                 typeVar('u3'),
             ),
             _first: functionScheme(
                 functionType(
-                    curriedFunctionType(typeVar('u1'), typeVar('u2'), typeVar('u1')),
+                    functionType(typeVar('u1'), typeVar('u2'), typeVar('u1')),
                     typeVar('u3'),
                 ),
                 typeVar('u3'),
             ),
             _second: functionScheme(
                 functionType(
-                    curriedFunctionType(typeVar('u1'), typeVar('u2'), typeVar('u2')),
+                    functionType(typeVar('u1'), typeVar('u2'), typeVar('u2')),
                     typeVar('u3'),
                 ),
                 typeVar('u3'),
             ),
             movie1: functionScheme(
-                curriedFunctionType(NUMBER_TYPE, STRING_TYPE, typeVar('u3')),
+                functionType(NUMBER_TYPE, STRING_TYPE, typeVar('u3')),
                 typeVar('u3'),
             ),
             movie2: functionScheme(
-                curriedFunctionType(NUMBER_TYPE, STRING_TYPE, typeVar('u3')),
+                functionType(NUMBER_TYPE, STRING_TYPE, typeVar('u3')),
                 typeVar('u3'),
             ),
             movie3: functionScheme(
-                curriedFunctionType(BOOL_TYPE, STRING_TYPE, typeVar('u3')),
+                functionType(BOOL_TYPE, STRING_TYPE, typeVar('u3')),
                 typeVar('u3'),
             ),
             movie4: functionScheme(
-                curriedFunctionType(STRING_TYPE, NUMBER_TYPE, typeVar('u3')),
+                functionType(STRING_TYPE, NUMBER_TYPE, typeVar('u3')),
                 typeVar('u3'),
             ),
             twelve: NUMBER_SCHEME,
@@ -297,7 +297,7 @@ const specification: TestDefinition[] = [
             even: functionScheme(NUMBER_TYPE, BOOL_TYPE),
             max: functionScheme(NUMBER_TYPE, NUMBER_TYPE, NUMBER_TYPE),
             accumulate: functionScheme(
-                curriedFunctionType(typeVar('u1'), typeVar('u2'), typeVar('u2')),
+                functionType(typeVar('u1'), typeVar('u2'), typeVar('u2')),
                 typeVar('u2'),
                 polymorphicType(Constructor.Array, [typeVar('u1')]),
                 typeVar('u2'),
@@ -306,8 +306,24 @@ const specification: TestDefinition[] = [
                 polymorphicType(Constructor.Array, [NUMBER_TYPE]),
                 NUMBER_TYPE,
             ),
-            reverse: functionScheme(
+            reverse1: functionScheme(
                 polymorphicType(Constructor.Array, [typeVar('u1')]),
+                polymorphicType(Constructor.Array, [typeVar('u1')]),
+            ),
+            reverse2: functionScheme(
+                polymorphicType(Constructor.Array, [typeVar('u1')]),
+                polymorphicType(Constructor.Array, [typeVar('u1')]),
+            ),
+            flatten1: functionScheme(
+                polymorphicType(Constructor.Array, [
+                    polymorphicType(Constructor.Array, [typeVar('u1')]),
+                ]),
+                polymorphicType(Constructor.Array, [typeVar('u1')]),
+            ),
+            flatten2: functionScheme(
+                polymorphicType(Constructor.Array, [
+                    polymorphicType(Constructor.Array, [typeVar('u1')]),
+                ]),
                 polymorphicType(Constructor.Array, [typeVar('u1')]),
             ),
             quicksort: functionScheme(
@@ -318,8 +334,20 @@ const specification: TestDefinition[] = [
             odds: polymorphicScheme(Constructor.Array, [NUMBER_TYPE]),
             spread: polymorphicScheme(Constructor.Array, [NUMBER_TYPE]),
             numbers: polymorphicScheme(Constructor.Array, [NUMBER_TYPE]),
+            nested: polymorphicScheme(Constructor.Array, [
+                polymorphicType(Constructor.Array, [
+                    polymorphicType(Constructor.Tuple[2], [NUMBER_TYPE, STRING_TYPE]),
+                ]),
+            ]),
             sorted: polymorphicScheme(Constructor.Array, [NUMBER_TYPE]),
-            reversed: polymorphicScheme(Constructor.Array, [NUMBER_TYPE]),
+            reversed1: polymorphicScheme(Constructor.Array, [NUMBER_TYPE]),
+            reversed2: polymorphicScheme(Constructor.Array, [NUMBER_TYPE]),
+            flattened1: polymorphicScheme(Constructor.Array, [
+                polymorphicType(Constructor.Tuple[2], [NUMBER_TYPE, STRING_TYPE]),
+            ]),
+            flattened2: polymorphicScheme(Constructor.Array, [
+                polymorphicType(Constructor.Tuple[2], [NUMBER_TYPE, STRING_TYPE]),
+            ]),
             sumOfSquares: NUMBER_SCHEME,
             largestEvenSquare: NUMBER_SCHEME,
         },
@@ -329,7 +357,10 @@ const specification: TestDefinition[] = [
             spread: [0, 2, 4, 6, 0, 1, 3, 5, 0],
             numbers: [1, 3, 12, 4, 2, 11, 31, 7, 8],
             sorted: [1, 2, 3, 4, 7, 8, 11, 12, 31],
-            reversed: [8, 7, 31, 11, 2, 4, 12, 3, 1],
+            reversed1: [8, 7, 31, 11, 2, 4, 12, 3, 1],
+            reversed2: [8, 7, 31, 11, 2, 4, 12, 3, 1],
+            flattened1: [[1, 'One'], [2, 'Two'], [3, 'Three'], [4, 'Four'], [5, 'Five'], [6, 'Six']],
+            flattened2: [[1, 'One'], [2, 'Two'], [3, 'Three'], [4, 'Four'], [5, 'Five'], [6, 'Six']],
             sumOfSquares: 1369,
             largestEvenSquare: 12 * 12,
         },
@@ -343,18 +374,18 @@ const specification: TestDefinition[] = [
                 polymorphicType(Constructor.Array, [typeVar('u2')]),
             ),
             myFilter: functionScheme(
-                curriedFunctionType(typeVar('u1'), BOOL_TYPE),
+                functionType(typeVar('u1'), BOOL_TYPE),
                 polymorphicType(Constructor.Array, [typeVar('u1')]),
                 polymorphicType(Constructor.Array, [typeVar('u1')]),
             ),
             myReduce: functionScheme(
-                curriedFunctionType(typeVar('u1'), typeVar('u2'), typeVar('u1')),
+                functionType(typeVar('u1'), typeVar('u2'), typeVar('u1')),
                 typeVar('u1'),
                 polymorphicType(Constructor.Array, [typeVar('u2')]),
                 typeVar('u1'),
             ),
             myReduce0: functionScheme(
-                curriedFunctionType(typeVar('u1'), typeVar('u1'), typeVar('u1')),
+                functionType(typeVar('u1'), typeVar('u1'), typeVar('u1')),
                 polymorphicType(Constructor.Array, [typeVar('u1')]),
                 typeVar('u1'),
             ),
@@ -381,6 +412,69 @@ const specification: TestDefinition[] = [
             lowestGreaterThan3: 3.4,
             digitalSignal: '0111001',
         },
+    },
+    {
+        file: 'lambda',
+        expectedTypes: {
+            mul1: functionScheme(NUMBER_TYPE, NUMBER_TYPE, NUMBER_TYPE),
+            mul2: functionScheme(NUMBER_TYPE, NUMBER_TYPE, NUMBER_TYPE),
+            sub1: functionScheme(NUMBER_TYPE, NUMBER_TYPE, NUMBER_TYPE),
+            sub2: functionScheme(NUMBER_TYPE, NUMBER_TYPE, NUMBER_TYPE),
+            mod1: functionScheme(NUMBER_TYPE, NUMBER_TYPE, NUMBER_TYPE),
+            mod2: functionScheme(NUMBER_TYPE, NUMBER_TYPE, NUMBER_TYPE),
+            samples: polymorphicScheme(Constructor.Array, [
+                polymorphicType(Constructor.Tuple[2], [NUMBER_TYPE, NUMBER_TYPE]),
+            ]),
+            all: functionScheme(
+                functionType(typeVar('u1'), BOOL_TYPE),
+                polymorphicType(Constructor.Array, [typeVar('u1')]),
+                BOOL_TYPE,
+            ),
+            areAllEqual: functionScheme(
+                polymorphicType(Constructor.Array, [NUMBER_TYPE]),
+                BOOL_TYPE,
+            ),
+            areAllTrue: functionScheme(polymorphicType(Constructor.Array, [BOOL_TYPE]), BOOL_TYPE),
+            uncurry: functionScheme(
+                functionType(typeVar('u1'), typeVar('u2'), typeVar('u3')),
+                polymorphicType(Constructor.Tuple[2], [typeVar('u1'), typeVar('u2')]),
+                typeVar('u3'),
+            ),
+            areFunctionsEquivalent: BOOL_SCHEME,
+            conditions: polymorphicScheme(
+                Constructor.Array,
+                [
+                    functionType(
+                        polymorphicType(Constructor.Tuple[2], [NUMBER_TYPE, NUMBER_TYPE]),
+                        BOOL_TYPE,
+                    ),
+                ],
+            ),
+            filteredSamples: polymorphicScheme(
+                Constructor.Array,
+                [polymorphicType(Constructor.Tuple[2], [NUMBER_TYPE, NUMBER_TYPE])],
+            ),
+        },
+        expectedValues: {
+            samples: [
+                [1, 3],
+                [6, 8],
+                [3, 5],
+                [2, 3],
+                [4, 9],
+                [10, 9],
+                [7, 2],
+                [4, 7],
+            ],
+            areFunctionsEquivalent: true,
+            filteredSamples: [[2, 3], [4, 7]],
+        },
+    },
+    {
+        // just a speed test
+        file: 'speed',
+        expectedTypes: {},
+        expectedValues: {},
     },
 ];
 

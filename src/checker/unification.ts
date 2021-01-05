@@ -3,19 +3,14 @@ import { composeSubstitutions, EMPTY_SUBSTITUTION, substituteInType, Substitutio
 import { freeTypeVars } from './types/builders';
 import { zip } from '../util';
 
-class TypeError extends Error {
-    constructor(message: string) {
-        super(`Type Error: ${message}`);
-    }
-}
 
-export class UnificationError extends TypeError {
+export class UnificationError extends Error {
     constructor(message: string) {
         super(message);
     }
 }
 
-export class OccursError extends TypeError {
+export class OccursError extends Error {
     constructor(message: string) {
         super(message);
     }
@@ -52,7 +47,7 @@ export function unify(t1: Type, t2: Type): Substitution {
         return reduceUnify(t1.parameters, t2.parameters);
 
     } else {
-        throw new UnificationError(`Cannot unify types "${showType(t1)}" and "${showType(t2)}"`);
+        throw new UnificationError(`Type Error: Cannot unify types "${showType(t1)}" and "${showType(t2)}"`);
     }
 }
 
@@ -60,7 +55,7 @@ function bindToVar(typeVarName: string, type: Type): Substitution {
     if (type.kind === TypeKind.Variable && typeVarName === type.name) {
         return EMPTY_SUBSTITUTION;
     } else if (freeTypeVars(type).has(typeVarName)) {
-        throw new OccursError(`Occurs check failed, "${typeVarName}" appears in "${showType(type)}"`);
+        throw new OccursError(`Type Error: Occurs check failed, "${typeVarName}" appears in "${showType(type)}"`);
     } else {
         return { [typeVarName]: type };
     }

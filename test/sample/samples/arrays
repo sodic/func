@@ -7,15 +7,25 @@ func accumulate(combiner, nullValue, l) =
     nullValue if isEmpty(l) else
     combiner(head(l), accumulate(combiner, nullValue, tail(l)))
 
-func getSumOfSquares(l) =
-    let func addSquare(x, y) = square(x) + y
-    in accumulate(addSquare, 0, l)
+func getSumOfSquares(l) = accumulate((x, y) -> square(x) + y, 0, l)
 
-func reverse(array) =
+func reverse1(array) =
     [] if isEmpty(array) else
     let current = head(array);
         rest = tail(array);
-    in [*reverse(rest), current]
+    in [*reverse1(rest), current]
+
+// Can also be implemented using the built in-reduce function
+func reverse2(array) =
+    reduce((acc, x) -> [x, *acc], [], array)
+
+func flatten1(array) =
+    [] if isEmpty(array) else
+    [*head(array), *flatten1(tail(array))]
+
+// Can also be implemented using the built-in reduce function
+func flatten2(array) =
+    reduce((acc, x) -> [*acc, *x], [], array)
 
 func quicksort(array) =
     [] if isEmpty(array) else
@@ -29,9 +39,18 @@ evens = [2,4,6]
 odds = [1,3,5]
 spread = [0, *evens, 0, *odds, 0]
 numbers = [1, 3, 12, 4, 2, 11, 31, 7, 8]
+nested = [
+    [(1, "One"), (2, "Two"), (3, "Three")],
+    [(4, "Four"), (5, "Five"), (6, "Six")],
+]
 
 sorted = quicksort(numbers)
-reversed = reverse(numbers)
+
+reversed1 = reverse1(numbers)
+reversed2 = reverse2(numbers)
+
+flattened1 = flatten1(nested)
+flattened2 = flatten2(nested)
 
 sumOfSquares = getSumOfSquares(numbers)
 largestEvenSquare = numbers

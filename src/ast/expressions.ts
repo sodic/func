@@ -63,8 +63,6 @@ export interface Identifier extends PossiblyParenthesized {
 
 export interface Lambda extends PossiblyParenthesized {
     kind: ExpressionKind.Lambda;
-    // todo see what to do with named functions
-    name?: string;
     head: string;
     body: Expression;
 }

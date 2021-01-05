@@ -18,6 +18,7 @@ import {
     makeString,
     makeBoolean,
     makeArray,
+    makeOperatorBindingLeft,
 } from '../../../src/ast';
 import { getExpressionInferer, ExpressionInferrer } from '../../../src/checker/inference/expressions';
 import {
@@ -26,7 +27,6 @@ import {
 } from '../../../src/checker/types/type';
 import { BIGINT_TYPE, BOOL_TYPE, NUMBER_SCHEME, NUMBER_TYPE, STRING_TYPE } from '../../../src/checker/types/common';
 import {
-    curriedFunctionType,
     functionType,
     polymorphicType,
     typeVar,
@@ -98,7 +98,7 @@ describe('inference', function () {
         it('should correctly infer the type of a binary function application given the correct context', function () {
             const application = makeCall(makeIdentifierReference('x'), [makeNumber(1), makeNumber(2)]);
             const context = {
-                x: unboundScheme(curriedFunctionType(NUMBER_TYPE, NUMBER_TYPE, BOOL_TYPE)),
+                x: unboundScheme(functionType(NUMBER_TYPE, NUMBER_TYPE, BOOL_TYPE)),
             };
             const { type } = infer(context, application);
             assert.deepStrictEqual(type, BOOL_TYPE);
@@ -151,7 +151,7 @@ describe('inference', function () {
                 ),
             );
             const { type } = infer({}, expression);
-            const expected = curriedFunctionType(
+            const expected = functionType(
                 functionType(typeVar('t2'), typeVar('t3')),
                 typeVar('t2'),
                 typeVar('t3'),
@@ -188,8 +188,8 @@ describe('inference', function () {
                 ),
             );
             const { type } = infer(builtins, expression);
-            const expected = curriedFunctionType(
-                curriedFunctionType(typeVar('t8'), typeVar('t8')),
+            const expected = functionType(
+                functionType(typeVar('t8'), typeVar('t8')),
                 typeVar('t8'),
                 NUMBER_TYPE,
                 typeVar('t8'),
@@ -381,7 +381,7 @@ describe('inference', function () {
                     ),
                 ),
             );
-            const expected = curriedFunctionType(
+            const expected = functionType(
                 NUMBER_TYPE,
                 NUMBER_TYPE,
                 polymorphicType(Constructor.Tuple[2], [NUMBER_TYPE, STRING_TYPE]),
@@ -449,6 +449,19 @@ describe('inference', function () {
             };
             assert.throws(() => infer(context, expression), UnificationError);
 
+        });
+        it('should correctly infer the type of a bound pipe', function () {
+            const expression = makeOperatorBindingLeft(Builtin.Pipe, makeIdentifierReference('x'));
+            const context = {
+                ...builtins,
+                x: NUMBER_SCHEME,
+            };
+            const { type } = infer(context, expression);
+            const expected = functionType(
+                functionType(NUMBER_TYPE, typeVar('t5')),
+                typeVar('t5'),
+            );
+            assert.deepStrictEqual(type, expected);
         });
         it('should fail when let would normally generalize', function () {
             // todo

@@ -90,7 +90,7 @@ export function getExpressionInferer(uniqueTypeVar: () => TVariable = typeVarGen
     function inferVariable(context: Context, variable: Identifier): TypeInfo {
         const scheme = context[variable.name];
         if (!scheme) {
-            throw new NameError(`Unbound variable "${variable.name}"`);
+            throw new NameError(`Name error: Unbound variable "${variable.name}"`);
         }
         return {
             substitution: EMPTY_SUBSTITUTION,

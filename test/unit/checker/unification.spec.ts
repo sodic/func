@@ -4,7 +4,7 @@ import {
     TFunction,
 } from '../../../src/checker/types/type';
 import { BIGINT_TYPE, BOOL_TYPE, NUMBER_TYPE, STRING_TYPE } from '../../../src/checker/types/common';
-import { curriedFunctionType, functionType, polymorphicType, typeVar } from '../../../src/checker/types/builders';
+import { functionType, polymorphicType, typeVar } from '../../../src/checker/types/builders';
 import { EMPTY_SUBSTITUTION, Substitution } from '../../../src/checker/substitution';
 
 describe('unification', function () {
@@ -88,7 +88,7 @@ describe('unification', function () {
         it('should correctly unify two generic function types', function () {
             const result = unify(
                 functionType(typeVar('u1'), typeVar('u2')),
-                curriedFunctionType(typeVar('u1'), typeVar('u4'), typeVar('u5')),
+                functionType(typeVar('u1'), typeVar('u4'), typeVar('u5')),
             );
             const expected = {
                 'u2': functionType(typeVar('u4'), typeVar('u5')),

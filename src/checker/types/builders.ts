@@ -9,19 +9,11 @@ export function typeVar(name: string): TVariable {
     };
 }
 
-export function functionType(input: Type, output: Type): TFunction {
-    return {
-        kind: TypeKind.Function,
-        input,
-        output,
-    };
-}
-
-export function curriedFunctionType(type1: Type, type2: Type, ...types: Type[]): TFunction {
+export function functionType(type1: Type, type2: Type, ...types: Type[]): TFunction {
     const [last1, last2, ...rest] = [type1, type2, ...types].reverse();
     return rest.reduce(
-        (acc: TFunction, type) => functionType(type, acc),
-        functionType(last2, last1),
+        (acc: TFunction, type) => uncurriedFunctionType(type, acc),
+        uncurriedFunctionType(last2, last1),
     );
 }
 
@@ -63,4 +55,12 @@ export function freeTypeVars(type: Type): Set<string> {
     default:
         return assertUnreachable(type);
     }
+}
+
+function uncurriedFunctionType(input: Type, output: Type): TFunction {
+    return {
+        kind: TypeKind.Function,
+        input,
+        output,
+    };
 }

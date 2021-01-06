@@ -36,8 +36,8 @@ func quicksort(array) =
         higherHalf = rest |> filter(`>= pivot`) |> quicksort;
     in [*lowerHalf, pivot, *higherHalf]
 
-evens = [2,4,6]
-odds = [1,3,5]
+// put multiple statements on the same line using semicolons
+evens = [2,4,6]; odds = [1,3,5]
 
 // join arrays using the concatenation operators...
 concatArray = [0] ++ evens ++ [0] ++ odds ++ [0]

@@ -1,5 +1,5 @@
 Module =
-    EmptyLine* head:Statement tail:(EmptyLine+ Statement)* _m_ {
+    EmptyLine* head:Statement tail:(StatementDelimiter+ Statement)* StatementDelimiter* _m_ {
         const statements = tail.reduce((statements, current) => [...statements, current[1]], [head]);
         return makeModule(statements);
     }
@@ -11,8 +11,9 @@ Statement =
     Assignment
     / FunctionDefinition
 
-StatementNewline =
-    Statement LineEnd
+StatementDelimiter =
+    (_m_ ";" _m_)+
+    / EmptyLine
 
 Assignment =
     name:Identifier _m_ "=" _m_ expression:Expression {

@@ -864,24 +864,59 @@ describe('parser', function () {
             const result = parseModule('func add(x, y) = x + y');
             const expected = makeModule([parseStatement('func add(x, y) = x + y')]);
             assert.deepStrictEqual(result, expected);
-
         });
         it('should correctly parse a one-line module with a trailing newline', function () {
             const result = parseModule('a=3\n');
-            const expected = makeModule([parseStatement('a=3')]);
+            const expected = parseModule('a=3');
+            assert.deepStrictEqual(result, expected);
+        });
+        it('should correctly parse a one-line module with a trailing semicolon', function () {
+            const result = parseModule('a=3;');
+            const expected = parseModule('a=3');
+            assert.deepStrictEqual(result, expected);
+        });
+        it('should be space insensitive around semicolons', function () {
+            const result = parseModule('a=3\t \n \t  ;   \n');
+            const expected = parseModule('a=3;');
             assert.deepStrictEqual(result, expected);
         });
         it('should correctly parse a one-line module with a trailing and preceding newlines', function () {
             const result = parseModule('\n\na=3\n\n');
-            const expected = makeModule([parseStatement('a=3')]);
+            const expected = parseModule('a=3;');
             assert.deepStrictEqual(result, expected);
+        });
+        it('should fail when parsing indented statements', function () {
+            assert.throws(() => parseModule('   a=3'));
+        });
+        it('should fail when parsing a module starting with a semicolon', function () {
+            assert.throws(() => parseModule(';a=3'));
         });
         it('should correctly parse a one-line module with trailing and preceding spaces', function () {
-            const result = parseModule('\n   \na=3  \n   \n   \n');
-            const expected = makeModule([parseStatement('a=3')]);
+            const result = parseModule('\n  \t \na=3 \t \n \t  \n   \n');
+            const expected = parseModule('a=3;');
             assert.deepStrictEqual(result, expected);
         });
-        it('should correctly parse a module', function () {
+        it('should ignore multiple semicolons', function () {
+            const result = parseModule('a=2;;;b=3');
+            const expected = parseModule('a=2;b=3');
+            assert.deepStrictEqual(result, expected);
+        });
+        it('should correctly parse a module that uses semicolons as delimiters', function () {
+            const result = parseModule( 'func square(x)=x*x;func add(x,y)=x+y;func larger(a,b)=a if a>=b else b;start=5;a=2;b=8 if a>2 && start==5 else 9;result=square(start) * 3 - larger(a,b)');
+            const expected = makeModule(
+                [
+                    parseStatement('func square(x)=x*x'),
+                    parseStatement('func add(x,y)=x+y'),
+                    parseStatement('func larger(a,b)=a if a>=b else b'),
+                    parseStatement('start=5'),
+                    parseStatement('a=2'),
+                    parseStatement('b=8 if a>2 && start==5 else 9'),
+                    parseStatement('result=square(start) * 3 - larger(a,b)'),
+                ],
+            );
+            assert.deepStrictEqual(result, expected);
+        });
+        it('should correctly parse a module that uses line breaks as delimiters', function () {
             const result = parseModule( `func square(x)=x*x
 func add(x,y)=x+y
 func larger(a,b)=a if a>=b else b
@@ -889,6 +924,26 @@ start=5
 a=2
 b=8 if a>2 && start==5 else 9
 result=square(start) * 3 - larger(a,b)`);
+            const expected = makeModule(
+                [
+                    parseStatement('func square(x)=x*x'),
+                    parseStatement('func add(x,y)=x+y'),
+                    parseStatement('func larger(a,b)=a if a>=b else b'),
+                    parseStatement('start=5'),
+                    parseStatement('a=2'),
+                    parseStatement('b=8 if a>2 && start==5 else 9'),
+                    parseStatement('result=square(start) * 3 - larger(a,b)'),
+                ],
+            );
+            assert.deepStrictEqual(result, expected);
+        });
+        it('should correctly parse a module that mixes line breaks and semicolons', function () {
+            const result = parseModule( `func square(x)=x*x
+func add(x,y)=x+y
+func larger(a,b)=a if a>=b else b
+start=5;a=2
+b=8 if a>2 && start==5 else 9;
+result=square(start) * 3 - larger(a,b);`);
             const expected = makeModule(
                 [
                     parseStatement('func square(x)=x*x'),
@@ -934,17 +989,17 @@ func
             
            
 func        add(  x, y)    =x  +
-y    
+y    ;
 func 
     larger             ( a, b )=    a if    
-    a>= b else b  
+    a>= b else b  ;
         
         
 start     =      5
-    
+   ; 
     
 
-a=2  
+a=2  ;
 
 b=  8 if 
  a>  2  && start 
@@ -956,7 +1011,7 @@ b=  8 if
 result       
         = square(    start  )
     * 3 - larger
-    (   a, b)        
+    (   a, b)        ;
      
         `);
             const expected = makeModule(

@@ -133,6 +133,12 @@ ${indent(1)}};
     [BuiltinName.Length]: `function (array) {
 ${indent(1)}return array.length;
 }`,
+    [BuiltinName.ToLower]: `function (str) {
+${indent(1)}return str.toLowerCase();
+}`,
+    [BuiltinName.ToUpper]: `function (str) {
+${indent(1)}return str.toUpperCase();
+}`,
 };
 
 export const builtinDefinitions = Object.entries(builtinFunctionDefinitions)

@@ -1,5 +1,5 @@
 import { BuiltinName } from '../../builtins';
-import { BOOL_TYPE, NUMBER_TYPE, STRING_TYPE } from '../types/common';
+import { BOOL_TYPE, CHARACTER_TYPE, NUMBER_TYPE, STRING_TYPE } from '../types/common';
 import { arrayType, functionType, TupleParams, tupleType, typeVar } from '../types/builders';
 import { Scheme } from '../types/scheme';
 import { functionScheme } from './helpers';
@@ -99,7 +99,14 @@ export const builtins: Record<BuiltinName, Scheme> = {
         arrayType(typeVar('u1')),
         NUMBER_TYPE,
     ),
-
+    [BuiltinName.ToLower]: functionScheme(
+        CHARACTER_TYPE,
+        CHARACTER_TYPE,
+    ),
+    [BuiltinName.ToUpper]: functionScheme(
+        CHARACTER_TYPE,
+        CHARACTER_TYPE,
+    ),
 };
 
 function tupleConstructorScheme(size: TupleParams['length']) {

@@ -46,6 +46,16 @@ export type PropsOfType<TObject, TType> = {
 }[keyof TObject];
 
 /**
+ * Constructs a union type for arrays holding type values of type 'TValue' with a fixed length
+ * of 'TType'.
+ */
+export type TupleOf<TValue, TSize extends number> = TSize extends TSize
+    ?  _TupleOf<TValue, TSize, []> : never;
+
+type _TupleOf<TValue, TSize extends number, R extends unknown[]> = R['length'] extends TSize
+    ? R : _TupleOf<TValue, TSize, [TValue, ...R]>;
+
+/**
  * Similar semantics as in Rust and Swift.
  */
 export type Result<Value, Error> = Success<Value> | Failure<Error>;

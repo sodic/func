@@ -50,6 +50,7 @@ function transpileLiteral(literal: Literal): Code {
             return String(value.value);
         case LiteralKind.Number:
             return String(value.value);
+        case LiteralKind.Character:
         case LiteralKind.String:
             return `'${value.value}'`;
         case LiteralKind.Array:

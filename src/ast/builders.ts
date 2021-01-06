@@ -36,17 +36,17 @@ export function makeBoolean(value: boolean): Literal {
     };
 }
 
-// todo check notes to improve this
-export function makeString(value: string): Literal {
+export function makeCharacter(value: string): Literal {
     return {
         kind: ExpressionKind.Literal,
         value: {
-            kind: LiteralKind.String,
+            kind: LiteralKind.Character,
             value,
         },
     };
 }
 
+// todo check notes to improve this
 export function makeBigInt(value: bigint): Literal {
     return {
         kind: ExpressionKind.Literal,
@@ -59,6 +59,17 @@ export function makeBigInt(value: bigint): Literal {
 
 export function makeArray(...parts: ArrayPart[]): Expression {
     return isRegularArrayLiteral(parts) ? makeArrayLiteral(parts) : makeArraySpread(parts);
+}
+
+// strings are character arrays
+export function makeString(value: string): Literal {
+    return {
+        kind: ExpressionKind.Literal,
+        value: {
+            kind: LiteralKind.String,
+            value,
+        },
+    };
 }
 
 export function makePolymorphicTypeLiteral(constructor: string, parameters: NonEmpty<Expression[]>): Application {
@@ -269,7 +280,7 @@ function makeArraySpread(parts: ArrayPart[]): Expression {
     const [head, ...tail] = groupArray(parts).reverse();
     return tail.reduce(
         (acc: Expression, part) => makeCall(
-            makeIdentifierReference('concat'), // todo can't import name because of const enum
+            makeIdentifierReference('++'), // todo can't import name because of const enum
             [part, acc],
         ),
         head,

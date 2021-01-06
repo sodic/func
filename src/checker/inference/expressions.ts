@@ -10,9 +10,9 @@ import {
     LiteralKind,
     ArrayLiteral,
 } from '../../ast';
-import { Constructor, TFunction, TVariable, Type } from '../types/type';
-import { BIGINT_TYPE, BOOL_TYPE, NUMBER_TYPE, STRING_TYPE } from '../types/common';
-import { functionType, polymorphicType, unboundScheme } from '../types/builders';
+import { TFunction, TVariable, Type } from '../types/type';
+import { BIGINT_TYPE, BOOL_TYPE, CHARACTER_TYPE, NUMBER_TYPE, STRING_TYPE } from '../types/common';
+import { arrayType, functionType, unboundScheme } from '../types/builders';
 import { composeSubstitutions, EMPTY_SUBSTITUTION, substituteInContext, substituteInType } from '../substitution';
 import { unify } from '../unification';
 import { assertUnreachable } from '../../util';
@@ -61,10 +61,12 @@ export function getExpressionInferer(uniqueTypeVar: () => TVariable = typeVarGen
             return { substitution: EMPTY_SUBSTITUTION, type: NUMBER_TYPE };
         case LiteralKind.Boolean:
             return { substitution: EMPTY_SUBSTITUTION, type: BOOL_TYPE };
-        case LiteralKind.String:
-            return { substitution: EMPTY_SUBSTITUTION, type: STRING_TYPE };
+        case LiteralKind.Character:
+            return { substitution: EMPTY_SUBSTITUTION, type: CHARACTER_TYPE };
         case LiteralKind.BigInt:
             return { substitution: EMPTY_SUBSTITUTION, type: BIGINT_TYPE };
+        case LiteralKind.String:
+            return { substitution: EMPTY_SUBSTITUTION, type: STRING_TYPE };
         case LiteralKind.Array:
             return inferArrayLiteral(literal.value);
         default:
@@ -82,7 +84,7 @@ export function getExpressionInferer(uniqueTypeVar: () => TVariable = typeVarGen
             );
             return {
                 substitution: typeInfo.substitution,
-                type: polymorphicType(Constructor.Array, [typeInfo.type]),
+                type: arrayType(typeInfo.type),
             };
         }
     }

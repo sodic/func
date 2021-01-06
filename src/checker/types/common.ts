@@ -1,6 +1,6 @@
-import { TBigint, TBoolean, TNumber, TString, TypeKind } from './type';
+import { TBigint, TBoolean, TCharacter, TNumber, TPolymorphic, TypeKind } from './type';
 import { Scheme } from './scheme';
-import { unboundScheme } from './builders';
+import { arrayType, unboundScheme } from './builders';
 
 export const NUMBER_TYPE: TNumber = {
     kind: TypeKind.Number,
@@ -10,9 +10,11 @@ export const BOOL_TYPE: TBoolean = {
     kind: TypeKind.Boolean,
 };
 
-export const STRING_TYPE: TString = {
-    kind: TypeKind.String,
+export const CHARACTER_TYPE: TCharacter = {
+    kind: TypeKind.Character,
 };
+
+export const STRING_TYPE: TPolymorphic = arrayType(CHARACTER_TYPE);
 
 export const BIGINT_TYPE: TBigint = {
     kind: TypeKind.BigInt,

@@ -1,6 +1,14 @@
 import { TVariable, Type } from '../types/type';
 import { difference } from '../../util';
-import { functionType, freeTypeVars, polymorphicType, typeVar } from '../types/builders';
+import {
+    functionType,
+    freeTypeVars,
+    polymorphicType,
+    typeVar,
+    arrayType,
+    tupleType,
+    TupleParams,
+} from '../types/builders';
 import { EMPTY_SUBSTITUTION, substituteInType } from '../substitution';
 import { Scheme } from '../types/scheme';
 import { freeTypeVarsContext } from '../types/helpers';
@@ -35,6 +43,14 @@ export function functionScheme(type1: Type, type2: Type, ...types: Type[]): Sche
 
 export function polymorphicScheme(constructor: string, parameters: Type[]): Scheme {
     return generalize({}, polymorphicType(constructor, parameters));
+}
+
+export function arrayScheme(type: Type): Scheme {
+    return generalize({}, arrayType(type));
+}
+
+export function tupleScheme(...types: TupleParams): Scheme {
+    return generalize({}, tupleType(...types));
 }
 
 export function generalize(context: Context, type: Type): Scheme {

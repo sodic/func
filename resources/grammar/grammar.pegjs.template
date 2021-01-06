@@ -122,7 +122,7 @@ Sum =
     }
 
 AdditiveOperator =
-    op:("+" / "-") {
+    op:("++" / "+" / "-") {
         return makeIdentifierReference(op);
     }
 
@@ -180,6 +180,7 @@ PrimaryExpression =
 Literal =
     NumberLiteral
     / BooleanLiteral
+    / CharacterLiteral
     / StringLiteral
     / TupleLiteral
     / ArrayLiteral
@@ -265,7 +266,12 @@ BooleanLiteral "boolean literal" =
     "True" { return makeBoolean(true); }
     / "False" { return makeBoolean(false); }
 
-StringLiteral "string" =
+CharacterLiteral "character literal" =
+ "'" !("'" / "\\" / LineTerminator) char:Character "'" {
+         return makeCharacter(char);
+     }
+
+StringLiteral "string literal" =
     '"' chars:StringCharacter* '"' {
         return makeString(chars.join(""));
     }

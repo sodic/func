@@ -25,7 +25,7 @@ export function substituteInType(sub: Substitution, type: Type): Type {
         return type;
     case TypeKind.BigInt:
         return type;
-    case TypeKind.String:
+    case TypeKind.Character:
         return type;
     case TypeKind.Polymorphic:
         return polymorphicType(type.constructor, type.parameters.map(type => substituteInType(sub, type)));

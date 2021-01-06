@@ -1,5 +1,5 @@
-import { TFunction, TPolymorphic, TVariable, Type, TypeKind } from './type';
-import { assertUnreachable, union } from '../../util';
+import { Constructor, TFunction, TPolymorphic, TVariable, Type, TypeKind } from './type';
+import { assertUnreachable, TupleOf, union } from '../../util';
 import { Scheme } from './scheme';
 
 export function typeVar(name: string): TVariable {
@@ -25,6 +25,17 @@ export function polymorphicType(constructor: string, parameters: Type[]): TPolym
     };
 }
 
+export function arrayType(type: Type): TPolymorphic {
+    return polymorphicType(Constructor.Array, [type]);
+}
+
+export type TupleParams = TupleOf<Type, keyof typeof Constructor.Tuple>;
+
+export function tupleType(...types: TupleParams ): TPolymorphic {
+    const arity = types.length;
+    return polymorphicType(Constructor.Tuple[arity], types);
+}
+
 export function unboundScheme(type: Type): Scheme {
     return makeScheme([], type);
 }
@@ -38,9 +49,9 @@ export function makeScheme(bound: string[], type: Type): Scheme {
 
 export function freeTypeVars(type: Type): Set<string> {
     switch (type.kind) {
-    case TypeKind.Boolean:
-    case TypeKind.String:
     case TypeKind.Number:
+    case TypeKind.Boolean:
+    case TypeKind.Character:
     case TypeKind.BigInt:
         return new Set();
     case TypeKind.Variable:

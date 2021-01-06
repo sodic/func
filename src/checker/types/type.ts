@@ -11,7 +11,7 @@ export enum TypeKind {
     Boolean = 'Boolean',
     Number = 'Number',
     BigInt = 'BigInt',
-    String = 'String',
+    Character = 'Character',
     Function = 'Function',
     Polymorphic = 'Polymorphic',
 }
@@ -50,7 +50,7 @@ export interface TPolymorphic {
 export type TLiteral = TBoolean
     | TBigint
     | TNumber
-    | TString;
+    | TCharacter;
 
 export interface TBoolean {
     kind: TypeKind.Boolean;
@@ -64,8 +64,8 @@ export interface TNumber {
     kind: TypeKind.Number;
 }
 
-export interface TString {
-    kind: TypeKind.String;
+export interface TCharacter {
+    kind: TypeKind.Character;
 }
 
 export function showType(type: Type): string {
@@ -73,11 +73,11 @@ export function showType(type: Type): string {
     case TypeKind.Number:
         return 'Number';
     case TypeKind.Boolean:
-        return 'Boolean';
+        return 'Bool';
+    case TypeKind.Character:
+        return 'Char';
     case TypeKind.BigInt:
         return 'Bigint';
-    case TypeKind.String:
-        return 'String';
     case TypeKind.Function:
         return showFunction(type);
     case TypeKind.Variable:

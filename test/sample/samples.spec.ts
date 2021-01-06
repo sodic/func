@@ -2,7 +2,7 @@ import { promises as fs } from 'fs';
 import assert from 'assert';
 import { compileVerbose } from '../../src';
 import { isFailure } from '../../src/util';
-import { functionScheme, polymorphicScheme } from '../../src/checker/inference/helpers';
+import { arrayScheme, functionScheme, tupleScheme } from '../../src/checker/inference/helpers';
 import {
     BOOL_SCHEME,
     BOOL_TYPE,
@@ -12,9 +12,8 @@ import {
     STRING_TYPE,
 } from '../../src/checker/types/common';
 import { Scheme, showScheme } from '../../src/checker/types/scheme';
-import { functionType, polymorphicType, typeVar } from '../../src/checker/types/builders';
+import { arrayType, functionType, tupleType, typeVar } from '../../src/checker/types/builders';
 import { evaluateAndRead } from '../helpers';
-import { Constructor } from '../../src/checker/types/type';
 
 const specification: TestDefinition[] = [
     {
@@ -85,43 +84,35 @@ const specification: TestDefinition[] = [
             calcCircumference: functionScheme(NUMBER_TYPE, NUMBER_TYPE),
             area: NUMBER_SCHEME,
             circumference: NUMBER_SCHEME,
-            triangleA: polymorphicScheme(Constructor.Array, [
-                polymorphicType(Constructor.Tuple[2], [NUMBER_TYPE, NUMBER_TYPE]),
-            ]),
-            triangleB: polymorphicScheme(Constructor.Array, [
-                polymorphicType(Constructor.Tuple[2], [NUMBER_TYPE, NUMBER_TYPE]),
-            ]),
+            triangleA: arrayScheme(tupleType(NUMBER_TYPE, NUMBER_TYPE)),
+            triangleB: arrayScheme(tupleType(NUMBER_TYPE, NUMBER_TYPE)),
             euclidDistance: functionScheme(
-                polymorphicType(Constructor.Tuple[2], [NUMBER_TYPE, NUMBER_TYPE]),
-                polymorphicType(Constructor.Tuple[2], [NUMBER_TYPE, NUMBER_TYPE]),
+                tupleType(NUMBER_TYPE, NUMBER_TYPE),
+                tupleType(NUMBER_TYPE, NUMBER_TYPE),
                 NUMBER_TYPE,
             ),
             furthestFrom: functionScheme(
-                polymorphicType(Constructor.Tuple[2], [NUMBER_TYPE, NUMBER_TYPE]),
-                polymorphicType(Constructor.Array, [
-                    polymorphicType(Constructor.Tuple[2], [NUMBER_TYPE, NUMBER_TYPE]),
-                ]),
-                polymorphicType(Constructor.Tuple[2], [NUMBER_TYPE, NUMBER_TYPE]),
+                tupleType(NUMBER_TYPE, NUMBER_TYPE),
+                arrayType(tupleType(NUMBER_TYPE, NUMBER_TYPE)),
+                tupleType(NUMBER_TYPE, NUMBER_TYPE),
             ),
             addPoints: functionScheme(
-                polymorphicType(Constructor.Tuple[2], [NUMBER_TYPE, NUMBER_TYPE]),
-                polymorphicType(Constructor.Tuple[2], [NUMBER_TYPE, NUMBER_TYPE]),
-                polymorphicType(Constructor.Tuple[2], [NUMBER_TYPE, NUMBER_TYPE]),
+                tupleType(NUMBER_TYPE, NUMBER_TYPE),
+                tupleType(NUMBER_TYPE, NUMBER_TYPE),
+                tupleType(NUMBER_TYPE, NUMBER_TYPE),
             ),
             mapPair: functionScheme(
                 functionType(typeVar('u1'), typeVar('u2')),
-                polymorphicType(Constructor.Tuple[2], [typeVar('u1'), typeVar('u1')]),
-                polymorphicType(Constructor.Tuple[2], [typeVar('u2'), typeVar('u2')]),
+                tupleType(typeVar('u1'), typeVar('u1')),
+                tupleType(typeVar('u2'), typeVar('u2')),
             ),
             centroidOf: functionScheme(
-                polymorphicType(Constructor.Array, [
-                    polymorphicType(Constructor.Tuple[2], [NUMBER_TYPE, NUMBER_TYPE]),
-                ]),
-                polymorphicType(Constructor.Tuple[2], [NUMBER_TYPE, NUMBER_TYPE]),
+                arrayType(tupleType(NUMBER_TYPE, NUMBER_TYPE)),
+                tupleType(NUMBER_TYPE, NUMBER_TYPE),
             ),
-            centroidA: polymorphicScheme(Constructor.Tuple[2], [NUMBER_TYPE, NUMBER_TYPE]),
-            centroidB: polymorphicScheme(Constructor.Tuple[2], [NUMBER_TYPE, NUMBER_TYPE]),
-            furthestFromCenter: polymorphicScheme(Constructor.Tuple[2], [NUMBER_TYPE, NUMBER_TYPE]),
+            centroidA: tupleScheme(NUMBER_TYPE, NUMBER_TYPE),
+            centroidB: tupleScheme(NUMBER_TYPE, NUMBER_TYPE),
+            furthestFromCenter: tupleScheme(NUMBER_TYPE, NUMBER_TYPE),
         },
         expectedValues: {
             pi: 3.14159265359,
@@ -274,10 +265,10 @@ const specification: TestDefinition[] = [
     {
         file: 'tuples',
         expectedTypes: {
-            luka: polymorphicScheme(Constructor.Tuple[2], [STRING_TYPE, NUMBER_TYPE]),
-            marko: polymorphicScheme(Constructor.Tuple[2], [STRING_TYPE, NUMBER_TYPE]),
+            luka: tupleScheme(STRING_TYPE, NUMBER_TYPE),
+            marko: tupleScheme(STRING_TYPE, NUMBER_TYPE),
             isAdult: functionScheme(
-                polymorphicType(Constructor.Tuple[2], [typeVar('u1'), NUMBER_TYPE]),
+                tupleType(typeVar('u1'), NUMBER_TYPE),
                 BOOL_TYPE,
             ),
             lukaReport: STRING_SCHEME,
@@ -299,62 +290,54 @@ const specification: TestDefinition[] = [
             accumulate: functionScheme(
                 functionType(typeVar('u1'), typeVar('u2'), typeVar('u2')),
                 typeVar('u2'),
-                polymorphicType(Constructor.Array, [typeVar('u1')]),
+                arrayType(typeVar('u1')),
                 typeVar('u2'),
             ),
-            getSumOfSquares: functionScheme(
-                polymorphicType(Constructor.Array, [NUMBER_TYPE]),
-                NUMBER_TYPE,
-            ),
-            reverse1: functionScheme(
-                polymorphicType(Constructor.Array, [typeVar('u1')]),
-                polymorphicType(Constructor.Array, [typeVar('u1')]),
-            ),
-            reverse2: functionScheme(
-                polymorphicType(Constructor.Array, [typeVar('u1')]),
-                polymorphicType(Constructor.Array, [typeVar('u1')]),
-            ),
+            getSumOfSquares: functionScheme(arrayType(NUMBER_TYPE), NUMBER_TYPE),
+            reverse1: functionScheme(arrayType(typeVar('u1')), arrayType(typeVar('u1'))),
+            reverse2: functionScheme(arrayType(typeVar('u1')), arrayType(typeVar('u1'))),
             flatten1: functionScheme(
-                polymorphicType(Constructor.Array, [
-                    polymorphicType(Constructor.Array, [typeVar('u1')]),
-                ]),
-                polymorphicType(Constructor.Array, [typeVar('u1')]),
+                arrayType(
+                    arrayType(typeVar('u1')),
+                ),
+                arrayType(typeVar('u1')),
             ),
             flatten2: functionScheme(
-                polymorphicType(Constructor.Array, [
-                    polymorphicType(Constructor.Array, [typeVar('u1')]),
-                ]),
-                polymorphicType(Constructor.Array, [typeVar('u1')]),
+                arrayType(
+                    arrayType(typeVar('u1')),
+                ),
+                arrayType(typeVar('u1')),
             ),
-            quicksort: functionScheme(
-                polymorphicType(Constructor.Array, [NUMBER_TYPE]),
-                polymorphicType(Constructor.Array, [NUMBER_TYPE]),
+            quicksort: functionScheme(arrayType(NUMBER_TYPE), arrayType(NUMBER_TYPE)),
+            evens: arrayScheme(NUMBER_TYPE),
+            odds: arrayScheme(NUMBER_TYPE),
+            concatArray: arrayScheme(NUMBER_TYPE),
+            spread: arrayScheme(NUMBER_TYPE),
+            concatString: STRING_SCHEME,
+            numbers: arrayScheme(NUMBER_TYPE),
+            nested: arrayScheme(
+                arrayType(
+                    tupleType(NUMBER_TYPE, STRING_TYPE),
+                ),
             ),
-            evens: polymorphicScheme(Constructor.Array, [NUMBER_TYPE]),
-            odds: polymorphicScheme(Constructor.Array, [NUMBER_TYPE]),
-            spread: polymorphicScheme(Constructor.Array, [NUMBER_TYPE]),
-            numbers: polymorphicScheme(Constructor.Array, [NUMBER_TYPE]),
-            nested: polymorphicScheme(Constructor.Array, [
-                polymorphicType(Constructor.Array, [
-                    polymorphicType(Constructor.Tuple[2], [NUMBER_TYPE, STRING_TYPE]),
-                ]),
-            ]),
-            sorted: polymorphicScheme(Constructor.Array, [NUMBER_TYPE]),
-            reversed1: polymorphicScheme(Constructor.Array, [NUMBER_TYPE]),
-            reversed2: polymorphicScheme(Constructor.Array, [NUMBER_TYPE]),
-            flattened1: polymorphicScheme(Constructor.Array, [
-                polymorphicType(Constructor.Tuple[2], [NUMBER_TYPE, STRING_TYPE]),
-            ]),
-            flattened2: polymorphicScheme(Constructor.Array, [
-                polymorphicType(Constructor.Tuple[2], [NUMBER_TYPE, STRING_TYPE]),
-            ]),
+            sorted: arrayScheme(NUMBER_TYPE),
+            reversed1: arrayScheme(NUMBER_TYPE),
+            reversed2: arrayScheme(NUMBER_TYPE),
+            flattened1: arrayScheme(
+                tupleType(NUMBER_TYPE, STRING_TYPE),
+            ),
+            flattened2: arrayScheme(
+                tupleType(NUMBER_TYPE, STRING_TYPE),
+            ),
             sumOfSquares: NUMBER_SCHEME,
             largestEvenSquare: NUMBER_SCHEME,
         },
         expectedValues: {
             evens: [2, 4, 6],
             odds: [1, 3, 5],
+            concatArray: [0, 2, 4, 6, 0, 1, 3, 5, 0],
             spread: [0, 2, 4, 6, 0, 1, 3, 5, 0],
+            concatString: 'One, Two',
             numbers: [1, 3, 12, 4, 2, 11, 31, 7, 8],
             sorted: [1, 2, 3, 4, 7, 8, 11, 12, 31],
             reversed1: [8, 7, 31, 11, 2, 4, 12, 3, 1],
@@ -370,28 +353,28 @@ const specification: TestDefinition[] = [
         expectedTypes: {
             myMap: functionScheme(
                 functionType(typeVar('u1'), typeVar('u2')),
-                polymorphicType(Constructor.Array, [typeVar('u1')]),
-                polymorphicType(Constructor.Array, [typeVar('u2')]),
+                arrayType(typeVar('u1')),
+                arrayType(typeVar('u2')),
             ),
             myFilter: functionScheme(
                 functionType(typeVar('u1'), BOOL_TYPE),
-                polymorphicType(Constructor.Array, [typeVar('u1')]),
-                polymorphicType(Constructor.Array, [typeVar('u1')]),
+                arrayType(typeVar('u1')),
+                arrayType(typeVar('u1')),
             ),
             myReduce: functionScheme(
                 functionType(typeVar('u1'), typeVar('u2'), typeVar('u1')),
                 typeVar('u1'),
-                polymorphicType(Constructor.Array, [typeVar('u2')]),
+                arrayType(typeVar('u2')),
                 typeVar('u1'),
             ),
             myReduce0: functionScheme(
                 functionType(typeVar('u1'), typeVar('u1'), typeVar('u1')),
-                polymorphicType(Constructor.Array, [typeVar('u1')]),
+                arrayType(typeVar('u1')),
                 typeVar('u1'),
             ),
             step: functionScheme(NUMBER_TYPE, NUMBER_TYPE, NUMBER_TYPE),
             min: functionScheme(NUMBER_TYPE, NUMBER_TYPE, NUMBER_TYPE),
-            numbers: polymorphicScheme(Constructor.Array, [NUMBER_TYPE]),
+            numbers: arrayScheme(NUMBER_TYPE),
             sum: NUMBER_SCHEME,
             mySum: NUMBER_SCHEME,
             isSumOk: BOOL_SCHEME,
@@ -422,37 +405,33 @@ const specification: TestDefinition[] = [
             sub2: functionScheme(NUMBER_TYPE, NUMBER_TYPE, NUMBER_TYPE),
             mod1: functionScheme(NUMBER_TYPE, NUMBER_TYPE, NUMBER_TYPE),
             mod2: functionScheme(NUMBER_TYPE, NUMBER_TYPE, NUMBER_TYPE),
-            samples: polymorphicScheme(Constructor.Array, [
-                polymorphicType(Constructor.Tuple[2], [NUMBER_TYPE, NUMBER_TYPE]),
-            ]),
+            samples: arrayScheme(
+                tupleType(NUMBER_TYPE, NUMBER_TYPE),
+            ),
             all: functionScheme(
                 functionType(typeVar('u1'), BOOL_TYPE),
-                polymorphicType(Constructor.Array, [typeVar('u1')]),
+                arrayType(typeVar('u1')),
                 BOOL_TYPE,
             ),
             areAllEqual: functionScheme(
-                polymorphicType(Constructor.Array, [NUMBER_TYPE]),
+                arrayType(NUMBER_TYPE),
                 BOOL_TYPE,
             ),
-            areAllTrue: functionScheme(polymorphicType(Constructor.Array, [BOOL_TYPE]), BOOL_TYPE),
+            areAllTrue: functionScheme(arrayType(BOOL_TYPE), BOOL_TYPE),
             uncurry: functionScheme(
                 functionType(typeVar('u1'), typeVar('u2'), typeVar('u3')),
-                polymorphicType(Constructor.Tuple[2], [typeVar('u1'), typeVar('u2')]),
+                tupleType(typeVar('u1'), typeVar('u2')),
                 typeVar('u3'),
             ),
             areFunctionsEquivalent: BOOL_SCHEME,
-            conditions: polymorphicScheme(
-                Constructor.Array,
-                [
-                    functionType(
-                        polymorphicType(Constructor.Tuple[2], [NUMBER_TYPE, NUMBER_TYPE]),
-                        BOOL_TYPE,
-                    ),
-                ],
+            conditions: arrayScheme(
+                functionType(
+                    tupleType(NUMBER_TYPE, NUMBER_TYPE),
+                    BOOL_TYPE,
+                ),
             ),
-            filteredSamples: polymorphicScheme(
-                Constructor.Array,
-                [polymorphicType(Constructor.Tuple[2], [NUMBER_TYPE, NUMBER_TYPE])],
+            filteredSamples: arrayScheme(
+                tupleType(NUMBER_TYPE, NUMBER_TYPE),
             ),
         },
         expectedValues: {

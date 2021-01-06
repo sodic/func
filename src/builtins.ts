@@ -34,7 +34,7 @@ export enum BuiltinName {
     Head = 'head',
     Tail = 'tail',
     IsEmpty = 'isEmpty',
-    Concat = 'concat',
+    Concat = '++',
     Map = 'map',
     Filter = 'filter',
     Reduce = 'reduce',

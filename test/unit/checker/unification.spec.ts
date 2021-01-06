@@ -97,14 +97,14 @@ describe('unification', function () {
 
         });
         it('should correctly unify two polymorphic types', function () {
-            const t1 = polymorphicType('Constructor', [
+            const t1 = polymorphicType('SomeConstructor', [
                 NUMBER_TYPE,
                 typeVar('u1'),
                 functionType(typeVar('u1'), typeVar('u2')),
                 typeVar('u4'),
                 BIGINT_TYPE,
             ]);
-            const t2 = polymorphicType('Constructor', [
+            const t2 = polymorphicType('SomeConstructor', [
                 typeVar('u1'),
                 typeVar('u1'),
                 functionType(typeVar('u1'), STRING_TYPE),

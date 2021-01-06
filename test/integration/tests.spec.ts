@@ -4,12 +4,11 @@ import { parseExpression, parseModule, parseStatement } from '../../src/parser';
 import { builtins } from '../../src/checker/inference/builtins';
 import { inferStatement } from '../../src/checker/inference/statements';
 import { BOOL_TYPE, NUMBER_TYPE, STRING_TYPE } from '../../src/checker/types/common';
-import { functionType, polymorphicType, typeVar, unboundScheme } from '../../src/checker/types/builders';
+import { functionType, tupleType, typeVar, unboundScheme } from '../../src/checker/types/builders';
 import { inferModule } from '../../src/checker/inference/module';
 import { functionScheme } from '../../src/checker/inference/helpers';
 import { Context } from '../../src/checker/types/context';
 import { BuiltinName } from '../../src/builtins';
-import { Constructor } from '../../src/checker/types/type';
 
 describe('source type inference', function () {
     describe('expression inference', function () {
@@ -36,7 +35,7 @@ describe('source type inference', function () {
         });
         it('should correctly infer the type of a builtin tuple', function () {
             const { type }  = inferExpressionSource('(12 + 3, toString(True), False)');
-            const expected = polymorphicType(Constructor.Tuple[3], [NUMBER_TYPE, STRING_TYPE, BOOL_TYPE]);
+            const expected = tupleType(NUMBER_TYPE, STRING_TYPE, BOOL_TYPE);
             assert.deepStrictEqual(type, expected);
         });
     });
@@ -71,7 +70,7 @@ describe('source type inference', function () {
         it('should correctly infer the type of a function operating on tuples', function () {
             const context = inferStatementSource('func isAdult(person) = second(person) > 18');
             const expected = functionScheme(
-                polymorphicType(Constructor.Tuple[2], [typeVar('u1'), NUMBER_TYPE]),
+                tupleType(typeVar('u1'), NUMBER_TYPE),
                 BOOL_TYPE,
             );
             assert.deepStrictEqual(context['isAdult'], expected);

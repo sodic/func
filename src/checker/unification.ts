@@ -26,7 +26,7 @@ export function unify(t1: Type, t2: Type): Substitution {
     } else if (t1.kind === TypeKind.BigInt && t2.kind === TypeKind.BigInt) {
         return EMPTY_SUBSTITUTION;
 
-    } else if (t1.kind === TypeKind.String && t2.kind === TypeKind.String) {
+    } else if (t1.kind === TypeKind.Character && t2.kind === TypeKind.Character) {
         return EMPTY_SUBSTITUTION;
 
     } else if (t1.kind === TypeKind.Variable) {

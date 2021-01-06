@@ -798,6 +798,17 @@ describe('parser', function () {
             const expected = parseExpression('[1,*a,2,3,*[9,0],4]');
             assert.deepStrictEqual(result, expected);
         });
+        it('should correctly parse array concatenation', function () {
+            const result = parseExpression('a++[1,2,3]');
+            const expected = makeCall(
+                Builtin.Concat,
+                [
+                    parseExpression('a'),
+                    parseExpression('[1,2,3]'),
+                ],
+            );
+            assert.deepStrictEqual(result, expected);
+        });
     });
 
     describe('#parseStatement', function () {

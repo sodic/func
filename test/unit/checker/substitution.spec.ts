@@ -28,7 +28,7 @@ describe('substitution', function () {
             assert.deepStrictEqual(result, expected);
         });
         it('should correctly substitute in a general polymorphic type', function () {
-            const t = polymorphicType('Constructor', [
+            const t = polymorphicType('SomeConstructor', [
                 NUMBER_TYPE,
                 typeVar('u1'),
                 functionType(typeVar('u1'), typeVar('u2')),
@@ -38,7 +38,7 @@ describe('substitution', function () {
                 'u2': functionType(STRING_TYPE, NUMBER_TYPE),
             };
             const result = substituteInType(substitution, t);
-            const expected = polymorphicType('Constructor', [
+            const expected = polymorphicType('SomeConstructor', [
                 NUMBER_TYPE,
                 BIGINT_TYPE,
                 functionType(BIGINT_TYPE, STRING_TYPE, NUMBER_TYPE),

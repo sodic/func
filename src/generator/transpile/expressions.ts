@@ -137,8 +137,8 @@ function transpileBinaryExpression(application: TranspiledAsBinaryExpression, de
 function transpileRegularCall(application: Application, depth: number): Code {
     const { callee, argument } = application;
 
-    const calleeCode = transpileExpression(callee, depth + 1);
-    const argCode = transpileExpression(argument, depth + 1);
+    const calleeCode = transpileExpression(callee, depth);
+    const argCode = transpileExpression(argument, depth);
 
     return clean(`${calleeCode}(${argCode})`);
 }

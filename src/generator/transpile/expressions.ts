@@ -54,7 +54,7 @@ function transpileLiteral(literal: Literal): Code {
         case LiteralKind.String:
             return `'${value.value}'`;
         case LiteralKind.Array:
-            return `[${value.contents.map(transpileExpression).join(', ')}]`;
+            return `[${value.contents.map(e => transpileExpression(e)).join(', ')}]`;
         default:
             assertUnreachable(value);
         }

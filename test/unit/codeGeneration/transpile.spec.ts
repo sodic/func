@@ -12,7 +12,7 @@ import {
     makeString,
 } from '../../../src/ast';
 import { BuiltinName } from '../../../src/builtins';
-import { transpileExpression } from '../../../src/generator/transpile/expressions';
+import { transpileExpression } from '../../../src/codeGeneration/transpile/expressions';
 
 describe('transpile', function () {
     describe('#transpileExpression', function () {

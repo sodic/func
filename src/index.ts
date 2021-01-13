@@ -1,7 +1,7 @@
 import { parse } from './parser';
-import { check } from './checker';
-import { Context } from './checker/types/context';
-import { generateJs } from './generator';
+import { check } from './semantics';
+import { Context } from './semantics/types/context';
+import { generateJs } from './codeGeneration';
 import { failure, isFailure, isSuccess, Result, success } from './util';
 
 export interface CompilerOutput {
@@ -16,7 +16,6 @@ export function compileVerbose(source: string): Result<CompilerOutput, string> {
     }
 
     const ast = parserResult.value;
-
     const types = check(ast);
     if (isFailure(types)) {
         return failure(types.error);

@@ -23,9 +23,9 @@ import {
     OPERATOR_BINDING_PARAM,
     OPERATOR_BINDING_PARAM_1,
     OPERATOR_BINDING_PARAM_2,
-} from '../../../../src/ast';
+} from '../../../src/ast';
 
-describe('helpers', function () {
+describe('builders', function () {
     describe('#buildBinaryExpressionChain', function () {
         it('should correctly build a binary expression chain when the operator is not used', function () {
             const result = buildBinaryExpressionChain(makeIdentifierReference('a'), []);

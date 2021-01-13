@@ -20,11 +20,11 @@ import {
     makeArray,
     makeOperatorBindingLeft,
 } from '../../../src/ast';
-import { getExpressionInferer, ExpressionInferrer } from '../../../src/checker/inference/expressions';
+import { getExpressionInferer, ExpressionInferrer } from '../../../src/semantics/inference/expressions';
 import {
     TypeKind,
-} from '../../../src/checker/types/type';
-import { BIGINT_TYPE, BOOL_TYPE, NUMBER_SCHEME, NUMBER_TYPE, STRING_TYPE } from '../../../src/checker/types/common';
+} from '../../../src/semantics/types/type';
+import { BIGINT_TYPE, BOOL_TYPE, NUMBER_SCHEME, NUMBER_TYPE, STRING_TYPE } from '../../../src/semantics/types/common';
 import {
     functionType,
     polymorphicType,
@@ -32,12 +32,12 @@ import {
     tupleType,
     typeVar,
     unboundScheme,
-} from '../../../src/checker/types/builders';
-import { functionScheme } from '../../../src/checker/inference/helpers';
-import { UnificationError } from '../../../src/checker/unification';
-import { Context } from '../../../src/checker/types/context';
-import { builtins } from '../../../src/checker/inference/builtins';
-import { EMPTY_SUBSTITUTION } from '../../../src/checker/substitution';
+} from '../../../src/semantics/types/builders';
+import { functionScheme } from '../../../src/semantics/inference/helpers';
+import { UnificationError } from '../../../src/semantics/unification';
+import { Context } from '../../../src/semantics/types/context';
+import { builtins } from '../../../src/semantics/inference/builtins';
+import { EMPTY_SUBSTITUTION } from '../../../src/semantics/substitution';
 
 describe('inference', function () {
     describe('#infer', function () {

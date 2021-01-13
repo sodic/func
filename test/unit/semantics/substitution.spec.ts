@@ -1,7 +1,7 @@
 import assert from 'assert';
-import { composeSubstitutions, substituteInType, Substitution } from '../../../src/checker/substitution';
-import { BIGINT_TYPE, BOOL_TYPE, NUMBER_TYPE, STRING_TYPE } from '../../../src/checker/types/common';
-import { functionType, polymorphicType, typeVar } from '../../../src/checker/types/builders';
+import { composeSubstitutions, substituteInType, Substitution } from '../../../src/semantics/substitution';
+import { BIGINT_TYPE, BOOL_TYPE, NUMBER_TYPE, STRING_TYPE } from '../../../src/semantics/types/common';
+import { functionType, polymorphicType, typeVar } from '../../../src/semantics/types/builders';
 
 describe('substitution', function () {
     describe('#substituteInType', function () {

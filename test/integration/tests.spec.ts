@@ -1,13 +1,13 @@
 import assert from 'assert';
-import { inferExpression } from '../../src/checker/inference/expressions';
+import { inferExpression } from '../../src/semantics/inference/expressions';
 import { parseExpression, parseModule, parseStatement } from '../../src/parser';
-import { builtins } from '../../src/checker/inference/builtins';
-import { inferStatement } from '../../src/checker/inference/statements';
-import { BOOL_TYPE, NUMBER_TYPE, STRING_TYPE } from '../../src/checker/types/common';
-import { functionType, tupleType, typeVar, unboundScheme } from '../../src/checker/types/builders';
-import { inferModule } from '../../src/checker/inference/module';
-import { functionScheme } from '../../src/checker/inference/helpers';
-import { Context } from '../../src/checker/types/context';
+import { builtins } from '../../src/semantics/inference/builtins';
+import { inferStatement } from '../../src/semantics/inference/statements';
+import { BOOL_TYPE, NUMBER_TYPE, STRING_TYPE } from '../../src/semantics/types/common';
+import { functionType, tupleType, typeVar, unboundScheme } from '../../src/semantics/types/builders';
+import { inferModule } from '../../src/semantics/inference/module';
+import { functionScheme } from '../../src/semantics/inference/helpers';
+import { Context } from '../../src/semantics/types/context';
 import { BuiltinName } from '../../src/builtins';
 
 describe('source type inference', function () {

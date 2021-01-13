@@ -20,7 +20,7 @@
     "ts-compile": "npx tsc",
     "build": "rm -r dist/; npm run make-parsers && npm run ts-compile",
     "start": "npm run build && node dist/main.js",
-    "test": "TS_NODE_FILES=true mocha test/**/*.spec.ts test/unit/**/*.spec.ts -r ts-node/register",
+    "test": "TS_NODE_FILES=true mocha 'test/**/*.spec.ts' -r ts-node/register",
     "build-and-test": "npm run build && npm run test",
     "prepublish": "npm run build-and-test"
   },

@@ -1,8 +1,8 @@
 import assert from 'assert';
 import { compileVerbose } from '../../src';
 import { isSuccess } from '../../src/util';
-import { functionScheme } from '../../src/checker/inference/helpers';
-import { NUMBER_SCHEME, NUMBER_TYPE } from '../../src/checker/types/common';
+import { functionScheme } from '../../src/semantics/inference/helpers';
+import { NUMBER_SCHEME, NUMBER_TYPE } from '../../src/semantics/types/common';
 
 describe('compiler', function () {
     describe('compile', function () {

@@ -2,7 +2,7 @@ import { promises as fs } from 'fs';
 import assert from 'assert';
 import { compileVerbose } from '../../src';
 import { isFailure } from '../../src/util';
-import { arrayScheme, functionScheme, tupleScheme } from '../../src/checker/inference/helpers';
+import { arrayScheme, functionScheme, tupleScheme } from '../../src/semantics/inference/helpers';
 import {
     BOOL_SCHEME,
     BOOL_TYPE,
@@ -10,9 +10,9 @@ import {
     NUMBER_TYPE,
     STRING_SCHEME,
     STRING_TYPE,
-} from '../../src/checker/types/common';
-import { Scheme, showScheme } from '../../src/checker/types/scheme';
-import { arrayType, functionType, tupleType, typeVar } from '../../src/checker/types/builders';
+} from '../../src/semantics/types/common';
+import { Scheme, showScheme } from '../../src/semantics/types/scheme';
+import { arrayType, functionType, tupleType, typeVar } from '../../src/semantics/types/builders';
 import { evaluateAndRead } from '../helpers';
 
 const specification: TestDefinition[] = [

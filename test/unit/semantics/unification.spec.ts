@@ -1,11 +1,11 @@
-import { OccursError, UnificationError, unify } from '../../../src/checker/unification';
+import { OccursError, UnificationError, unify } from '../../../src/semantics/unification';
 import assert from 'assert';
 import {
     TFunction,
-} from '../../../src/checker/types/type';
-import { BIGINT_TYPE, BOOL_TYPE, NUMBER_TYPE, STRING_TYPE } from '../../../src/checker/types/common';
-import { functionType, polymorphicType, typeVar } from '../../../src/checker/types/builders';
-import { EMPTY_SUBSTITUTION, Substitution } from '../../../src/checker/substitution';
+} from '../../../src/semantics/types/type';
+import { BIGINT_TYPE, BOOL_TYPE, NUMBER_TYPE, STRING_TYPE } from '../../../src/semantics/types/common';
+import { functionType, polymorphicType, typeVar } from '../../../src/semantics/types/builders';
+import { EMPTY_SUBSTITUTION, Substitution } from '../../../src/semantics/substitution';
 
 describe('unification', function () {
     describe('#unify', function () {

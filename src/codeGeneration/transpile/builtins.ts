@@ -50,6 +50,8 @@ const builtinTranspileConfig = {
 
 export type BuiltinsTranspiledAsFunctions = PropsOfType<typeof builtinTranspileConfig, TranspileAsFunction>;
 
+export const mappedBuiltinNames = new Set(Object.values(builtinTranspileConfig).map(config => config.name));
+
 export function mapBuiltinName(name: BuiltinName): string {
     return builtinTranspileConfig[name].name;
 }

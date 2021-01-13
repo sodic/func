@@ -1,11 +1,14 @@
 import { BuiltinName, isBuiltinName } from '../../builtins';
-import { mapBuiltinName } from './builtins';
+import { mapBuiltinName, mappedBuiltinNames } from './builtins';
 
 export function validJsName(name: string | BuiltinName): string {
     if (isBuiltinName(name)) {
         return mapBuiltinName(name);
+    } else if (reservedWords.has(name) || mappedBuiltinNames.has(name)) {
+        return `$$${name}`;
+    } else {
+        return name;
     }
-    return reservedWords.has(name) ? `$$${name}` : name;
 }
 
 

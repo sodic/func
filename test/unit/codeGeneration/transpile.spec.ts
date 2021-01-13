@@ -13,6 +13,7 @@ import {
 } from '../../../src/ast';
 import { BuiltinName } from '../../../src/builtins';
 import { transpileExpression } from '../../../src/codeGeneration/transpile/expressions';
+import { mapBuiltinName } from '../../../src/codeGeneration/transpile/builtins';
 
 describe('transpile', function () {
     describe('#transpileExpression', function () {
@@ -128,6 +129,18 @@ describe('transpile', function () {
             const expression = makeString(['a', '"', 'b']);
             const code = transpileExpression(expression);
             const expected = '["a", "\\"", "b"]';
+            assert.deepStrictEqual(code, expected);
+        });
+        it('should correctly transpile an identifier clashing with a JS reserved word', function () {
+            const expression = makeIdentifierReference('var');
+            const code = transpileExpression(expression);
+            const expected = '$$var';
+            assert.deepStrictEqual(code, expected);
+        });
+        it('should correctly transpile an identifier clashing with a builtin\'s transpiled name', function () {
+            const expression = makeIdentifierReference(mapBuiltinName(BuiltinName.Constant));
+            const code = transpileExpression(expression);
+            const expected = `$$${mapBuiltinName(BuiltinName.Constant)}`;
             assert.deepStrictEqual(code, expected);
         });
     });

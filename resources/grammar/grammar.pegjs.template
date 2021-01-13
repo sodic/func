@@ -274,7 +274,7 @@ CharacterLiteral "character literal" =
 
 StringLiteral "string literal" =
     '"' chars:StringCharacter* '"' {
-        return makeString(chars.join(""));
+        return makeString(chars);
     }
 
 TupleLiteral "tuple literal" =

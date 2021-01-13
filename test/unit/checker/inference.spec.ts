@@ -328,7 +328,7 @@ describe('inference', function () {
             const expression = makeApplication(
                 makeApplication(
                     Builtin.Tuple2,
-                    makeString('Marko'),
+                    makeString(['M', 'a', 'r', 'k', 'o']),
                 ),
                 makeNumber(5),
             );
@@ -342,7 +342,7 @@ describe('inference', function () {
                     makeApplication(
                         makeApplication(
                             Builtin.Tuple3,
-                            makeString('Marko'),
+                            makeString(['M', 'a', 'r', 'k', 'o']),
                         ),
                         makeNumber(5),
                     ),

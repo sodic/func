@@ -51,8 +51,7 @@ function transpileLiteral(literal: Literal): Code {
         case LiteralKind.Number:
             return String(value.value);
         case LiteralKind.Character:
-        case LiteralKind.String:
-            return `'${value.value}'`;
+            return JSON.stringify(value.value);
         case LiteralKind.Array:
             return `[${value.contents.map(e => transpileExpression(e)).join(', ')}]`;
         default:

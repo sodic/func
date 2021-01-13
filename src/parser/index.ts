@@ -7,7 +7,7 @@ export function parse(source: string): Result<Module, string> {
         const ast = parseModule(source);
         return success(ast);
     } catch (e) {
-        return failure(e.message);
+        return failure(`Syntax error: ${e.message}`);
     }
 }
 

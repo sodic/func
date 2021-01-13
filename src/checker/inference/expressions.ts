@@ -11,7 +11,7 @@ import {
     ArrayLiteral,
 } from '../../ast';
 import { TFunction, TVariable, Type } from '../types/type';
-import { BIGINT_TYPE, BOOL_TYPE, CHARACTER_TYPE, NUMBER_TYPE, STRING_TYPE } from '../types/common';
+import { BIGINT_TYPE, BOOL_TYPE, CHARACTER_TYPE, NUMBER_TYPE } from '../types/common';
 import { arrayType, functionType, unboundScheme } from '../types/builders';
 import { composeSubstitutions, EMPTY_SUBSTITUTION, substituteInContext, substituteInType } from '../substitution';
 import { unify } from '../unification';
@@ -65,8 +65,6 @@ export function getExpressionInferer(uniqueTypeVar: () => TVariable = typeVarGen
             return { substitution: EMPTY_SUBSTITUTION, type: CHARACTER_TYPE };
         case LiteralKind.BigInt:
             return { substitution: EMPTY_SUBSTITUTION, type: BIGINT_TYPE };
-        case LiteralKind.String:
-            return { substitution: EMPTY_SUBSTITUTION, type: STRING_TYPE };
         case LiteralKind.Array:
             return inferArrayLiteral(literal.value);
         default:

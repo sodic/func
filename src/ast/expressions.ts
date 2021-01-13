@@ -20,7 +20,6 @@ export const enum LiteralKind {
     Number = 'Number',
     Character = 'Character',
     Array = 'Array',
-    String = 'String',
 }
 
 export interface Literal extends PossiblyParenthesized {
@@ -29,14 +28,7 @@ export interface Literal extends PossiblyParenthesized {
         | BigintLiteral
         | NumberLiteral
         | CharacterLiteral
-        | ArrayLiteral
-        /*
-        Strings are just syntactic sugar for character array literals. However,
-        making them a special node speeds up type inference and removes the
-        need for type information during code generation. This all relies on syntax rules
-        preventing string literals from containing anything other than characters.
-         */
-        | StringLiteral;
+        | ArrayLiteral;
 }
 
 export interface BigintLiteral {
@@ -56,11 +48,6 @@ export interface NumberLiteral {
 
 export interface CharacterLiteral {
     kind: LiteralKind.Character;
-    value: string;
-}
-
-export interface StringLiteral {
-    kind: LiteralKind.String;
     value: string;
 }
 

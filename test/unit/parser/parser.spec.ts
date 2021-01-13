@@ -21,16 +21,25 @@ import {
     makeOperatorBindingBare,
     makeOperatorBindingLeft,
     makeOperatorBindingRight,
-    makeCurriedLambda,
+    makeCurriedLambda, makeCharacter,
 } from '../../../src/ast';
 
 describe('parser', function () {
     describe('#parseExpression', function () {
+        it('should correctly parse a character literal', function () {
+            const result = parseExpression('\'m\'');
+            const expected = makeCharacter('m');
+            assert.deepStrictEqual(result, expected);
+        });
         it('should correctly parse a string literal', function () {
             const result = parseExpression('"Ja sam string literal"');
-            const expected = makeString('Ja sam string literal');
+            const expected = makeString('Ja sam string literal'.split(''));
             assert.deepStrictEqual(result, expected);
-
+        });
+        it('should treat string literals the same way it treats char array literals', function () {
+            const result = parseExpression('"Marko"');
+            const expected = parseExpression('[\'M\', \'a\', \'r\', \'k\', \'o\']');
+            assert.deepStrictEqual(result, expected);
         });
         it('should correctly parse a boolean true literal', function () {
             const result = parseExpression('True');

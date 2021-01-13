@@ -62,14 +62,8 @@ export function makeArray(...parts: ArrayPart[]): Expression {
 }
 
 // strings are character arrays
-export function makeString(value: string): Literal {
-    return {
-        kind: ExpressionKind.Literal,
-        value: {
-            kind: LiteralKind.String,
-            value,
-        },
-    };
+export function makeString(chars: string[]): Literal {
+    return makeArrayLiteral(chars.map(char => makeCharacter(char)));
 }
 
 export function makePolymorphicTypeLiteral(constructor: string, parameters: NonEmpty<Expression[]>): Application {

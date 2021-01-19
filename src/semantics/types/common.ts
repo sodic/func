@@ -27,6 +27,8 @@ export const NUMBER_SCHEME: Scheme = unboundScheme(NUMBER_TYPE);
 
 export const BOOL_SCHEME: Scheme = unboundScheme(BOOL_TYPE);
 
+export const CHARACTER_SCHEME: Scheme = unboundScheme(CHARACTER_TYPE);
+
 export const STRING_SCHEME: Scheme = unboundScheme(STRING_TYPE);
 
 export const BIGINT_SCHEME: Scheme = unboundScheme(BIGINT_TYPE);

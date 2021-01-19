@@ -1,0 +1,387 @@
+// This tutorial introduces a high-level, general-purpose, statically typed, garbage collected,
+// purely functional programming language with type inference. It is mostly based on ML, Haskell,
+// and JavaScript.
+//
+// The language features a type system proven to be mathematically sound and decidable, which is a
+// lot less common than one might think: https://typing-is-hard.ch/. All types are inferred and
+// checked automatically using the Hindley-Milner type system. The programmer doesn't need to
+// provide any type annotations or type hints. Read more about Hindley-Milner here:
+// https://en.wikipedia.org/wiki/Hindley%E2%80%93Milner_type_system
+//
+// Select code to view, edit, and compile from a set of several presets (including this one) using
+// the dropdown menu in the top left.
+// Use the buttons "Read" and "Edit" in the middle for toggling between reading and editing
+// modes.
+// For information about variables' types (and values after execution), select the "Symbol Table"
+// tab in the top right. Use the "Generated Code" tab for inspecting the JS code produced by the
+// compiler.
+//
+// There are four primitive types in the language: Number, Bigint, Char, Bool. We can define
+// variables by assigning values to names. Their types are inferred automatically:
+
+number1 = 13     // inferred as type 'Number'
+number2 = 2.5e-1 // inferred as type 'Number'
+
+true = True      // inferred as type 'Bool'
+
+// All of these variables are inferred to be of type 'Char':
+char1 = 'H'
+char2 = 'e'
+char3 = 'l'
+char4 = 'l'
+char5 = 'o'
+
+// We can define functions with function statements (this is the preferred way and the only way that
+// supports recursion)...
+func add(x, y) = x + y
+
+// ...or assigned function expressions (this is the quick-and-dirty way and should ideally be used
+// only for short anonymous inline functions)
+add2 = (x, y) -> x + y
+
+// Aside from the fact that 'add2' couldn't be recursive if we wanted it to, the two above
+// functions are fully equivalent.
+
+// As mentioned in the introdutction, the type inference algorithm is proven to decidable, sound,
+// and complete. In other words, the compiler detects always successfuly all type errors at
+// compile-time without requiring any type annotations.
+//
+// Uncomment the following lines to see the type checker at work:
+
+// error1 = add(1, True)         // Error: Passing `Bool` instead of `Number`
+// error2 = add(1, 2) == "Marko" // Error: Comparing 'Number' with 'String
+
+// All functions are curried (i.e., each function accepts only a single argument). A multi-argument
+// function is nothing more than a function that takes just a single argument (the first one) and
+// returns another function that takes the remaining arguments (in the same recursive manner). For
+// example, the following function is equivalent to 'add' and 'add2'.
+
+add3 = (x) -> (y) -> x + y // lambda definitions are right-associative
+
+// In fact, all function calls of form 'f(a, b, c, ..., z)' should be interpreted as
+// 'f(a)(b)(c)...(z)'.  These two statements are fully equivalent (take a look at the generated code
+// and see for yourself):
+twoPlusThree1 = add(2, 3)
+twoPlusThree2 = add(2)(3)
+
+// Curried functions enable trivial partial application. For example, the definition of 'next' below
+// does not produce a type error. It instead binds the first argument and returns a function of type
+// 'Number -> Number' ready to accept the second argument and execute the body. In other words,
+// 'next' is also a function.
+next = add(1)
+
+two = next(1)
+five = next(next(next(two)))
+
+// As in all other functional languages, functions are first-class entities
+// (https://en.wikipedia.org/wiki/First-class_function):
+func square(x) = x * x
+func negate(x) = !x
+func applyAndIncrement(f, x) = f(x) + 1
+threeSquaredPlusOne = applyAndIncrement(square, 3)
+
+// The type inference algorithm always infers the most general possible type of an expression, thus
+// enabling parametric polymorphism (i.e., generics) out of the box. Take a look at this simple
+// function as an example:
+func apply(f, x) = f(x)
+
+// The inferred type of 'apply' is '(t1 -> t2) -> t1 -> t2', where 't1' and 't2' represent unbound
+// type variables. Type variables are replaced (instantiated) with a more specific type when we
+// apply the function. Possible instances of 'apply' include:
+inst1 = apply((x) -> x > 3, 5) // as '(Number -> Bool) -> Number -> Bool', returning 'Bool'
+inst2 = apply((x) -> x + 1, 6) // as '(Number -> Number) -> Number -> Number', returning 'Number'
+inst3 = apply(id)              // as '(t1 -> t1) -> t1 -> t1', partially bound, returning 't1 -> t1'
+
+// The inferred type of 'applyTwice' is '(t1 -> t1) -> t1 -> t1'. Applying 'f' to the result of 'f'
+// constrains its output type to its input type. In other words, 'f' can't have the type 't1 -> t2'.
+// It must have the type 't1 -> t1'. Otherwise, we couldn't reapply 'f' to its output.
+func applyTwice(f, x) = f(f(x))
+
+// As mentioned, a parametrically polymorphic function can then take on different forms (instances),
+// as long as they satisfy its constraints:
+sixteen = applyTwice(square, 2)
+false   = applyTwice(negate, True)
+
+// When the constraints aren't satisfied, the compiler produces a type error (uncomment to see):
+
+// error3 = applyTwice(square, True)
+
+// Almost everything in the language is an expression and can be used in other expressions. For
+// example, there are no conditional statements, only conditional expressions. Conditional
+// expressions borrow their syntax and semantics from Python's ternary expression:
+func max(a, b) =
+    a if a > b else b
+
+// Both branches of a conditional expression must return the same type:
+func stepFunction(threshold, value) = 1 if value > threshold else 0   // this is OK
+// func stepFunction(threshold, value) = '1' if value > threshold else 0 // this is not OK
+
+// All expressions are space insensitive (i.e., we can format them arbitrarily, even make them span
+// multiple lines):
+shouldBe4 =
+    max(
+        1.5, 4
+    )
+
+// Conditionals and recursion open a door for writing more complex functions:
+func factorial(n) =
+    1 if n <= 0 else
+    n * factorial(n -1)
+
+func numberOfCombinations(n, k) =
+    factorial(n) / (factorial(n - k) * factorial(k))
+
+_5c2 = numberOfCombinations(5, 2)
+
+// The language also supports parametric types (i.e., polymorphic type constructors, containers)
+// such as arrays (homogenous with variable length) and tuples (heterogenous, fixed-length up to 5):
+array1 = [1, 2, 3, 4, 5]
+array2 = ['M', 'a', 'r', 'k', 'o']
+
+tuple1 = (5, 'c')
+tuple2 = (1, True, '1')
+
+// Pairs (tuples of size 2) come with convenient built-in functions 'first' and 'second':
+letterInfo = ('c', 3)
+c          = first(letterInfo)
+three      = second(letterInfo)
+
+// We can concatenate arrays with the concatenation operator '++':
+countTo8 = [1, 2, 3] ++ [4, 5] ++ [6, 7, 8]
+
+// Array literals also support the spread operator. Its semantics are based on JavaScript's ellipsis
+// ('...') operator, while its syntax is based on Python's star ('*') operator. We can mix spreads
+// with regular values:
+oneTwo = [1, 2]
+four = [4]
+countTo8Alternative = [*oneTwo, 3, *four, 5, *[6, 7, 8]]  // same as 'countTo8'
+
+// Strings are just syntactic sugar for defining arrays of characters. For example, the
+// following expressions are fully equivalent:
+name1 = ['L', 'u', 'k', 'a']
+name2 = "Luka"
+
+// Everything we can do with arrays, we can do with Strings (they're just a special case):
+fullName = "Josip" ++ " " ++ "Jelačić"
+
+// Let's take a look at a few built-in array functions. If variable names aren't descriptive
+// enough, you can check the symbol table and examine their values:
+firstElement                = head(countTo8)
+arrayWithoutTheFirstElement = tail(countTo8)
+isArrayEmpty                = isEmpty(countTo8)
+howLongIsTheArray           = length(countTo8)
+
+// Parametric types elevate parametric polymorphism to a higher level. They allow us to operate on
+// the container level without worrying about the wrapped type. For example, reversing an array is
+// entirely agnostic to the values inside.  We can define a single function and use it to reverse
+// arrays of any type, as long as it's an array (check the type of 'reverse' in the symbol table):
+func reverse(array) =
+    [] if isEmpty(array) else
+    reverse(tail(array)) ++ [head(array)]
+
+countdownFrom8 = reverse(countTo8)
+theShinning = reverse("redrum")
+
+// The only constraint we should have when flattening the array is that the array is nested (i.e.,
+// it's at least 2D, there's something to flatten). Everything else is arbitrary, including further
+// nesting. Let's define 'flatten' using the spread operator instead of concatenation:
+func flatten(array) =
+    [] if isEmpty(array) else
+    [*head(array), *flatten(tail(array))]
+
+flat1 = flatten([[1, 2], [3, 4]])
+flat2 = flatten(["To", "ster"])
+flat3 = flatten([[(1, "One"), (2, "Two")], [(3, "Three"), (4, "Four")]])
+
+// For another example of parametric polymorphism through type containers, let's look at a pair
+// flipping function. It works for all pairs, regardless of what's inside:
+func flip(tuple) = (second(tuple), first(tuple)) // try to guess the type
+
+movie1 = flip(("Grit", True))
+movie2 = flip(("Angry Men", 12))
+movie3 = flip((8, "The Hateful"))
+
+// The last core part of the language is the "let" expression. Its syntax and semantics were
+// inspired by ML and Haskell. We can use it to define local constants to use in an expression:
+letExample1 = let x = 3 in x * x
+
+// We can define multiple constants within a single let expression by delimiting them with a
+// semicolon.
+func letExample2(x, y) =              // calculates f(x, y) = x * y / abs(x - y)
+    let
+        larger  = x if x >= y else y;
+        smaller = x if x < y else y;
+        product = x * y;
+    in
+        product / (larger - smaller)
+
+// As first-class values, functions can be passed around and manipulated in many possible ways. One
+// contrived example follows.
+func weird(x, f) =
+    (square if ((y) -> y > 3)(x) else let n = 4 in (y) -> f(y + n))(f(x))
+        if x < 0 else
+    weird(x - 1, f)
+// If you want to see more creative usages of functions, take a look at
+// the preset "lambda" (available in the dropdown menu).
+
+// We've now gone through all core language features. However, there are still several syntactic
+// constructs we have left to cover. The language also comes with a modest (but useful) standard
+// library, parts of which we've already seen.
+//
+// Adding to the already mentioned array manipulation functions ('head', 'tail', 'length',
+// 'isEmpty'), the language also includes the standard 'map', 'filter', and 'reduce' (i.e., fold).
+// These functions' semantics are mostly universal across all languages that feature them (e.g.,
+// JavaScript, Python, Haskell, Java). Our syntax is most similar to Python's:
+squares1To8 = map(square, countTo8)
+evens1To8 = filter((x) -> x % 2 == 0, countTo8)
+
+sum1To8 = reduce((sum, x) -> sum + x, 0, countTo8)
+product1To8 = reduce((prod, x) -> prod * x, 1, countTo8)
+
+// We can easily generalize 'sum' and 'product' into reusable functions. Let's do it using the tacit
+// programming style (https://en.wikipedia.org/wiki/Tacit_programming):
+sum = reduce((sum, x) -> sum + x, 0)
+product = reduce((prod, x) -> prod * x, 1)
+
+// We can use 'reduce' to implement shorter alternatives to functions 'flatten' and 'reverse' from
+// earlier:
+func reverse2(array) =
+    reduce((rev, curr) -> [curr, *rev], [], array)
+
+func flatten2(array) =
+    reduce((flat, curr) -> [*flat, *curr], [], array)
+
+// These three built-in functions can be very expressive when chained together. For example, we
+// could use them to find the largest even square smaller than 50 in a number array:
+numbers = [1, 2, 4, 11, 2, 4, 5, 7, 9, 10, 15, 13, 17, 18, 19, 6, 3]
+
+square1 = reduce(max, 0, filter((x) -> x < 50, map(square, filter((x) -> x % 2 == 0, numbers))))
+
+// As you've probably noticed, our solution suffers from the same problem these functions exhibit in
+// Python - their chained usages are difficult to read and write, as we frequently have to jump back
+// and forth to examine the arguments. This inconvenience was the primary motivation behind the pipe
+// operator ('|>').  The following code is fully equivalent to the one above but is easier to write,
+// read, and document:
+square2 = numbers
+    |> filter((x) -> x % 2 == 0) // filtering out odd numbers
+    |> map(square)               // squaring even numbers
+    |> filter((x) -> x < 50)     // filtering out squares larger than 50
+    |> reduce(max, 0)            // finding the largest square
+
+areSquaresTheSame = square1 == square2 // should be 'True'
+
+// Pipelines are inspired by the famous pipe operator present in all Unix shells.  However, this is
+// not the first general-purpose language to feature them. Elixir and F# both have this operator
+// (that's where the syntax comes from). Even JavaScript has a stage 1 TC39 proposal to implement
+// it: https://tc39.es/proposal-pipeline-operator/#sec-intro.
+// The operator's semantics are most similar to F#. The pipeline 'a |> b |> c |> d' gets compiled to
+// 'd(c(b(a)))' and is type-checked accordingly.
+//
+// On a similar note, the language also features the functional composition operator ('.'), which is
+// essentially equivalent to the functional composition in mathematics (∘). The composition 'a . b .
+// c . d' gets compiled to '(x) -> d(c(b(a(x))))' and is type-checked accordingly. Let's take a look
+// at how it works in practice:
+func f(x) = x * x
+func g(x) = x + 1
+func h(x) = 2 * x
+
+c1 = f . g . h         // calculates c1(x) = (2x + 1)^2
+c2 = g . h . f         // calculates c2(x) = 2x^2 + 1
+c3 = g . h . g . f . f // calculates c3(x) = 2(x^4 + 1) + 1
+
+twentyFive = c1(2)
+nine       = c2(2)
+thirtyFive = c3(2)
+
+// You can compose anything you want, as long as the types match. The following function spells out
+// a single-digit number. Its type is 'Number -> [Char]'.  Let's compose it with something.
+func readDigit(n) =
+    "Zero"  if n == 0 else
+    "One"   if n == 1 else
+    "Two"   if n == 2 else
+    "Three" if n == 3 else
+    "Four"  if n == 4 else
+    "Five"  if n == 5 else
+    "Six"   if n == 6 else
+    "Seven" if n == 7 else
+    "Eight" if n == 8 else
+    "Nine"  if n == 9 else
+    "The number has more than one digit"
+
+resultComp = (reverse . readDigit . length . readDigit . ((x) -> x % 10) . f)(4) // should be "eerhT"
+
+// Pipelines and compositions cover similar use cases - so similar one might wonder when to use
+// which. Pipelines are idiomatic to F#, while compositions are idiomatic to Haskell. The
+// recommendation is to use compositions when you want to focus on the functions and what they do.
+// If you want the reader to focus on the data and how it's transformed, pipelines are a better fit.
+//
+// Let's calculate 'resultComp' from above with a pipeline (again, newlines are optional):
+resultPipe = 4 |> f |> (x) -> x % 10 |> readDigit |> length |> readDigit |> reverse
+
+// So far, whenever we wanted to pass an operator to a higher-order function, we had to define a
+// trivial wrapper lambda. One example is summing all array members (let's pretend we didn't define
+// the function 'sum' for this exact purpose):
+
+s = reduce((x, y) -> x + y, 0, [1, 2, 3])
+
+// We essentially only wanted to pass the operator '+' to reduce as its first argument, but the
+// syntax forces us to define a meaningless anonymous function. The same applies to array products
+// and string array concatenation:
+p = reduce((x, y) -> x * y, 1, [1, 2, 3])
+sentence = reduce((x, y) -> x ++ y, "", ["This", " ", "is", " ", "a", " ", "sentence."])
+
+//Again, all we want is to pass '*' and '++', respectively. However, doing so would result in a
+//syntax error. This is where operator referencing comes in.
+//
+// We can reference a binary operator by enclosing it in backticks. Doing so gives us an expression
+// we can use it anywhere we want. Let's use operator referencing to define alternatives to
+// previously defined functions 'sum' and 'product':
+
+sum2     = reduce(`+`, 0) // sticking with "pointfree style" (tacit programming)
+product2 = reduce(`*`, 1)
+
+zero = sum2([1, 2, 3]) - product2([1, 2, 3])
+
+// The function 'flatten' could also benefit from operator referencing:
+func flatten3(array) = reduce(`++`, [], array)
+
+sentence2 = flatten(["This", " ", "is", " ", "a", " ", "sentence."])
+
+// Besides bare operator referencing, backticks also allow us to bind any expression to a binary
+// operator on either side. This feature opens the door for further simplification:
+decimals = [2.5, 1.7, 4.3, 6.7, 3.6, 8.3, 2.3]
+largerThanFive1 = filter((n) -> n > 5, decimals) // This can be simplified to...
+largerThanFive2 = filter(`> 5`, decimals)        // ... this...
+largerThanFive3 = filter(`5 <=`, decimals)       //  or this.
+
+// The operator referencing/binding syntax is valid for all binary operators, with no exceptions:
+func pipeToAll(value, functions) = map(`value |>`, functions)
+
+markoResults = pipeToAll("Marko", [reverse, tail . tail, `++ " Kutlić"`, readDigit . length])
+
+// We've now covered all of the language's currently available features. A few on them are still
+// on the todo list:
+// - Ad-hoc polymorphism (accomplished with type classes)
+// - Custom algebraic data types
+// - Pattern matching
+// - Named records
+// - User-defined type signatures
+//
+// Feel free to the rest other samples to explore the language. Some of them
+// have even been mentioned throughout the text (Ctrl+f "preset").
+//
+// In the meantime, here's an implementation of quicksort using most of the language's available
+// features:
+func sort(array) =
+    [] if isEmpty(array) else
+    let pivot = head(array);
+        rest  = tail(array);
+        smallerHalf = rest |> filter(`< pivot`) |> sort;
+        largerHalf  = rest |> filter(`>= pivot`) |> sort;
+    in [*smallerHalf, pivot, *largerHalf]
+
+sorted = sort(decimals)
+
+
+
+

@@ -17,6 +17,12 @@ ${indent(1)}};
     [BuiltinName.SquareRoot]: `function (n) {
 ${indent(1)}return Math.sqrt(n);
 }`,
+    [BuiltinName.Floor]: `function (x) {
+${indent(1)}return Math.floor(x);
+}`,
+    [BuiltinName.Ceil]: `function (x) {
+${indent(1)}return Math.ceil(x);
+}`,
     [BuiltinName.Tuple2]: `function (x) {
 ${indent(1)}return function (y) {
 ${indent(2)}return [x, y];

@@ -26,8 +26,11 @@ export enum BuiltinName {
     // functions
     Constant= 'const',
     Identity = 'id',
+    EqualPolymorphic = 'eq',
     ToString = 'toString',
     SquareRoot = 'sqrt',
+    Floor = 'floor',
+    Ceil = 'ceil',
     First = 'first',
     Second = 'second',
     ExtendArray = 'extend',

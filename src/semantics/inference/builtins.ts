@@ -37,8 +37,11 @@ export const builtins: Record<BuiltinName, Scheme> = {
     ),
     [BuiltinName.Identity]: functionScheme(typeVar('u1'), typeVar('u1')),
     [BuiltinName.Constant]: functionScheme(typeVar('u1'), typeVar('u2'), typeVar('u1')),
+    [BuiltinName.EqualPolymorphic]: functionScheme(typeVar('u1'), typeVar('u1'), typeVar('u1')),
     [BuiltinName.ToString]: functionScheme(typeVar('u1'), STRING_TYPE),
     [BuiltinName.SquareRoot]: functionScheme(NUMBER_TYPE, NUMBER_TYPE),
+    [BuiltinName.Floor]: functionScheme(NUMBER_TYPE, NUMBER_TYPE),
+    [BuiltinName.Ceil]: functionScheme(NUMBER_TYPE, NUMBER_TYPE),
     [BuiltinName.First]: functionScheme(
         tupleType(typeVar('u1'), typeVar('u2')),
         typeVar('u1'),

@@ -19,5 +19,4 @@ func raiseToPowerFast(n, p) =
 
 rp = raiseToPowerFast(1.000001, 9999999)
 
-D = raiseToPowerFast(2, 3)
-shouldBeTrue = 8==D 
+shouldBeTrue = 8 == raiseToPowerFast(2, 3)

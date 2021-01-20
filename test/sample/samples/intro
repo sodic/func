@@ -44,7 +44,7 @@ add2 = (x, y) -> x + y
 // Aside from the fact that 'add2' couldn't be recursive if we wanted it to, the two above
 // functions are fully equivalent.
 
-// As mentioned in the introdutction, the type inference algorithm is proven to decidable, sound,
+// As mentioned in the introduction, the type inference algorithm is proven to be decidable, sound,
 // and complete. In other words, the compiler detects always successfuly all type errors at
 // compile-time without requiring any type annotations.
 //

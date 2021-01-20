@@ -1,5 +1,8 @@
-// Two ways to define top-level functions
-// First way supports recursion and is preferred
+// This sample demonstrates how we can use the fact that functions are first-class entities in
+// creative ways.
+
+// Two ways to define top-level functions. Prefer the first way, it's more clear and supports
+// recursion:
 func mul1(x, y) = x * y
 mul2 = (x, y) -> x * y
 
@@ -9,17 +12,21 @@ sub2 = (x, y) -> x - y
 func mod1(x, y) = x % y
 mod2 = (x, y) -> x % y
 
-// Checking whether functions are equivalent to each other, as well as
-// to their respective operator references
+// We can check whether functions are equivalent to each other, as well as to their respective
+// operator references.
 samples = [(1, 3), (6, 8), (3, 5), (2, 3), (4, 9), (10, 9), (7, 2), (4, 7),]
 
-func all(predicate, array) = array |> map(predicate) |> reduce(`&&`, True)
-func areAllEqual(array) = tail(array) |> all(`== head(array)`)
+func all(predicate, array) = array 
+    |> map(predicate) 
+    |> reduce(`&&`, True)
+
+func areAllEqual(array) = tail(array) 
+    |> all(`== head(array)`)
 
 areAllTrue = all(id)
 
-// Transforms a regular function of type a -> b -> c to receive a tuple.
-// Its type becomes (a, b) -> c.
+// Transforms a function of type a -> b -> c to a function of type (a, b) -> c. In other words, it
+// collects the first two arguments of a curried function into a tuple.
 uncurry = (f) -> (pair) -> f(first(pair), second(pair))
 
 functions =[
@@ -38,7 +45,7 @@ areFunctionsEquivalent =
         |> areAllTrue
 
 
-// Finding all samples where:
+// Let's find all samples where:
 // 1. The first number is even
 // 2. The second number is odd
 // 3. The first member is strictly lower than the second number
@@ -48,10 +55,10 @@ conditions = [
     (x, y) -> x % 2 == 0,
     (x, y) -> y % 2 == 1,
     `<`,
-    (x, y) -> 2*x > y,
+    (x, y) -> 2 * x > y,
 ] |> map(uncurry)
 
-// should leave only [(2, 3), (4, 7)]
+// This filter should leave only [(2, 3), (4, 7)]:
 filteredSamples = samples
     |> filter(
         (sample) -> conditions |> map(`sample |>`) |> all(id)

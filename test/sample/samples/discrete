@@ -1,25 +1,14 @@
-func fact(n) =
-    1 if n <= 0 else
-    n * fact(n - 1)
+// This sample contains examples related to discrete mathematics. Bigint would be a better type than
+// Number for these purposes. However, the language doesn't yet support ad-hoc polymorphism (i.e.,
+// we can't use arithmetic operators with Bigints), so we have to use Numbers.
 
-func combinations(n, k) =
-    fact(n) / (fact(n - k) * fact(k))
-
+// This is an implementation of the Euclidean algorithm
+// (https://en.wikipedia.org/wiki/Euclidean_algorithm):
 func gcd(x, y) =
     x if y == 0 else
     gcd(y, x % y)
 
 func lcd(x, y) = x * y / gcd(x, y)
-
-func divisibleBy(n, k) = n % k == 0
-
-func isLeapYear(year) =
-    divisibleBy(year, 400)
-    || divisibleBy(year, 4) && !divisibleBy(year, 25)
-
-_1c0 = combinations(1, 0)
-_5c3 = combinations(5, 3)
-_12c4 = combinations(12, 4)
 
 gcd_5_7 = gcd(5, 7)
 gcd_18_12 = gcd(18, 12)
@@ -31,8 +20,44 @@ lcd_12_18 = lcd(12, 18)
 lcd_63_78 = lcd(63, 78)
 lcd_14288_21432 = lcd(14288, 21432)
 
+// The functions below determine whether the given year is a leap year:
+func divisibleBy(n, k) = n % k == 0
+
+func isLeapYear(year) =
+    divisibleBy(year, 400)
+    || divisibleBy(year, 4) && !divisibleBy(year, 25)
+
 leap_1700 = isLeapYear(1700)
 leap_2000 = isLeapYear(2000)
 leap_2012 = isLeapYear(2012)
 leap_2016 = isLeapYear(2016)
 leap_2017 = isLeapYear(2017)
+
+// We can also create number ranges:
+func stepRange(start, end, step) =
+    [start] if start >= end else
+    [start, *stepRange(start + step, end, step)]
+
+func range(start, end) = stepRange(start, end, 1)
+
+fiveTenFifteen = stepRange(5, 15, 5)
+multiplesOfThree = stepRange(0, 100, 3)
+range1to10 = range(1, 10)
+
+// Combinatorics:
+func fact(n) =
+    1 if n <= 0 else
+    n * fact(n - 1)
+
+func combinations(n, k) =
+    fact(n) / (fact(n - k) * fact(k))
+
+_1c0 = combinations(1, 0)
+_5c3 = combinations(5, 3)
+_12c4 = combinations(12, 4)
+
+func pascalTriangle(level) =
+    let func pascalRow(n) = range(0, n) |> map(combinations(n))
+    in range(0, level) |> map(pascalRow)
+
+pascal7 = pascalTriangle(7)

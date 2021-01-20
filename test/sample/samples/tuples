@@ -1,3 +1,5 @@
+// This sample demonstrates how to work with tuples.
+
 luka = ("Luka", 23)
 marko = ("Marko", 25)
 

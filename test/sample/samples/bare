@@ -5,4 +5,4 @@ correctAnswer = 1
 bare =
     "Tuzno" if casio1 == correctAnswer else
     "Zagradu moras prvu rijesit" if casio2 == correctAnswer else
-    "👀"
+    "👀👀👀👀"

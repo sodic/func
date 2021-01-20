@@ -1,3 +1,5 @@
+// A simple implementation of 'pow'.
+
 func raiseToPower(number, power) =
     1 if power <= 0 else
     number * raiseToPower(number, power - 1)

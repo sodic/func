@@ -1,3 +1,5 @@
+// This sample demonstrates how to write functions that work with arrays.
+
 func square(x) = x * x
 func even(x) = x % 2 == 0
 func max(x, y) = x if x > y else y
@@ -16,7 +18,7 @@ func reverse1(array) =
         rest = tail(array);
     in [*reverse1(rest), current]
 
-// Can also be implemented using the built in-reduce function
+// We can implement the same functionality using the built in-reduce function:
 func reverse2(array) =
     reduce((acc, x) -> [x, *acc], [], array)
 
@@ -24,7 +26,7 @@ func flatten1(array) =
     [] if isEmpty(array) else
     [*head(array), *flatten1(tail(array))]
 
-// Can also be implemented using the built-in reduce function
+// Again, the same can be accomplished using reduce:
 func flatten2(array) =
     reduce((acc, x) -> [*acc, *x], [], array)
 
@@ -36,16 +38,16 @@ func quicksort(array) =
         higherHalf = rest |> filter(`>= pivot`) |> quicksort;
     in [*lowerHalf, pivot, *higherHalf]
 
-// put multiple statements on the same line using semicolons
+// We can put multiple statements on the same line using semicolons:
 evens = [2,4,6]; odds = [1,3,5]
 
-// join arrays using the concatenation operators...
+// Join arrays using the concatenation operator...
 concatArray = [0] ++ evens ++ [0] ++ odds ++ [0]
 
-// ...or using the spread syntax
+// ...or using the spread syntax:
 spread = [0, *evens, 0, *odds, 0]
 
-// strings are character arrays
+// Strings are just character arrays:
 concatString = "One" ++ ", " ++ "Two"
 
 numbers = [1, 3, 12, 4, 2, 11, 31, 7, 8]

@@ -1,3 +1,5 @@
+// Examples involving geometry:
+
 pi = 3.14159265359
 
 func calcArea(r) = let r2 = r * r in
@@ -51,5 +53,5 @@ func centroidOf(points) =
 centroidA = centroidOf(triangleA)
 centroidB = centroidOf(triangleB)
 
-// the furthest point from center in both triangles
+// The furthest point from center in both triangles
 furthestFromCenter = [*triangleA, *triangleB] |> furthestFrom((0, 0))

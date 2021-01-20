@@ -146,6 +146,9 @@ letterInfo = ('c', 3)
 c          = first(letterInfo)
 three      = second(letterInfo)
 
+
+// You can find more examples in sample "tuples".
+
 // We can concatenate arrays with the concatenation operator '++':
 countTo8 = [1, 2, 3] ++ [4, 5] ++ [6, 7, 8]
 
@@ -170,6 +173,9 @@ firstElement                = head(countTo8)
 arrayWithoutTheFirstElement = tail(countTo8)
 isArrayEmpty                = isEmpty(countTo8)
 howLongIsTheArray           = length(countTo8)
+
+// After finishing this introduction, you can check the sample "arrays" for more array-related
+// examples.
 
 // Parametric types elevate parametric polymorphism to a higher level. They allow us to operate on
 // the container level without worrying about the wrapped type. For example, reversing an array is
@@ -222,7 +228,7 @@ func weird(x, f) =
         if x < 0 else
     weird(x - 1, f)
 // If you want to see more creative usages of functions, take a look at
-// the preset "lambda" (available in the dropdown menu).
+// the sample "lambda" (available in the dropdown menu).
 
 // We've now gone through all core language features. However, there are still several syntactic
 // constructs we have left to cover. The language also comes with a modest (but useful) standard
@@ -347,6 +353,14 @@ func flatten3(array) = reduce(`++`, [], array)
 
 sentence2 = flatten(["This", " ", "is", " ", "a", " ", "sentence."])
 
+// Again, operator references are full-fledged expressions. We can use them anywhere we want:
+double = `*`(2)
+compose = `.`
+
+ten1 = compose(double, sqrt)(25)
+ten2 = `.`(double, sqrt)(25)
+ten3 = (double . sqrt)(25)
+
 // Besides bare operator referencing, backticks also allow us to bind any expression to a binary
 // operator on either side. This feature opens the door for further simplification:
 decimals = [2.5, 1.7, 4.3, 6.7, 3.6, 8.3, 2.3]
@@ -359,18 +373,23 @@ func pipeToAll(value, functions) = map(`value |>`, functions)
 
 markoResults = pipeToAll("Marko", [reverse, tail . tail, `++ " Kutlić"`, readDigit . length])
 
-// We've now covered all of the language's currently available features. A few on them are still
-// on the todo list:
+// We've now covered all of the language's currently available features. A few on them are still on
+// the todo list:
 // - Ad-hoc polymorphism (accomplished with type classes)
 // - Custom algebraic data types
 // - Pattern matching
 // - Named records
 // - User-defined type signatures
 //
-// Feel free to the rest other samples to explore the language. Some of them
-// have even been mentioned throughout the text (Ctrl+f "preset").
-//
-// In the meantime, here's an implementation of quicksort using most of the language's available
+// Feel free to the rest other samples to explore the language. Some of them have even been
+// mentioned throughout the text (Ctrl+f "sample"). Other interesting samples include:
+// - "church" - See how lambda calculus encodes various kinds of data
+// - "prime" - Finding prime numbers
+// - "geometry" - Examples related to geometry
+// - "discrete" - Examples related to discrete maths
+// - "natives" - Implementations of several native functions
+
+// Finally, here's an implementation of quicksort that uses most of the language's available
 // features:
 func sort(array) =
     [] if isEmpty(array) else
@@ -381,7 +400,3 @@ func sort(array) =
     in [*smallerHalf, pivot, *largerHalf]
 
 sorted = sort(decimals)
-
-
-
-

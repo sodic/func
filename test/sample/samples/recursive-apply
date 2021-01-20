@@ -1,3 +1,5 @@
+// A simple example of recursive function application:
+
 func applyNTimes(n, f, arg) =
     arg if n <= 0 else
     let

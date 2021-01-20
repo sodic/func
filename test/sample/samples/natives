@@ -1,4 +1,5 @@
-// alternative implementations of map, filter, and reduce
+// This sample provides alternative implementations of several builtin functions ('map', 'filter',
+// 'reduce') and shows how to use them:
 
 func myMap(f, array) =
     [] if isEmpty(array) else
@@ -25,8 +26,7 @@ func min(x, y) = x if x < y else y
 
 numbers = [1.2, 2.5, 3.4, 4.3, 2.1, 1.8, 4.7]
 
-// comparing builtins to user-defined alternatives
-
+// Let's compare builtins to user-defined alternatives
 sum = reduce(`+`, 0, numbers)
 mySum = myReduce(`+`, 0, numbers)
 isSumOk = mySum == sum
@@ -39,7 +39,7 @@ lowestGreaterThan3 = numbers
     |> myFilter(`> 3`)
     |> myReduce0(min)
 
-// should be "0111001"
+// This should be "0111001"
 digitalSignal = numbers
     |> myMap(step(2.5))
     |> join("")

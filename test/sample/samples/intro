@@ -8,10 +8,12 @@
 // provide any type annotations or type hints. Read more about Hindley-Milner here:
 // https://en.wikipedia.org/wiki/Hindley%E2%80%93Milner_type_system
 //
-// Select code to view, edit, and compile from a set of several presets (including this one) using
+// Select code to view, edit, and compile from a set of samples (including this one) using
 // the dropdown menu in the top left.
+//
 // Use the buttons "Read" and "Edit" in the middle for toggling between reading and editing
 // modes.
+//
 // For information about variables' types (and values after execution), select the "Symbol Table"
 // tab in the top right. Use the "Generated Code" tab for inspecting the JS code produced by the
 // compiler.

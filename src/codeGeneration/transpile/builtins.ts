@@ -29,7 +29,7 @@ const builtinTranspileConfig = {
     [BuiltinName.Pipe]: functionCall('pipe'),
     [BuiltinName.Identity]: functionCall('id'),
     [BuiltinName.Constant]: functionCall('constant'),
-    [BuiltinName.EqualPolymorphic]: binaryExpression('=='),
+    [BuiltinName.EqualPolymorphic]: functionCall('eq'),
     [BuiltinName.ToString]: functionCall('toString'),
     [BuiltinName.SquareRoot]: functionCall('sqrt'),
     [BuiltinName.Floor]: functionCall('floor'),

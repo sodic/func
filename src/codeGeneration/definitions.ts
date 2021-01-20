@@ -14,6 +14,17 @@ ${indent(1)}return function (y) {
 ${indent(2)}return x;
 ${indent(1)}};
 }`,
+    [BuiltinName.EqualPolymorphic]: `function (x) {
+${indent(1)}return function (y) {
+${indent(2)}if (!Array.isArray(x) && !Array.isArray(y)) {
+${indent(3)}return x === y;
+${indent(2)}} else if (Array.isArray(x) && Array.isArray(y)) {
+${indent(3)}return x.length == y.length ? x.every((el, idx) => el === y[idx]) : false;
+${indent(2)}} else {
+${indent(3)}return false;
+${indent(2)}}
+${indent(1)}}
+}`,
     [BuiltinName.SquareRoot]: `function (n) {
 ${indent(1)}return Math.sqrt(n);
 }`,
@@ -77,7 +88,7 @@ ${indent(1)}}
 }`,
     [BuiltinName.Pipe]: `function (x) {
 ${indent(1)}return function (f) {
-${indent(2)}return f(x); 
+${indent(2)}return f(x);
 ${indent(1)}}
 }`,
     [BuiltinName.First]: `function (tuple) {

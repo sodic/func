@@ -11,3 +11,12 @@ raiseTo3 = flipArgs(raiseToPower)(3)
 
 threeSquared = raise3To(2)
 twoToTheThird = raiseTo3(2)
+
+func raiseToPowerFast(n, p) = 
+    1 if p == 0 else 
+    raiseToPowerFast(n * n, floor(p / 2)) 
+        * (1 if p % 2 == 0 else n)
+
+rp = raiseToPowerFast(1.000001, 9999999)
+
+shouldBeTrue = 8 == raiseToPowerFast(2, 3)

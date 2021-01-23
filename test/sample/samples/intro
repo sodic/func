@@ -45,7 +45,7 @@ add2 = (x, y) -> x + y
 // functions are fully equivalent.
 
 // As mentioned in the introduction, the type inference algorithm is proven to be decidable, sound,
-// and complete. In other words, the compiler detects always successfuly all type errors at
+// and complete. In other words, the compiler always successfully detects all type errors at
 // compile-time without requiring any type annotations.
 //
 // Uncomment the following lines to see the type checker at work:
@@ -61,7 +61,7 @@ add2 = (x, y) -> x + y
 add3 = (x) -> (y) -> x + y // lambda definitions are right-associative
 
 // In fact, all function calls of form 'f(a, b, c, ..., z)' should be interpreted as
-// 'f(a)(b)(c)...(z)'.  These two statements are fully equivalent (take a look at the generated code
+// 'f(a)(b)(c)...(z)'. These two statements are fully equivalent (take a look at the generated code
 // and see for yourself):
 twoPlusThree1 = add(2, 3)
 twoPlusThree2 = add(2)(3)
@@ -99,7 +99,7 @@ inst3 = apply(id)              // as '(t1 -> t1) -> t1 -> t1', partially bound, 
 // It must have the type 't1 -> t1'. Otherwise, we couldn't reapply 'f' to its output.
 func applyTwice(f, x) = f(f(x))
 
-// As mentioned, a parametrically polymorphic function can then take on different forms (instances),
+// As mentioned, a parametrically polymorphic function can take on different forms (instances),
 // as long as they satisfy its constraints:
 sixteen = applyTwice(square, 2)
 false   = applyTwice(negate, True)
@@ -125,7 +125,7 @@ shouldBe4 =
         1.5, 4
     )
 
-// Conditionals and recursion open a door for writing more complex functions:
+// Conditionals and recursion open the door for writing more complex functions:
 func factorial(n) =
     1 if n <= 0 else
     n * factorial(n -1)
@@ -136,7 +136,7 @@ func numberOfCombinations(n, k) =
 _5c2 = numberOfCombinations(5, 2)
 
 // The language also supports parametric types (i.e., polymorphic type constructors, containers)
-// such as arrays (homogenous with variable length) and tuples (heterogenous, fixed-length up to 5):
+// such as arrays (homogenous with variable length) and tuples (heterogeneous, fixed-length up to 5):
 array1 = [1, 2, 3, 4, 5]
 array2 = ['M', 'a', 'r', 'k', 'o']
 
@@ -170,7 +170,7 @@ name2 = "Luka"
 fullName = "Josip" ++ " " ++ "Jelačić"
 
 // Let's take a look at a few built-in array functions. If variable names aren't descriptive
-// enough, you can check the symbol table and examine their values:
+// enough, you can check the Symbol Table and examine their values:
 firstElement                = head(countTo8)
 arrayWithoutTheFirstElement = tail(countTo8)
 isArrayEmpty                = isEmpty(countTo8)
@@ -180,9 +180,9 @@ howLongIsTheArray           = length(countTo8)
 // examples.
 
 // Parametric types elevate parametric polymorphism to a higher level. They allow us to operate on
-// the container level without worrying about the wrapped type. For example, reversing an array is
-// entirely agnostic to the values inside.  We can define a single function and use it to reverse
-// arrays of any type, as long as it's an array (check the type of 'reverse' in the symbol table):
+// containers without worrying about wrapped types. For example, reversing an array is entirely
+// agnostic to the values inside. We can define a single function and use it to reverse arrays
+// of any type, as long as it's an array (check the type of 'reverse' in the symbol table):
 func reverse(array) =
     [] if isEmpty(array) else
     reverse(tail(array)) ++ [head(array)]
@@ -190,7 +190,7 @@ func reverse(array) =
 countdownFrom8 = reverse(countTo8)
 theShinning = reverse("redrum")
 
-// The only constraint we should have when flattening the array is that the array is nested (i.e.,
+// The only constraint we should have when flattening an array is that the array is nested (i.e.,
 // it's at least 2D, there's something to flatten). Everything else is arbitrary, including further
 // nesting. Let's define 'flatten' using the spread operator instead of concatenation:
 func flatten(array) =
@@ -210,7 +210,7 @@ movie2 = flip(("Angry Men", 12))
 movie3 = flip((8, "The Hateful"))
 
 // The last core part of the language is the "let" expression. Its syntax and semantics were
-// inspired by ML and Haskell. We can use it to define local constants to use in an expression:
+// inspired by ML and Haskell. We can use it to define local constants:
 letExample1 = let x = 3 in x * x
 
 // We can define multiple constants within a single let expression by delimiting them with a
@@ -223,14 +223,14 @@ func letExample2(x, y) =              // calculates f(x, y) = x * y / abs(x - y)
     in
         product / (larger - smaller)
 
-// As first-class values, functions can be passed around and manipulated in many possible ways. One
+// As first-class values, functions can be passed around and manipulated in many ways. One
 // contrived example follows.
 func weird(x, f) =
     (square if ((y) -> y > 3)(x) else let n = 4 in (y) -> f(y + n))(f(x))
         if x < 0 else
     weird(x - 1, f)
-// If you want to see more creative usages of functions, take a look at
-// the sample "lambda" (available in the dropdown menu).
+// If you want to see more creative usages of functions, take a look at the sample "lambda"
+// (available in the dropdown menu).
 
 // We've now gone through all core language features. However, there are still several syntactic
 // constructs we have left to cover. The language also comes with a modest (but useful) standard
@@ -278,7 +278,7 @@ square2 = numbers
 
 areSquaresTheSame = square1 == square2 // should be 'True'
 
-// Pipelines are inspired by the famous pipe operator present in all Unix shells.  However, this is
+// Pipelines are inspired by the famous pipe operator present in all Unix shells. However, this is
 // not the first general-purpose language to feature them. Elixir and F# both have this operator
 // (that's where the syntax comes from). Even JavaScript has a stage 1 TC39 proposal to implement
 // it: https://tc39.es/proposal-pipeline-operator/#sec-intro.
@@ -286,7 +286,7 @@ areSquaresTheSame = square1 == square2 // should be 'True'
 // 'd(c(b(a)))' and is type-checked accordingly.
 //
 // On a similar note, the language also features the functional composition operator ('.'), which is
-// essentially equivalent to the functional composition in mathematics (∘). The composition 'a . b .
+// essentially equivalent to functional composition in mathematics (∘). The composition 'a . b .
 // c . d' gets compiled to '(x) -> d(c(b(a(x))))' and is type-checked accordingly. Let's take a look
 // at how it works in practice:
 func f(x) = x * x
@@ -302,7 +302,7 @@ nine       = c2(2)
 thirtyFive = c3(2)
 
 // You can compose anything you want, as long as the types match. The following function spells out
-// a single-digit number. Its type is 'Number -> [Char]'.  Let's compose it with something.
+// a single-digit number. Its type is 'Number -> [Char]'. Let's compose it with something.
 func readDigit(n) =
     "Zero"  if n == 0 else
     "One"   if n == 1 else
@@ -320,8 +320,8 @@ resultComp = (reverse . readDigit . length . readDigit . ((x) -> x % 10) . f)(4)
 
 // Pipelines and compositions cover similar use cases - so similar one might wonder when to use
 // which. Pipelines are idiomatic to F#, while compositions are idiomatic to Haskell. The
-// recommendation is to use compositions when you want to focus on the functions and what they do.
-// If you want the reader to focus on the data and how it's transformed, pipelines are a better fit.
+// recommendation is to use compositions when you want to focus on functions and what they do.
+// If you want the reader to focus on data and how it's transformed, pipelines are a better fit.
 //
 // Let's calculate 'resultComp' from above with a pipeline (again, newlines are optional):
 resultPipe = 4 |> f |> (x) -> x % 10 |> readDigit |> length |> readDigit |> reverse
@@ -341,9 +341,9 @@ sentence = reduce((x, y) -> x ++ y, "", ["This", " ", "is", " ", "a", " ", "sent
 //Again, all we want is to pass '*' and '++', respectively. However, doing so would result in a
 //syntax error. This is where operator referencing comes in.
 //
-// We can reference a binary operator by enclosing it in backticks. Doing so gives us an expression
-// we can use it anywhere we want. Let's use operator referencing to define alternatives to
-// previously defined functions 'sum' and 'product':
+// We can reference a binary operator by enclosing it in backticks. Doing so gives us an expression.
+// Let's use operator referencing to define alternatives to previously defined functions 'sum' and
+// 'product':
 
 sum2     = reduce(`+`, 0) // sticking with "pointfree style" (tacit programming)
 product2 = reduce(`*`, 1)
@@ -383,7 +383,7 @@ markoResults = pipeToAll("Marko", [reverse, tail . tail, `++ " Kutlić"`, readDi
 // - Named records
 // - User-defined type signatures
 //
-// Feel free to the rest other samples to explore the language. Some of them have even been
+// Feel free to the test other samples and explore the language. Some of them have even been
 // mentioned throughout the text (Ctrl+f "sample"). Other interesting samples include:
 // - "church" - See how lambda calculus encodes various kinds of data
 // - "prime" - Finding prime numbers
@@ -402,3 +402,5 @@ func sort(array) =
     in [*smallerHalf, pivot, *largerHalf]
 
 sorted = sort(decimals)
+
+// Git repository: https://github.com/sodic/masters

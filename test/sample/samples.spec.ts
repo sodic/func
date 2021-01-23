@@ -655,7 +655,7 @@ const specification: TestDefinition[] = [
             inst1: true,
             inst2: 7,
             sixteen: 16,
-            false: false,
+            false: true,
             shouldBe4: 4,
             _5c2: 10,
             array1: [1, 2, 3, 4, 5],

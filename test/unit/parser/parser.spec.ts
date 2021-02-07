@@ -453,7 +453,7 @@ describe('parser', function () {
             assert.deepStrictEqual(result, expected);
         });
         it('should correctly parse a logical conjunction', function () {
-            const result = parseExpression('a==1 && b<3');
+            const result = parseExpression('a==1&&b<3');
             const expected = makeCall(
                 Builtin.And,
                 [
@@ -463,8 +463,13 @@ describe('parser', function () {
             );
             assert.deepStrictEqual(result, expected);
         });
+        it('should be space insensitive when parsing logical disjunctions', function () {
+            const result = parseExpression('a==1 \t \n && \n \t b<3');
+            const expected = parseExpression('a==1&&b<3');
+            assert.deepStrictEqual(result, expected);
+        });
         it('should correctly parse a longer logical conjunction', function () {
-            const result = parseExpression('a==1 && b<3 && f(5) && g(4+3)-1');
+            const result = parseExpression('a==1&&b<3&&f(5)&&g(4+3)-1');
             const expected = makeCall(
                 Builtin.And,
                 [
@@ -487,14 +492,19 @@ describe('parser', function () {
             assert.deepStrictEqual(result, expected);
         });
         it('should correctly parse a simple logical disjunction', function () {
-            const result = parseExpression('a==1 && 3*2==6 || b+3==1 && 4==5');
+            const result = parseExpression('a==1&&3*2==6||b+3==1&&4==5');
             const expected = makeCall(
                 Builtin.Or,
                 [
-                    parseExpression('a==1 && 3*2==6'),
-                    parseExpression('b+3==1 && 4==5'),
+                    parseExpression('a==1&&3*2==6'),
+                    parseExpression('b+3==1&&4==5'),
                 ],
             );
+            assert.deepStrictEqual(result, expected);
+        });
+        it('should be space insensitive when parsing logical disjunctions', function () {
+            const result = parseExpression('a==1&&3*2==6||b+3==1&&4==5');
+            const expected = parseExpression('a==1&&3*2==6 \n \t || \n \tb+3==1 && 4==5');
             assert.deepStrictEqual(result, expected);
         });
         it('should correctly parse a longer logical disjunction', function () {

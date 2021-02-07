@@ -19,7 +19,7 @@ ${indent(1)}return function (y) {
 ${indent(2)}if (!Array.isArray(x) && !Array.isArray(y)) {
 ${indent(3)}return x === y;
 ${indent(2)}} else if (Array.isArray(x) && Array.isArray(y)) {
-${indent(3)}return x.length == y.length ? x.every((el, idx) => el === y[idx]) : false;
+${indent(3)}return x.length == y.length ? x.every((el, idx) => eq(el, y[idx])) : false;
 ${indent(2)}} else {
 ${indent(3)}return false;
 ${indent(2)}}

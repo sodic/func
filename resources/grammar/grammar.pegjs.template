@@ -69,7 +69,7 @@ PipeOperator =
 
 // todo find a way to do a < b < c with intuitive semantics
 Disjunction =
-    head:Conjunction tail:(Space DisjunctionOperator Space Conjunction)* {
+    head:Conjunction tail:(_m_ DisjunctionOperator _m_ Conjunction)* {
         return buildBinaryExpressionChain(head, tail);
     }
 
@@ -79,7 +79,7 @@ DisjunctionOperator =
     }
 
 Conjunction =
-    head:BitwiseOr tail:(Space ConjunctionOperator Space BitwiseOr)* {
+    head:BitwiseOr tail:(_m_ ConjunctionOperator _m_ BitwiseOr)* {
         return buildBinaryExpressionChain(head, tail);
     }
 

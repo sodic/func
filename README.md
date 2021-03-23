@@ -3,3 +3,5 @@ A compiler for Func, a high-level, general-purpose, statically typed, garbage co
 purely functional programming language with type inference.
 
 The language is mostly based on ML, Haskell, and JavaScript.
+
+Demo and tutorial available on https://sodic.github.io/diplomski.

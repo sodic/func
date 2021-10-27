@@ -4,4 +4,4 @@ purely functional programming language with type inference.
 
 The language is mostly based on ML, Haskell, and JavaScript.
 
-Demo and tutorial available on https://sodic.github.io/diplomski.
+Demo and tutorial available on https://sodic.github.io/func.
